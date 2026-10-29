@@ -1,0 +1,61 @@
+:root {
+  color-scheme: dark;
+
+  --bg: #0c0d0a;
+  --bg-elevated: #11120e;
+  --surface: #141610;
+  --surface-2: #181a14;
+  --surface-3: #1e2119;
+  --surface-4: #252920;
+  --canvas-bg: #1a1c17;
+
+  --line: rgba(238, 236, 227, 0.085);
+  --line-strong: rgba(238, 236, 227, 0.15);
+  --line-faint: rgba(238, 236, 227, 0.045);
+
+  --text: #f0eee5;
+  --text-2: #b7b9ad;
+  --text-3: #7e8276;
+  --text-4: #595d53;
+
+  --accent: #d7f36b;
+  --accent-bright: #e4ff7e;
+  --accent-dim: #9eb544;
+  --accent-soft: rgba(215, 243, 107, 0.12);
+  --accent-ink: #1a1e0e;
+
+  --cool: #86b5df;
+  --cool-soft: rgba(134, 181, 223, 0.12);
+  --warm: #edbd7e;
+  --warm-soft: rgba(237, 189, 126, 0.12);
+  --danger: #ef8779;
+  --danger-soft: rgba(239, 135, 121, 0.12);
+  --success: #a7d8a5;
+
+  --shadow-low: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --shadow-mid: 0 12px 32px rgba(0, 0, 0, 0.34);
+  --shadow-high: 0 28px 80px rgba(0, 0, 0, 0.48);
+
+  --font-ui: "Space Grotesk Variable", "Segoe UI", "Microsoft YaHei", "PingFang SC",
+    "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono Variable", "Cascadia Code", "Consolas", "Microsoft YaHei",
+    monospace;
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  --rail-width: 66px;
+  --right-panel-width: 374px;
+  --titlebar-height: 43px;
+  --statusbar-height: 28px;
+  --canvas-header-height: 46px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --checker: linear-gradient(45deg, #2b2e27 25%, transparent 25%),
+    linear-gradient(-45deg, #2b2e27 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2b2e27 75%),
+    linear-gradient(-45deg, transparent 75%, #2b2e27 75%);
+}

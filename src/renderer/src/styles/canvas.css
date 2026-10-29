@@ -1,0 +1,195 @@
+.canvas-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  outline: none;
+  touch-action: none;
+  background-color: #191b16;
+  background-image:
+    radial-gradient(circle at 50% 42%, rgba(235, 243, 216, 0.035), transparent 48%),
+    radial-gradient(circle, rgba(238, 236, 227, 0.05) 1px, transparent 1.2px);
+  background-size: auto, 18px 18px;
+  background-position: center, center;
+}
+
+.canvas-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.12), transparent 18%, transparent 80%, rgba(0, 0, 0, 0.28)),
+    radial-gradient(ellipse at center, transparent 45%, rgba(3, 4, 2, 0.24) 100%);
+  pointer-events: none;
+}
+
+.canvas-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  box-shadow: inset 0 0 0 0 var(--accent);
+  transition: box-shadow 160ms ease;
+  pointer-events: none;
+}
+
+.canvas-stage.is-color-drop::after {
+  box-shadow: inset 0 0 0 1px rgba(215, 243, 107, 0.6);
+}
+
+.pixel-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.canvas-stage__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0.16;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.canvas-hints {
+  position: absolute;
+  left: 15px;
+  bottom: 13px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.canvas-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 7px;
+  border: 1px solid rgba(238, 236, 227, 0.08);
+  border-radius: 3px;
+  background: rgba(13, 14, 11, 0.68);
+  backdrop-filter: blur(8px);
+  color: var(--text-4);
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.canvas-hint__key {
+  color: var(--text-3);
+  font-size: 7.5px;
+  letter-spacing: 0.04em;
+}
+
+.canvas-hint--accent {
+  color: var(--text-3);
+  margin-left: 2px;
+}
+
+.canvas-hint__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(215, 243, 107, 0.55);
+}
+
+.canvas-empty {
+  position: absolute;
+  left: 50%;
+  bottom: 62px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(238, 236, 227, 0.09);
+  border-radius: 7px;
+  background: rgba(18, 20, 15, 0.82);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-mid);
+  pointer-events: none;
+}
+
+.canvas-empty__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 7px);
+  grid-template-rows: repeat(3, 7px);
+  gap: 1px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  background: #11130e;
+}
+
+.canvas-empty__grid span {
+  background: #22261d;
+}
+
+.canvas-empty__grid span:nth-child(2),
+.canvas-empty__grid span:nth-child(6) {
+  background: #4e5940;
+}
+
+.canvas-empty__grid span:nth-child(9) {
+  background: var(--accent);
+  box-shadow: 0 0 5px rgba(215, 243, 107, 0.35);
+}
+
+.canvas-empty__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--text-3);
+  font-size: 10px;
+}
+
+.canvas-empty__copy .eyebrow {
+  font-size: 7.5px;
+  color: var(--text-4);
+}
+
+.canvas-drop-label {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(215, 243, 107, 0.42);
+  border-radius: 5px;
+  background: #1b2014;
+  color: var(--text);
+  font-size: 11px;
+  box-shadow: var(--shadow-mid);
+  pointer-events: none;
+}
+
+.canvas-drop-label .mono {
+  color: var(--accent-dim);
+  font-size: 7.5px;
+  letter-spacing: 0.08em;
+}
+
+/* Hide tips when the available stage is very short. */
+@media (max-height: 680px) {
+  .canvas-empty {
+    display: none;
+  }
+  .canvas-hints {
+    display: none;
+  }
+}

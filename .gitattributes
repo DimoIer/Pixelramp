@@ -1,0 +1,16 @@
+# Normalize text files in the repository.
+* text=auto eol=lf
+
+# Windows entry points should keep CRLF when checked out on Windows.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff2 binary
+*.zip binary

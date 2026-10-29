@@ -1,0 +1,12 @@
+node_modules/
+out/
+dist-web/
+release/
+.build-temp/
+screenshots/
+fixtures/
+test-userdata/
+*.log
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
