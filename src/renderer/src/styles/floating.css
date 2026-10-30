@@ -153,6 +153,31 @@
   animation: dock-hint-in 120ms ease both;
 }
 
+.dock-slot {
+  position: relative;
+  z-index: 20;
+  flex: none;
+  align-self: stretch;
+  overflow: hidden;
+}
+
+.dock-slot .dock-placeholder {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  z-index: auto;
+  pointer-events: none;
+}
+
+.dock-slot--left {
+  border-right: 1px solid var(--line-strong);
+}
+
+.dock-slot--right {
+  border-left: 1px solid var(--line-strong);
+}
+
 .dock-placeholder--toolbar {
   left: 0;
   border-radius: 0 8px 8px 0;

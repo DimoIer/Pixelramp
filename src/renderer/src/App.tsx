@@ -137,6 +137,14 @@ export default function App() {
               aria-hidden
             />
           ) : null}
+          {dockHint === 'toolbar' ? (
+            <div className="dock-slot dock-slot--left" style={{ width: railWidth }}>
+              <div className="dock-placeholder dock-placeholder--toolbar" aria-hidden>
+                <span className="dock-placeholder__title">{t('工具栏')}</span>
+                <span className="dock-placeholder__hint">{t('松开以停靠')}</span>
+              </div>
+            </div>
+          ) : null}
           <main className="workspace">
             <CanvasHeader
               paletteOpen={paletteOpen}
@@ -169,6 +177,14 @@ export default function App() {
                 setFloatPalette(true)
               }}
             />
+          ) : null}
+          {dockHint === 'palette' ? (
+            <div className="dock-slot dock-slot--right" style={{ width: paletteWidth }}>
+              <div className="dock-placeholder dock-placeholder--palette" aria-hidden>
+                <span className="dock-placeholder__title">{t('调色卡工作台')}</span>
+                <span className="dock-placeholder__hint">{t('松开以停靠')}</span>
+              </div>
+            </div>
           ) : null}
         </div>
         {!toolbarOpen ? (
@@ -277,22 +293,6 @@ export default function App() {
               onClose={() => setPaletteOpen(false)}
             />
           </FloatingPanel>
-        ) : null}
-        {dockHint ? (
-          <div
-            className={`dock-placeholder dock-placeholder--${dockHint}`}
-            style={
-              dockHint === 'toolbar'
-                ? { width: railWidth }
-                : { width: paletteWidth }
-            }
-            aria-hidden
-          >
-            <span className="dock-placeholder__title">
-              {dockHint === 'toolbar' ? t('工具栏') : t('调色卡工作台')}
-            </span>
-            <span className="dock-placeholder__hint">{t('松开以停靠')}</span>
-          </div>
         ) : null}
         <StatusBar />
         <DialogMount />

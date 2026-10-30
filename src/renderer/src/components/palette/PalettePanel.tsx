@@ -26,6 +26,8 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   const [activeCollapsed, setActiveCollapsed] = useState(false)
   const [generatorFloating, setGeneratorFloating] = useState(false)
   const [activeFloating, setActiveFloating] = useState(false)
+  const [generatorDockHeight, setGeneratorDockHeight] = useState(220)
+  const [activeDockHeight, setActiveDockHeight] = useState(220)
   const [generatorSpawn, setGeneratorSpawn] = useState<{ x: number; y: number } | null>(null)
   const [activeSpawn, setActiveSpawn] = useState<{ x: number; y: number } | null>(null)
   const [sectionDockHint, setSectionDockHint] = useState<'generator' | 'active' | null>(null)
@@ -44,6 +46,18 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   const overPalette = (x: number, y: number): boolean => {
     const rect = paletteRef.current?.getBoundingClientRect()
     return !!rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+  }
+
+  const floatGenerator = (): void => {
+    const element = paletteRef.current?.querySelector('[data-section="generator"]')
+    if (element) setGeneratorDockHeight(element.getBoundingClientRect().height)
+    setGeneratorFloating(true)
+  }
+
+  const floatActive = (): void => {
+    const element = paletteRef.current?.querySelector('[data-section="active"]')
+    if (element) setActiveDockHeight(element.getBoundingClientRect().height)
+    setActiveFloating(true)
   }
 
   const startSectionPress = (
@@ -99,9 +113,11 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
     }
     if (!overPalette(event.clientX, event.clientY)) {
       if (current.section === 'generator') {
+        setGeneratorDockHeight(current.source.getBoundingClientRect().height)
         setGeneratorSpawn({ x: event.clientX - 40, y: event.clientY - 20 })
         setGeneratorFloating(true)
       } else {
+        setActiveDockHeight(current.source.getBoundingClientRect().height)
         setActiveSpawn({ x: event.clientX - 40, y: event.clientY - 20 })
         setActiveFloating(true)
       }
@@ -110,7 +126,10 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
 
 
   const sectionDockPlaceholder = (section: 'generator' | 'active') => (
-    <div className="section-dock-placeholder">
+    <div
+      className="section-dock-placeholder"
+      style={{ height: section === 'generator' ? generatorDockHeight : activeDockHeight }}
+    >
       <span className="section-dock-placeholder__title">
         {section === 'generator' ? t('色阶生成器') : t('当前调色卡')}
       </span>
@@ -180,7 +199,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                 <GeneratorPanel
                   collapsed={generatorCollapsed}
                   onCollapse={() => setGeneratorCollapsed((value) => !value)}
-                  onFloat={() => setGeneratorFloating(true)}
+                  onFloat={floatGenerator}
                 />
               </div>
             )}
@@ -198,7 +217,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                 <ActivePalettePanel
                   collapsed={activeCollapsed}
                   onCollapse={() => setActiveCollapsed((value) => !value)}
-                  onFloat={() => setActiveFloating(true)}
+                  onFloat={floatActive}
                 />
               </div>
             )}
@@ -219,7 +238,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                 <ActivePalettePanel
                   collapsed={activeCollapsed}
                   onCollapse={() => setActiveCollapsed((value) => !value)}
-                  onFloat={() => setActiveFloating(true)}
+                  onFloat={floatActive}
                 />
               </div>
             )}
@@ -237,7 +256,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                 <GeneratorPanel
                   collapsed={generatorCollapsed}
                   onCollapse={() => setGeneratorCollapsed((value) => !value)}
-                  onFloat={() => setGeneratorFloating(true)}
+                  onFloat={floatGenerator}
                 />
               </div>
             )}
