@@ -77,7 +77,7 @@ npm run package:tauri
 npm run bundle:tauri
 ```
 
-`npm run build:tauri` builds the frontend and produces an executable at `src-tauri/target/release/pixelramp.exe`. `npm run package:tauri` copies that executable into `release/PixelRamp-0.2.4/` and creates `release/PixelRamp-0.2.4-win-x64.zip`. `npm run bundle:tauri` produces the NSIS installer under `src-tauri/target/release/bundle/nsis/`. `scripts/build-web.mjs` keeps esbuild's temporary files inside the project to work around a delete lock in the Windows build environment.
+`npm run build:tauri` builds the frontend and produces an executable at `src-tauri/target/release/pixelramp.exe`. `npm run package:tauri` copies that executable into `release/PixelRamp-0.2.5/` and creates `release/PixelRamp-0.2.5-win-x64.zip`. `npm run bundle:tauri` produces the NSIS installer under `src-tauri/target/release/bundle/nsis/`. `scripts/build-web.mjs` keeps esbuild's temporary files inside the project to work around a delete lock in the Windows build environment.
 
 The Tauri project lives in `src-tauri/`.
 
@@ -85,8 +85,8 @@ The Tauri project lives in `src-tauri/`.
 
 Two Windows packages are produced:
 
-- `PixelRamp-0.2.4-win-x64.zip` — portable, self-contained data folder.
-- `PixelRamp-0.2.4-setup.exe` — standard per-user NSIS installer.
+- `PixelRamp-0.2.5-win-x64.zip` — portable, self-contained data folder.
+- `PixelRamp-0.2.5-setup.exe` — standard per-user NSIS installer.
 
 For the portable ZIP:
 
@@ -199,7 +199,7 @@ npm run package:tauri
 npm run bundle:tauri
 ```
 
-`npm run build:tauri` 会构建前端并生成 `src-tauri/target/release/pixelramp.exe`。`npm run package:tauri` 会把可执行文件复制到 `release/PixelRamp-0.2.4/`，并生成 `release/PixelRamp-0.2.4-win-x64.zip`。`npm run bundle:tauri` 会在 `src-tauri/target/release/bundle/nsis/` 下生成 NSIS 安装包。`scripts/build-web.mjs` 会把 esbuild 临时目录放进项目内，以绕开当前 Windows 环境的临时文件删除锁。
+`npm run build:tauri` 会构建前端并生成 `src-tauri/target/release/pixelramp.exe`。`npm run package:tauri` 会把可执行文件复制到 `release/PixelRamp-0.2.5/`，并生成 `release/PixelRamp-0.2.5-win-x64.zip`。`npm run bundle:tauri` 会在 `src-tauri/target/release/bundle/nsis/` 下生成 NSIS 安装包。`scripts/build-web.mjs` 会把 esbuild 临时目录放进项目内，以绕开当前 Windows 环境的临时文件删除锁。
 
 Tauri 工程位于 `src-tauri/`。
 
@@ -207,8 +207,8 @@ Tauri 工程位于 `src-tauri/`。
 
 会生成两个 Windows 包：
 
-- `PixelRamp-0.2.4-win-x64.zip` — 便携版，数据保存在程序目录。
-- `PixelRamp-0.2.4-setup.exe` — 标准当前用户 NSIS 安装包。
+- `PixelRamp-0.2.5-win-x64.zip` — 便携版，数据保存在程序目录。
+- `PixelRamp-0.2.5-setup.exe` — 标准当前用户 NSIS 安装包。
 
 便携 ZIP 的使用方式：
 

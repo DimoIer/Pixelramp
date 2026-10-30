@@ -637,7 +637,8 @@ export function PixelCanvas() {
 
   useEffect(() => {
     const onRightButton = (event: MouseEvent): void => {
-      if (event.button !== 2 || !gestureRef.current) return
+      const gesture = gestureRef.current
+      if (event.button !== 2 || !gesture || gesture.kind === 'pan') return
       event.preventDefault()
       event.stopPropagation()
       cancelGestureRef.current()
@@ -648,7 +649,7 @@ export function PixelCanvas() {
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (event.button !== 0 && event.button !== 1 && event.button !== 2) return
-    if (event.button === 2 && gestureRef.current) {
+    if (event.button === 2 && gestureRef.current && gestureRef.current.kind !== 'pan') {
       event.preventDefault()
       cancelGesture()
       return
@@ -791,7 +792,11 @@ export function PixelCanvas() {
   }
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>): void => {
-    if (gestureRef.current && (event.buttons & 2) !== 0) {
+    if (
+      gestureRef.current &&
+      gestureRef.current.kind !== 'pan' &&
+      (event.buttons & 2) !== 0
+    ) {
       cancelGesture()
       return
     }

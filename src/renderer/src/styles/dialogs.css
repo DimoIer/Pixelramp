@@ -216,7 +216,7 @@
   padding-bottom: 5px;
   border: 1px solid var(--line);
   border-radius: 3px;
-  background: #0e100b;
+  background: var(--surface-2);
 }
 
 .custom-size__preview span {
