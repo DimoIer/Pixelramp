@@ -33,6 +33,26 @@ describe('OKLCh ramp generation', () => {
     expect(high).toBeCloseTo(baseL + 0.35, 2)
   })
 
+  it('moves shadow and highlight hue for a muted colored base', () => {
+    const base = rgba(122, 139, 111)
+    const flat = generateRamp({
+      ...defaultRampParams(base, 5),
+      hueShift: { shadows: 0, highlights: 0 }
+    })
+    const tinted = generateRamp({
+      ...defaultRampParams(base, 5),
+      hueShift: { shadows: -26, highlights: 14 }
+    })
+    const shadowA = rgbaToOklch(flat.colors[0].rgba)
+    const shadowB = rgbaToOklch(tinted.colors[0].rgba)
+    const highlightA = rgbaToOklch(flat.colors[4].rgba)
+    const highlightB = rgbaToOklch(tinted.colors[4].rgba)
+    const hueDelta = (a: number, b: number): number =>
+      Math.min(Math.abs(a - b), 360 - Math.abs(a - b))
+    expect(hueDelta(shadowA.h, shadowB.h)).toBeGreaterThan(3)
+    expect(hueDelta(highlightA.h, highlightB.h)).toBeGreaterThan(3)
+  })
+
   it('increases the cool tint as the shadow slider is increased', () => {
     const quiet = generateRamp({
       ...defaultRampParams(grey, 5),

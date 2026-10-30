@@ -140,6 +140,8 @@ export function generateRamp(input: RampParams): RampResult {
   )
   const shadowStrength = Math.abs(params.hueShift.shadows) / 15
   const highlightStrength = Math.abs(params.hueShift.highlights) / 15
+  const shadowAmount = clamp01(Math.abs(params.hueShift.shadows) / 40)
+  const highlightAmount = clamp01(Math.abs(params.hueShift.highlights) / 40)
 
   const colors: RampColor[] = values.map((lightness, index) => {
     const darker = lightness < baseL
@@ -148,32 +150,25 @@ export function generateRamp(input: RampParams): RampResult {
     const t = influence
     const neutralFactor = clamp01((0.055 - baseC) / 0.055)
 
-    let hue = baseLch.h
-    if (darker) {
-      const targetHue = COOL_TINT_HUE
-      const literal = baseLch.h + params.hueShift.shadows * t
-      const blend = isNeutral ? 1 : neutralFactor * 0.85
-      hue = blend > 0 ? mixHueAngles(baseLch.h, targetHue, blend) : literal
-    } else {
-      const targetHue = WARM_TINT_HUE
-      const literal = baseLch.h + params.hueShift.highlights * t
-      const blend = isNeutral ? 1 : neutralFactor * 0.7
-      hue = blend > 0 ? mixHueAngles(baseLch.h, targetHue, blend) : literal
-    }
-    hue = ((hue % 360) + 360) % 360
+    const targetHue = darker ? COOL_TINT_HUE : WARM_TINT_HUE
+    const shiftAmount = darker ? shadowAmount : highlightAmount
+    const neutralWeight = 0.55 + 0.35 * neutralFactor
+    const hue = isNeutral
+      ? targetHue
+      : mixHueAngles(baseLch.h, targetHue, shiftAmount * t * neutralWeight)
 
     let chroma: number
     if (darker) {
       chroma = baseC * (1 + 0.16 * t)
       const coolTint = 0.047 * t * (0.55 + 0.45 * shadowStrength)
-      if (neutralFactor > 0.25) chroma = Math.max(chroma, coolTint * neutralFactor)
-      if (baseC < 0.018) chroma = Math.max(chroma, coolTint)
+      if (isNeutral) chroma = Math.max(chroma, coolTint * shiftAmount)
+      else if (neutralFactor > 0.25) chroma = Math.max(chroma, coolTint * neutralFactor)
     } else {
       const taper = params.chromaTaper ? 1 - 0.54 * t : 1
       chroma = baseC * taper
       const warmTint = 0.03 * t * (0.55 + 0.45 * highlightStrength)
-      if (neutralFactor > 0.25) chroma = Math.max(chroma, warmTint * neutralFactor)
-      if (baseC < 0.018) chroma = Math.max(chroma, warmTint)
+      if (isNeutral) chroma = Math.max(chroma, warmTint * shiftAmount)
+      else if (neutralFactor > 0.25) chroma = Math.max(chroma, warmTint * neutralFactor)
     }
 
     chroma = clamp(chroma, 0, 0.37)
@@ -248,20 +243,24 @@ function generateHslRamp(
     Math.abs(values[values.length - 1] - baseLch.L)
   )
   const neutral = baseHsl.s < 0.06
+  const shadowAmount = clamp01(Math.abs(params.hueShift.shadows) / 40)
+  const highlightAmount = clamp01(Math.abs(params.hueShift.highlights) / 40)
   const colors: RampColor[] = values.map((lightness, index) => {
     const darker = lightness < baseLch.L
     const influence = clamp01(Math.abs(lightness - baseLch.L) / maxDistance)
-    const hue = neutral
-      ? darker
-        ? COOL_TINT_HUE
-        : WARM_TINT_HUE
-      : (((baseHsl.h + (darker ? params.hueShift.shadows : params.hueShift.highlights) * influence) % 360) +
-          360) %
-        360
+    const shiftAmount = darker ? shadowAmount : highlightAmount
+    const targetHue = darker ? COOL_TINT_HUE : WARM_TINT_HUE
+    const hue = mixHueAngles(
+      baseHsl.h,
+      targetHue,
+      shiftAmount * influence * (neutral ? 0.9 : 0.6)
+    )
     let saturation = baseHsl.s
     if (darker) saturation = saturation * (1 + 0.08 * influence)
     else if (params.chromaTaper) saturation *= 1 - 0.42 * influence
-    if (neutral) saturation = Math.max(saturation, (darker ? 0.22 : 0.13) * influence)
+    if (neutral) {
+      saturation = Math.max(saturation, (darker ? 0.22 : 0.13) * influence * shiftAmount)
+    }
     const converted = hslToRgba({ h: hue, s: clamp01(saturation), l: lightness }, alpha)
     return {
       rgba: converted,
