@@ -27,6 +27,9 @@ interface FloatingPanelProps {
   children: ReactNode
   onDock: () => void
   shouldDock?: (rect: Rect, clientX: number, clientY: number) => boolean
+  onDragStart?: () => void
+  onDragMove?: (clientX: number, clientY: number) => void
+  onDragEnd?: () => void
   className?: string
   actions?: ReactNode
 }
@@ -78,6 +81,9 @@ export function FloatingPanel({
   children,
   onDock,
   shouldDock,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
   className,
   actions
 }: FloatingPanelProps) {
@@ -115,11 +121,13 @@ export function FloatingPanel({
       start: rect
     }
     event.currentTarget.setPointerCapture(event.pointerId)
+    onDragStart?.()
   }
 
   const moveDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
     const current = drag.current
     if (!current) return
+    onDragMove?.(event.clientX, event.clientY)
     setRect(
       clampRect(
         {
@@ -139,6 +147,7 @@ export function FloatingPanel({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
+    onDragEnd?.()
     if (shouldDock?.(rect, event.clientX, event.clientY)) {
       onDock()
       return

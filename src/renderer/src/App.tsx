@@ -28,6 +28,7 @@ export default function App() {
   const [railWidth, setRailWidth] = useState(66)
   const [paletteWidth, setPaletteWidth] = useState(374)
   const [toolbarSpawn, setToolbarSpawn] = useState<{ x: number; y: number } | null>(null)
+  const [dockHint, setDockHint] = useState<'toolbar' | 'palette' | null>(null)
   const [columnDrag, setColumnDrag] = useState<{
     side: 'rail' | 'palette'
     startX: number
@@ -206,6 +207,9 @@ export default function App() {
               setToolbarSpawn(null)
             }}
             shouldDock={(_rect, clientX) => clientX < 100}
+            onDragStart={() => setDockHint(null)}
+            onDragMove={(clientX) => setDockHint(clientX < 115 ? 'toolbar' : null)}
+            onDragEnd={() => setDockHint(null)}
             actions={
               <>
                 <button
@@ -260,6 +264,11 @@ export default function App() {
               setPaletteOpen(true)
             }}
             shouldDock={(_rect, clientX) => clientX > window.innerWidth - 440}
+            onDragStart={() => setDockHint(null)}
+            onDragMove={(clientX) =>
+              setDockHint(clientX > window.innerWidth - 460 ? 'palette' : null)
+            }
+            onDragEnd={() => setDockHint(null)}
           >
             <PalettePanel
               open
@@ -268,6 +277,22 @@ export default function App() {
               onClose={() => setPaletteOpen(false)}
             />
           </FloatingPanel>
+        ) : null}
+        {dockHint ? (
+          <div
+            className={`dock-placeholder dock-placeholder--${dockHint}`}
+            style={
+              dockHint === 'toolbar'
+                ? { width: railWidth }
+                : { width: paletteWidth }
+            }
+            aria-hidden
+          >
+            <span className="dock-placeholder__title">
+              {dockHint === 'toolbar' ? t('工具栏') : t('调色卡工作台')}
+            </span>
+            <span className="dock-placeholder__hint">{t('松开以停靠')}</span>
+          </div>
         ) : null}
         <StatusBar />
         <DialogMount />

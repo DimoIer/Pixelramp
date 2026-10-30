@@ -243,6 +243,8 @@ const EN: Record<string, string> = {
   '更多生成器操作': 'More generator actions',
   '长按拖出悬浮工具栏': 'Hold to float toolbar',
   '拖动以悬浮工具栏': 'Drag to float toolbar',
+  '松开以停靠': 'Release to dock',
+  '释放以停靠': 'Release to dock',
   '新建调色卡': 'New palette',
   '复制为新调色卡': 'Duplicate palette',
   '导出调色卡…': 'Export palette…',

@@ -28,6 +28,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   const [activeFloating, setActiveFloating] = useState(false)
   const [generatorSpawn, setGeneratorSpawn] = useState<{ x: number; y: number } | null>(null)
   const [activeSpawn, setActiveSpawn] = useState<{ x: number; y: number } | null>(null)
+  const [sectionDockHint, setSectionDockHint] = useState<'generator' | 'active' | null>(null)
   const [sectionOrder, setSectionOrder] = useState<'generator' | 'active'>('generator')
   const paletteRef = useRef<HTMLElement>(null)
   const sectionDrag = useRef<{
@@ -108,9 +109,18 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   }
 
 
+  const sectionDockPlaceholder = (section: 'generator' | 'active') => (
+    <div className="section-dock-placeholder">
+      <span className="section-dock-placeholder__title">
+        {section === 'generator' ? t('色阶生成器') : t('当前调色卡')}
+      </span>
+      <span className="section-dock-placeholder__hint">{t('松开以停靠')}</span>
+    </div>
+  )
+
   return (
     <>
-    <aside ref={paletteRef} className={clsx('palette-panel', !open && 'is-collapsed')} aria-label={t('调色卡工作区')}>
+    <aside ref={paletteRef} className={clsx('palette-panel', !open && 'is-collapsed', sectionDockHint && 'is-dock-target')} aria-label={t('调色卡工作区')}>
       <header className="palette-panel__header">
         <div className="palette-panel__brand">
           <span className="palette-panel__spine" aria-hidden>
@@ -156,7 +166,9 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
       <div className="palette-panel__scroll">
         {sectionOrder === 'generator' ? (
           <>
-            {!generatorFloating ? (
+            {generatorFloating ? (
+              sectionDockHint === 'generator' ? sectionDockPlaceholder('generator') : null
+            ) : (
               <div
                 className="palette-section"
                 data-section="generator"
@@ -171,8 +183,10 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                   onFloat={() => setGeneratorFloating(true)}
                 />
               </div>
-            ) : null}
-            {!activeFloating ? (
+            )}
+            {activeFloating ? (
+              sectionDockHint === 'active' ? sectionDockPlaceholder('active') : null
+            ) : (
               <div
                 className="palette-section"
                 data-section="active"
@@ -187,11 +201,13 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                   onFloat={() => setActiveFloating(true)}
                 />
               </div>
-            ) : null}
+            )}
           </>
         ) : (
           <>
-            {!activeFloating ? (
+            {activeFloating ? (
+              sectionDockHint === 'active' ? sectionDockPlaceholder('active') : null
+            ) : (
               <div
                 className="palette-section"
                 data-section="active"
@@ -206,8 +222,10 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                   onFloat={() => setActiveFloating(true)}
                 />
               </div>
-            ) : null}
-            {!generatorFloating ? (
+            )}
+            {generatorFloating ? (
+              sectionDockHint === 'generator' ? sectionDockPlaceholder('generator') : null
+            ) : (
               <div
                 className="palette-section"
                 data-section="generator"
@@ -222,7 +240,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                   onFloat={() => setGeneratorFloating(true)}
                 />
               </div>
-            ) : null}
+            )}
           </>
         )}
       </div>
@@ -242,8 +260,14 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
         onDock={() => {
           setGeneratorFloating(false)
           setGeneratorSpawn(null)
+          setSectionDockHint(null)
         }}
         shouldDock={(_rect, clientX, clientY) => overPalette(clientX, clientY)}
+        onDragStart={() => setSectionDockHint(null)}
+        onDragMove={(clientX, clientY) =>
+          setSectionDockHint(overPalette(clientX, clientY) ? 'generator' : null)
+        }
+        onDragEnd={() => setSectionDockHint(null)}
         actions={
           <button
             type="button"
@@ -281,8 +305,14 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
         onDock={() => {
           setActiveFloating(false)
           setActiveSpawn(null)
+          setSectionDockHint(null)
         }}
         shouldDock={(_rect, clientX, clientY) => overPalette(clientX, clientY)}
+        onDragStart={() => setSectionDockHint(null)}
+        onDragMove={(clientX, clientY) =>
+          setSectionDockHint(overPalette(clientX, clientY) ? 'active' : null)
+        }
+        onDragEnd={() => setSectionDockHint(null)}
         actions={
           <button
             type="button"
