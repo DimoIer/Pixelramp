@@ -114,6 +114,36 @@
   padding: 12px;
 }
 
+.panel-drag-clone {
+  position: fixed;
+  z-index: 950;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-high);
+  opacity: 0.92;
+  pointer-events: none;
+  transform: rotate(0.5deg) scale(0.985);
+  animation: drag-lift 120ms ease both;
+}
+
+.panel-drag-source {
+  opacity: 0.28;
+}
+
+@keyframes drag-lift {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 0.92;
+    transform: rotate(0.5deg) scale(0.985);
+  }
+}
+
 .floating-panel__resize {
   position: absolute;
   right: 0;

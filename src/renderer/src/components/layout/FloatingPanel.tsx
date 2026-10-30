@@ -23,6 +23,7 @@ interface FloatingPanelProps {
   initial: Rect
   minWidth: number
   minHeight: number
+  initialOnly?: boolean
   children: ReactNode
   onDock: () => void
   shouldDock?: (rect: Rect, clientX: number, clientY: number) => boolean
@@ -73,6 +74,7 @@ export function FloatingPanel({
   initial,
   minWidth,
   minHeight,
+  initialOnly = false,
   children,
   onDock,
   shouldDock,
@@ -80,7 +82,9 @@ export function FloatingPanel({
   actions
 }: FloatingPanelProps) {
   const t = useT()
-  const [rect, setRect] = useState<Rect>(() => clampRect(readRect(id, initial), minWidth, minHeight))
+  const [rect, setRect] = useState<Rect>(() =>
+    clampRect(initialOnly ? initial : readRect(id, initial), minWidth, minHeight)
+  )
   const drag = useRef<{ pointerId: number; startX: number; startY: number; start: Rect } | null>(null)
   const resize = useRef<{ pointerId: number; startX: number; startY: number; start: Rect } | null>(null)
 

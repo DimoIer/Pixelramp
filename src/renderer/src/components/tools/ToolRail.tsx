@@ -1,5 +1,5 @@
 import { ArrowLeftRight, CircleHelp, GripHorizontal, PanelLeftClose, PictureInPicture2, Redo2, Undo2 } from 'lucide-react'
-import { useRef } from 'react'
+import { useRef, type PointerEvent as ReactPointerEvent } from 'react'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useWorkbench } from '../../store/workbench'
@@ -7,6 +7,7 @@ import { useUi } from '../../store/ui'
 import { Tooltip } from '../ui/Tooltip'
 import { ColorSwatch } from '../ui/ColorSwatch'
 import { ColorPickerPopover } from '../ui/ColorPickerPopover'
+import { createDragGhost, type DragGhost } from '../layout/dragGhost'
 import { TOOLS } from './tools'
 import { useT } from '../../i18n'
 
@@ -14,7 +15,7 @@ interface ToolRailProps {
   floating?: boolean
   horizontal?: boolean
   onCollapse?: () => void
-  onFloat?: () => void
+  onFloat?: (point?: { x: number; y: number }) => void
   onToggleOrientation?: () => void
 }
 
@@ -55,21 +56,50 @@ export function ToolRail({
     }))
   )
   const openDialog = useUi((state) => state.openDialog)
-  const longPress = useRef<number | null>(null)
+  const drag = useRef<{
+    pointerId: number
+    startX: number
+    startY: number
+    source: HTMLElement
+    ghost: DragGhost | null
+  } | null>(null)
 
-  const startLongPress = (): void => {
+  const startDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (!onFloat) return
-    if (longPress.current !== null) window.clearTimeout(longPress.current)
-    longPress.current = window.setTimeout(() => {
-      longPress.current = null
-      onFloat()
-    }, 480)
+    event.preventDefault()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    drag.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      source: event.currentTarget.closest('.tool-rail') as HTMLElement,
+      ghost: null
+    }
   }
 
-  const cancelLongPress = (): void => {
-    if (longPress.current !== null) {
-      window.clearTimeout(longPress.current)
-      longPress.current = null
+  const moveDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const current = drag.current
+    if (!current) return
+    if (!current.ghost) {
+      if (Math.hypot(event.clientX - current.startX, event.clientY - current.startY) < 6) return
+      current.ghost = createDragGhost(current.source, event.clientX, event.clientY)
+      current.source.classList.add('panel-drag-source')
+    }
+    current.ghost.move(event.clientX, event.clientY)
+  }
+
+  const endDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const current = drag.current
+    drag.current = null
+    if (!current) return
+    if (event.currentTarget.hasPointerCapture(current.pointerId)) {
+      event.currentTarget.releasePointerCapture(current.pointerId)
+    }
+    if (!current.ghost) return
+    current.ghost.remove()
+    current.source.classList.remove('panel-drag-source')
+    if (event.clientX > 105) {
+      onFloat?.({ x: event.clientX, y: event.clientY })
     }
   }
 
@@ -82,11 +112,11 @@ export function ToolRail({
         <>
           <div
             className="tool-rail__grip"
-            title={t('长按拖出悬浮工具栏')}
-            onPointerDown={startLongPress}
-            onPointerUp={cancelLongPress}
-            onPointerLeave={cancelLongPress}
-            onPointerCancel={cancelLongPress}
+            title={t('拖动以悬浮工具栏')}
+            onPointerDown={startDrag}
+            onPointerMove={moveDrag}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
           >
             <GripHorizontal size={13} />
           </div>
@@ -104,7 +134,7 @@ export function ToolRail({
                 type="button"
                 className="rail-control"
                 aria-label={t('悬浮工具栏')}
-                onClick={onFloat}
+                onClick={() => onFloat()}
               >
                 <PictureInPicture2 size={14} />
               </button>

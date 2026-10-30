@@ -5,6 +5,7 @@ import { useWorkbench } from '../../store/workbench'
 import { useUi } from '../../store/ui'
 import { Tooltip } from '../ui/Tooltip'
 import { FloatingPanel } from '../layout/FloatingPanel'
+import { createDragGhost, type DragGhost } from '../layout/dragGhost'
 import { GeneratorPanel } from './GeneratorPanel'
 import { ActivePalettePanel } from './ActivePalettePanel'
 import { useT } from '../../i18n'
@@ -25,28 +26,23 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   const [activeCollapsed, setActiveCollapsed] = useState(false)
   const [generatorFloating, setGeneratorFloating] = useState(false)
   const [activeFloating, setActiveFloating] = useState(false)
+  const [generatorSpawn, setGeneratorSpawn] = useState<{ x: number; y: number } | null>(null)
+  const [activeSpawn, setActiveSpawn] = useState<{ x: number; y: number } | null>(null)
   const [sectionOrder, setSectionOrder] = useState<'generator' | 'active'>('generator')
-  const [heldSection, setHeldSection] = useState<'generator' | 'active' | null>(null)
-  const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null)
   const paletteRef = useRef<HTMLElement>(null)
-  const longPress = useRef<{
-    timer: number
-    x: number
-    y: number
+  const sectionDrag = useRef<{
     section: 'generator' | 'active'
+    pointerId: number
+    startX: number
+    startY: number
+    source: HTMLElement
+    ghost: DragGhost | null
+    lastTarget: string | null
   } | null>(null)
-  const pointerId = useRef<number | null>(null)
 
   const overPalette = (x: number, y: number): boolean => {
     const rect = paletteRef.current?.getBoundingClientRect()
     return !!rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
-  }
-
-  const clearLongPress = (): void => {
-    if (longPress.current) {
-      window.clearTimeout(longPress.current.timer)
-      longPress.current = null
-    }
   }
 
   const startSectionPress = (
@@ -55,49 +51,60 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   ): void => {
     const target = event.target as Element
     if (!target.closest('.section-head') || target.closest('button')) return
+    event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
-    pointerId.current = event.pointerId
-    clearLongPress()
-    longPress.current = {
-      timer: window.setTimeout(() => {
-        setHeldSection(section)
-        setDragPoint({ x: event.clientX, y: event.clientY })
-      }, 420),
-      x: event.clientX,
-      y: event.clientY,
-      section
+    sectionDrag.current = {
+      section,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      source: event.currentTarget,
+      ghost: null,
+      lastTarget: null
     }
   }
 
   const moveSectionPress = (event: ReactPointerEvent<HTMLDivElement>): void => {
-    if (!longPress.current && !heldSection) return
-    if (longPress.current && !heldSection) {
-      if (Math.hypot(event.clientX - longPress.current.x, event.clientY - longPress.current.y) > 8) {
-        clearLongPress()
-      }
-      return
+    const current = sectionDrag.current
+    if (!current) return
+    if (!current.ghost) {
+      if (Math.hypot(event.clientX - current.startX, event.clientY - current.startY) < 6) return
+      current.ghost = createDragGhost(current.source, event.clientX, event.clientY)
+      current.source.classList.add('panel-drag-source')
     }
-    setDragPoint({ x: event.clientX, y: event.clientY })
+    current.ghost.move(event.clientX, event.clientY)
   }
 
-  const endSectionPress = (event: ReactPointerEvent<HTMLDivElement>): void => {
-    const held = heldSection
-    clearLongPress()
-    if (pointerId.current !== null && event.currentTarget.hasPointerCapture(pointerId.current)) {
-      event.currentTarget.releasePointerCapture(pointerId.current)
+  const endSectionPress = (
+    event: ReactPointerEvent<HTMLDivElement>,
+    cancelled = false
+  ): void => {
+    const current = sectionDrag.current
+    sectionDrag.current = null
+    if (!current) return
+    if (event.currentTarget.hasPointerCapture(current.pointerId)) {
+      event.currentTarget.releasePointerCapture(current.pointerId)
     }
-    pointerId.current = null
-    if (!held) return
-    const element = document.elementFromPoint(event.clientX, event.clientY)
-    const droppedOn = element?.closest('[data-section]')?.getAttribute('data-section')
-    if (droppedOn && droppedOn !== held) {
-      setSectionOrder(held === 'generator' ? 'active' : 'generator')
-    } else if (!overPalette(event.clientX, event.clientY)) {
-      if (held === 'generator') setGeneratorFloating(true)
-      else setActiveFloating(true)
+    current.ghost?.remove()
+    current.source.classList.remove('panel-drag-source')
+    if (!current.ghost || cancelled) return
+    const droppedOn = document
+      .elementFromPoint(event.clientX, event.clientY)
+      ?.closest('[data-section]')
+      ?.getAttribute('data-section')
+    if (droppedOn && droppedOn !== current.section) {
+      setSectionOrder(current.section === 'generator' ? 'active' : 'generator')
+      return
     }
-    setHeldSection(null)
-    setDragPoint(null)
+    if (!overPalette(event.clientX, event.clientY)) {
+      if (current.section === 'generator') {
+        setGeneratorSpawn({ x: event.clientX - 40, y: event.clientY - 20 })
+        setGeneratorFloating(true)
+      } else {
+        setActiveSpawn({ x: event.clientX - 40, y: event.clientY - 20 })
+        setActiveFloating(true)
+      }
+    }
   }
 
 
@@ -156,7 +163,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                 onPointerDown={(event) => startSectionPress('generator', event)}
                 onPointerMove={moveSectionPress}
                 onPointerUp={endSectionPress}
-                onPointerCancel={endSectionPress}
+                onPointerCancel={(event) => endSectionPress(event, true)}
               >
                 <GeneratorPanel
                   collapsed={generatorCollapsed}
@@ -172,7 +179,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                 onPointerDown={(event) => startSectionPress('active', event)}
                 onPointerMove={moveSectionPress}
                 onPointerUp={endSectionPress}
-                onPointerCancel={endSectionPress}
+                onPointerCancel={(event) => endSectionPress(event, true)}
               >
                 <ActivePalettePanel
                   collapsed={activeCollapsed}
@@ -191,7 +198,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                 onPointerDown={(event) => startSectionPress('active', event)}
                 onPointerMove={moveSectionPress}
                 onPointerUp={endSectionPress}
-                onPointerCancel={endSectionPress}
+                onPointerCancel={(event) => endSectionPress(event, true)}
               >
                 <ActivePalettePanel
                   collapsed={activeCollapsed}
@@ -207,7 +214,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
                 onPointerDown={(event) => startSectionPress('generator', event)}
                 onPointerMove={moveSectionPress}
                 onPointerUp={endSectionPress}
-                onPointerCancel={endSectionPress}
+                onPointerCancel={(event) => endSectionPress(event, true)}
               >
                 <GeneratorPanel
                   collapsed={generatorCollapsed}
@@ -224,10 +231,18 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
       <FloatingPanel
         id="generator"
         title={t('色阶生成器')}
-        initial={{ x: 200, y: 120, width: 420, height: 680 }}
+        initial={
+          generatorSpawn
+            ? { x: generatorSpawn.x, y: generatorSpawn.y, width: 420, height: 680 }
+            : { x: 200, y: 120, width: 420, height: 680 }
+        }
+        initialOnly={!!generatorSpawn}
         minWidth={330}
         minHeight={360}
-        onDock={() => setGeneratorFloating(false)}
+        onDock={() => {
+          setGeneratorFloating(false)
+          setGeneratorSpawn(null)
+        }}
         shouldDock={(_rect, clientX, clientY) => overPalette(clientX, clientY)}
         actions={
           <button
@@ -255,10 +270,18 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
       <FloatingPanel
         id="active-palette"
         title={t('当前调色卡')}
-        initial={{ x: 230, y: 150, width: 430, height: 680 }}
+        initial={
+          activeSpawn
+            ? { x: activeSpawn.x, y: activeSpawn.y, width: 430, height: 680 }
+            : { x: 230, y: 150, width: 430, height: 680 }
+        }
+        initialOnly={!!activeSpawn}
         minWidth={340}
         minHeight={360}
-        onDock={() => setActiveFloating(false)}
+        onDock={() => {
+          setActiveFloating(false)
+          setActiveSpawn(null)
+        }}
         shouldDock={(_rect, clientX, clientY) => overPalette(clientX, clientY)}
         actions={
           <button
@@ -281,14 +304,6 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
           />
         </div>
       </FloatingPanel>
-    ) : null}
-    {heldSection && dragPoint ? (
-      <div
-        className="panel-drag-ghost"
-        style={{ left: dragPoint.x + 12, top: dragPoint.y + 12 }}
-      >
-        {heldSection === 'generator' ? t('色阶生成器') : t('当前调色卡')}
-      </div>
     ) : null}
     </>
   )

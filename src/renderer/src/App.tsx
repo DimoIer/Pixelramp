@@ -27,6 +27,7 @@ export default function App() {
   const [layersOpen, setLayersOpen] = useState(true)
   const [railWidth, setRailWidth] = useState(66)
   const [paletteWidth, setPaletteWidth] = useState(374)
+  const [toolbarSpawn, setToolbarSpawn] = useState<{ x: number; y: number } | null>(null)
   const [columnDrag, setColumnDrag] = useState<{
     side: 'rail' | 'palette'
     startX: number
@@ -118,8 +119,9 @@ export default function App() {
           {!floatToolbar && toolbarOpen ? (
             <ToolRail
               onCollapse={() => setToolbarOpen(false)}
-              onFloat={() => {
+              onFloat={(point) => {
                 setToolbarOpen(true)
+                setToolbarSpawn(point ?? null)
                 setFloatToolbar(true)
               }}
             />
@@ -185,13 +187,24 @@ export default function App() {
             id={`toolbar-${toolbarOrientation}`}
             title={t('工具栏')}
             initial={
-              toolbarOrientation === 'horizontal'
-                ? { x: 110, y: 88, width: 560, height: 96 }
-                : { x: 82, y: 88, width: 158, height: 660 }
+              toolbarSpawn
+                ? {
+                    x: toolbarSpawn.x - 30,
+                    y: toolbarSpawn.y - 20,
+                    width: toolbarOrientation === 'horizontal' ? 560 : 158,
+                    height: toolbarOrientation === 'horizontal' ? 96 : 660
+                  }
+                : toolbarOrientation === 'horizontal'
+                  ? { x: 110, y: 88, width: 560, height: 96 }
+                  : { x: 82, y: 88, width: 158, height: 660 }
             }
+            initialOnly={!!toolbarSpawn}
             minWidth={toolbarOrientation === 'horizontal' ? 280 : 148}
             minHeight={toolbarOrientation === 'horizontal' ? 68 : 320}
-            onDock={() => setFloatToolbar(false)}
+            onDock={() => {
+              setFloatToolbar(false)
+              setToolbarSpawn(null)
+            }}
             shouldDock={(_rect, clientX) => clientX < 100}
             actions={
               <>
