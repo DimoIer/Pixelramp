@@ -182,7 +182,7 @@ export default function App() {
           {dockHint === 'palette' ? (
             <div className="dock-slot dock-slot--right" style={{ width: paletteWidth }}>
               <div className="dock-placeholder dock-placeholder--palette" aria-hidden>
-                <span className="dock-placeholder__title">{t('调色卡工作台')}</span>
+                <span className="dock-placeholder__title">{t('调色工作台')}</span>
                 <span className="dock-placeholder__hint">{t('松开以停靠')}</span>
               </div>
             </div>
@@ -296,7 +296,7 @@ export default function App() {
         {floatPalette && paletteOpen ? (
           <FloatingPanel
             id="palette"
-            title={t('调色卡工作台')}
+            title={t('调色工作台')}
             initial={{
               x: Math.max(24, window.innerWidth - 430),
               y: 88,

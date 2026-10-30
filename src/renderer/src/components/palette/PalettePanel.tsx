@@ -8,6 +8,7 @@ import { FloatingPanel } from '../layout/FloatingPanel'
 import { createDragGhost, type DragGhost } from '../layout/dragGhost'
 import { GeneratorPanel } from './GeneratorPanel'
 import { ActivePalettePanel } from './ActivePalettePanel'
+import { ColorWheelPanel } from './ColorWheelPanel'
 import { useT } from '../../i18n'
 
 interface PalettePanelProps {
@@ -24,8 +25,10 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   const openDialog = useUi((state) => state.openDialog)
   const [generatorCollapsed, setGeneratorCollapsed] = useState(false)
   const [activeCollapsed, setActiveCollapsed] = useState(false)
+  const [wheelCollapsed, setWheelCollapsed] = useState(false)
   const [generatorFloating, setGeneratorFloating] = useState(false)
   const [activeFloating, setActiveFloating] = useState(false)
+  const [wheelFloating, setWheelFloating] = useState(false)
   const [generatorDockHeight, setGeneratorDockHeight] = useState(220)
   const [activeDockHeight, setActiveDockHeight] = useState(220)
   const [generatorSpawn, setGeneratorSpawn] = useState<{
@@ -35,6 +38,12 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
     height: number
   } | null>(null)
   const [activeSpawn, setActiveSpawn] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null>(null)
+  const [wheelSpawn, setWheelSpawn] = useState<{
     x: number
     y: number
     width: number
@@ -76,6 +85,15 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
       setActiveSpawn({ x: 230, y: 150, width: rect.width, height: rect.height })
     }
     setActiveFloating(true)
+  }
+
+  const floatWheel = (): void => {
+    const element = paletteRef.current?.querySelector('[data-section="wheel"]')
+    if (element) {
+      const rect = element.getBoundingClientRect()
+      setWheelSpawn({ x: 190, y: 100, width: rect.width, height: rect.height })
+    }
+    setWheelFloating(true)
   }
 
   const startSectionPress = (
@@ -179,7 +197,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
             <span style={{ background: activePalette?.colors[activePalette.colors.length - 1] ? `rgb(${activePalette.colors[activePalette.colors.length - 1].rgba.r},${activePalette.colors[activePalette.colors.length - 1].rgba.g},${activePalette.colors[activePalette.colors.length - 1].rgba.b})` : '#d8c79b' }} />
           </span>
           <div>
-            <h1 className="palette-panel__title">{t('调色卡工作台')}</h1>
+            <h1 className="palette-panel__title">{t('调色工作台')}</h1>
           </div>
         </div>
         <div className="palette-panel__actions">
@@ -191,19 +209,19 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
             </button>
           </Tooltip>
           <Tooltip content={t('收起面板')} side="bottom">
-            <button type="button" className="panel-collapse" aria-label={t('收起调色卡面板')} onClick={onClose}>
+            <button type="button" className="panel-collapse" aria-label={t('收起调色工作台')} onClick={onClose}>
               <PanelRightClose size={15} />
             </button>
           </Tooltip>
           {onFloat && !floating ? (
             <Tooltip
-              content={t('悬浮调色卡工作台')}
+              content={t('悬浮调色工作台')}
               side="bottom"
             >
               <button
                 type="button"
                 className="panel-collapse"
-                aria-label={t('悬浮调色卡工作台')}
+                aria-label={t('悬浮调色工作台')}
                 onClick={onFloat}
               >
                 <PictureInPicture2 size={15} />
@@ -213,6 +231,15 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
         </div>
       </header>
       <div className="palette-panel__scroll">
+        {!wheelFloating ? (
+          <div className="palette-section" data-section="wheel">
+            <ColorWheelPanel
+              collapsed={wheelCollapsed}
+              onCollapse={() => setWheelCollapsed((value) => !value)}
+              onFloat={floatWheel}
+            />
+          </div>
+        ) : null}
         {sectionOrder === 'generator' ? (
           <>
             {generatorFloating ? (
@@ -294,6 +321,35 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
         )}
       </div>
     </aside>
+    {wheelFloating ? (
+      <FloatingPanel
+        id="color-wheel"
+        title={t('调色盘')}
+        initial={
+          wheelSpawn
+            ? {
+                x: wheelSpawn.x,
+                y: wheelSpawn.y,
+                width: wheelSpawn.width,
+                height: wheelSpawn.height
+              }
+            : { x: 180, y: 100, width: 360, height: 640 }
+        }
+        initialOnly={!!wheelSpawn}
+        minWidth={320}
+        minHeight={420}
+        onDock={() => setWheelFloating(false)}
+        shouldDock={(_rect, clientX, clientY) => overPalette(clientX, clientY)}
+      >
+        <div className="floating-section">
+          <ColorWheelPanel
+            floating
+            collapsed={wheelCollapsed}
+            onCollapse={() => setWheelCollapsed((value) => !value)}
+          />
+        </div>
+      </FloatingPanel>
+    ) : null}
     {generatorFloating ? (
       <FloatingPanel
         id="generator"

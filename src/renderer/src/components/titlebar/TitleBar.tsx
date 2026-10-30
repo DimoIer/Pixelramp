@@ -481,13 +481,13 @@ function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
           <CheckAction
             checked={paletteOpen}
             icon={<PanelRight size={14} />}
-            label={t('显示调色卡工作台')}
+            label={t('显示调色工作台')}
             onSelect={onTogglePalette}
           />
           <CheckAction
             checked={floatPalette}
             icon={<PictureInPicture2 size={14} />}
-            label={t('浮动调色卡工作台')}
+            label={t('浮动调色工作台')}
             onSelect={() => {
               setFloatPalette(!floatPalette)
               if (!paletteOpen) onTogglePalette()
@@ -709,7 +709,7 @@ export function TitleBar({ paletteOpen, onTogglePalette }: TitleBarProps) {
       <div className="titlebar__right no-drag">
         {!isDesktop ? <span className="web-preview-badge mono">{t('网页预览')}</span> : null}
         <ThemeMenu />
-        <span className="build-chip mono">v{version || "0.2.5"}</span>
+        <span className="build-chip mono">v{version || "0.2.6"}</span>
         <WindowControls />
       </div>
     </header>

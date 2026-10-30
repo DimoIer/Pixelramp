@@ -263,7 +263,7 @@ export function CanvasHeader({
         </div>
         <span className="canvas-header__divider" />
         <IconButton
-          label={paletteOpen ? t('收起调色卡面板') : t('展开调色卡面板')}
+          label={paletteOpen ? t('收起调色工作台') : t('展开调色工作台')}
           size="sm"
           onClick={onTogglePalette}
         >
