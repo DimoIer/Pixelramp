@@ -1587,8 +1587,8 @@
 
 .color-wheel {
   position: relative;
-  width: 236px;
-  height: 236px;
+  width: 252px;
+  height: 252px;
   margin: 0 auto;
 }
 
@@ -1613,7 +1613,7 @@
 .color-wheel__ring::after {
   content: "";
   position: absolute;
-  inset: 12%;
+  inset: 7%;
   border-radius: 50%;
   background: var(--surface);
   pointer-events: none;
@@ -1623,12 +1623,12 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 126px;
-  height: 126px;
+  width: 150px;
+  height: 150px;
   transform: translate(-50%, -50%);
-  border: 2px solid rgba(255, 255, 255, 0.78);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.32);
+  border: 0;
+  border-radius: 3px;
+  box-shadow: none;
   cursor: crosshair;
   touch-action: none;
 }
@@ -1649,8 +1649,8 @@
   left: 50%;
   top: 50%;
   width: 2px;
-  height: 18px;
-  margin: -9px 0 0 -1px;
+  height: 22px;
+  margin: -11px 0 0 -1px;
   border-radius: 1px;
   background: #fff;
   box-shadow:

@@ -157,8 +157,6 @@ export function ColorWheelPanel({
   const commitPreview = (): void => {
     if (!preview) return
     commit({ ...hsv, s: preview.s, v: preview.v })
-    setPreview(null)
-    setLoupe(null)
   }
 
   const setPreviewPoint = (event: ReactPointerEvent<HTMLDivElement>): void => {
@@ -321,14 +319,14 @@ export function ColorWheelPanel({
           </div>
           <span
             className="color-wheel__hue-cursor"
-            style={{ transform: `rotate(${hsv.h}deg) translateY(-104px)` }}
+            style={{ transform: `rotate(${hsv.h}deg) translateY(-117px)` }}
           />
           {loupe ? (
             <div
               className="color-wheel__loupe-stack"
               style={{
-                left: Math.max(34, Math.min(202, loupe.x)),
-                top: Math.max(34, Math.min(202, loupe.y))
+                left: Math.max(34, Math.min(218, loupe.x)),
+                top: Math.max(34, Math.min(218, loupe.y))
               }}
             >
               <span className="color-wheel__loupe-code mono">
