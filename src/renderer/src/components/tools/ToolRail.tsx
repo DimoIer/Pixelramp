@@ -182,7 +182,7 @@ export function ToolRail({
         >
           <button type="button" className="color-slot color-slot--foreground" aria-label={t('选择前景色')}>
             <ColorSwatch color={foreground} size={36} />
-            <span className="color-slot__tag mono">FG</span>
+            <span className="color-slot__tag mono">{t('前景')}</span>
           </button>
         </ColorPickerPopover>
 
@@ -201,7 +201,7 @@ export function ToolRail({
         >
           <button type="button" className="color-slot color-slot--background" aria-label={t('选择背景色')}>
             <ColorSwatch color={background} size={30} />
-            <span className="color-slot__tag mono">BG</span>
+            <span className="color-slot__tag mono">{t('背景')}</span>
           </button>
         </ColorPickerPopover>
       </div>
@@ -211,7 +211,7 @@ export function ToolRail({
       <div className="tool-rail__footer">
         <div className="rail-status mono">
           <span className="rail-status__dot" />
-          {layerCount} LAYER{layerCount === 1 ? '' : 'S'}
+          {layerCount === 1 ? t('1 个图层') : t('{count} 个图层', { count: layerCount })}
         </div>
         {onToggleLayers ? (
           <Tooltip content={layersOpen ? t('关闭图层面板') : t('打开图层面板')} side="right">

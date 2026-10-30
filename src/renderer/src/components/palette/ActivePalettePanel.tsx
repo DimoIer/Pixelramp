@@ -162,7 +162,7 @@ function ExtractOptionsPopover() {
         <Popover.Content className="extract-popover" side="top" align="end" sideOffset={9}>
           <div className="extract-popover__head">
             <div>
-              <span className="eyebrow">EXTRACT</span>
+              <span className="eyebrow">{t('提取')}</span>
               <div className="extract-popover__title">{t('颜色提取设置')}</div>
             </div>
           </div>
@@ -339,7 +339,7 @@ function PaletteEmptyState() {
         <span style={{ background: '#ead7ae' }} />
       </div>
       <div className="palette-empty__copy">
-        <div className="eyebrow">NO ACTIVE PALETTE</div>
+        <div className="eyebrow">{t('无当前调色卡')}</div>
         <h3>{t('还没有当前调色卡')}</h3>
         <p>{t('先从生成器创建一张，或从画布中提取纹理现有的颜色。')}</p>
       </div>
@@ -487,9 +487,9 @@ export function ActivePalettePanel({
         onFloat={onFloat}
         aside={
           palette ? (
-            <span className="section-count mono">{palette.colors.length} COLORS</span>
+            <span className="section-count mono">{t('{count} 色', { count: palette.colors.length })}</span>
           ) : (
-            <span className="section-count mono">EMPTY</span>
+            <span className="section-count mono">{t('空')}</span>
           )
         }
       />

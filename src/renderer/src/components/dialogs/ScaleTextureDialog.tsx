@@ -69,7 +69,7 @@ export function ScaleTextureDialog() {
       onOpenChange={(open) => {
         if (!open) closeDialog()
       }}
-      eyebrow="TEXTURE SCALE"
+      eyebrow={t('纹理缩放')}
       title={t('纹理缩放')}
       description={t('按百分比或直接输入目标像素，以最近邻方式缩放所有图层。宽高限制在 1–256 px；历史记录会清空。')}
       width={540}

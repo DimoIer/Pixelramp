@@ -7,10 +7,12 @@ import { prepareImportedPixels } from '../../core/pixels'
 import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
 import { RangeSlider } from '../ui/Slider'
+import { useT } from '../../i18n'
 
 const QUICK_SIZES = [16, 32, 64, 128, 256]
 
 export function ImageImportDialog() {
+  const t = useT()
   const pending = useUi((state) => state.pendingImage)
   const closeDialog = useUi((state) => state.closeDialog)
   const nonSquare = !!pending && pending.width !== pending.height
@@ -110,12 +112,12 @@ export function ImageImportDialog() {
             <canvas ref={drawPreview} width={160} height={160} />
           </div>
           <div className="image-import-preview__caption">
-            <span className="mono">PREVIEW</span>
+            <span className="mono">{t('预览')}</span>
             <span>{pending.name}</span>
           </div>
           <div className="image-import-preview__resolution mono">
-            <span>SRC {pending.width}×{pending.height}</span>
-            <span>OUT {size}×{size}</span>
+            <span>{t('原图')} {pending.width}×{pending.height}</span>
+            <span>{t('输出')} {size}×{size}</span>
           </div>
         </div>
 

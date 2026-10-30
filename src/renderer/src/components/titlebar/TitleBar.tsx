@@ -707,9 +707,9 @@ export function TitleBar({ paletteOpen, onTogglePalette }: TitleBarProps) {
       </div>
 
       <div className="titlebar__right no-drag">
-        {!isDesktop ? <span className="web-preview-badge mono">WEB PREVIEW</span> : null}
+        {!isDesktop ? <span className="web-preview-badge mono">{t('网页预览')}</span> : null}
         <ThemeMenu />
-        <span className="build-chip mono">v{version || "0.2.3"}</span>
+        <span className="build-chip mono">v{version || "0.2.4"}</span>
         <WindowControls />
       </div>
     </header>

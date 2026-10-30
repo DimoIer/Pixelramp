@@ -33,12 +33,12 @@ export function AboutDialog() {
       onOpenChange={(open) => {
         if (!open) closeDialog()
       }}
-      eyebrow="ABOUT"
+      eyebrow={t('关于')}
       title="PixelRamp Studio"
       width={600}
       footer={
         <>
-          <div className="dialog-footer__hint mono">TAURI · LOCAL FIRST</div>
+          <div className="dialog-footer__hint mono">{t('Tauri · 本地优先')}</div>
           <Button variant="primary" onClick={closeDialog}>
             {t('关闭')}
           </Button>
@@ -58,9 +58,9 @@ export function AboutDialog() {
           </div>
           <p>{t('面向 Minecraft 材质创作的像素画与调色卡工作台。')}</p>
           <div className="about-hero__meta mono">
-            <span>VERSION {version || '0.2.3'}</span>
-            <span>{isDesktop ? 'DESKTOP BUILD' : 'WEB PREVIEW'}</span>
-            <span>LOCAL FIRST</span>
+            <span>{t('版本 {version}', { version: version || '0.2.4' })}</span>
+            <span>{isDesktop ? t('桌面版') : t('网页预览')}</span>
+            <span>{t('本地优先')}</span>
           </div>
         </div>
       </div>
@@ -84,16 +84,16 @@ export function AboutDialog() {
       </div>
 
       <div className="about-tech">
-        <span className="eyebrow">IMPLEMENTATION</span>
+        <span className="eyebrow">{t('技术实现')}</span>
         <p>
           {t(
             'Tauri v2 + Rust 后端，React + TypeScript 渲染层。颜色统计与合并运行在 Web Worker 中，调色卡以本地 JSON 保存。'
           )}
         </p>
         <div className="about-tech__row mono">
-          <span>NO INTERPOLATION</span>
-          <span>OKLCH RAMPS</span>
-          <span>LOCAL JSON PALETTES</span>
+          <span>{t('无插值')}</span>
+          <span>{t('OKLCh 色阶')}</span>
+          <span>{t('本地 JSON 调色卡')}</span>
         </div>
       </div>
     </Dialog>

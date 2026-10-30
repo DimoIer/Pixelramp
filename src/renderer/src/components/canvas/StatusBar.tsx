@@ -70,7 +70,7 @@ export function StatusBar() {
         </span>
         <span className="statusbar__center-slash">/</span>
         <span className="mono statusbar__mode">
-          {canvasLight ? 'LIGHT CANVAS' : 'DARK CANVAS'} · NEAREST · 1:1 PIXELS
+          {canvasLight ? t('浅色画布') : t('深色画布')} · {t('最近邻')} · 1:1 {t('像素')}
         </span>
       </div>
 

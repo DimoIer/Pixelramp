@@ -45,7 +45,7 @@ export function NewCanvasDialog() {
       width={590}
       footer={
         <>
-          <div className="dialog-footer__hint mono">SQUARE · PIXEL PERFECT</div>
+          <div className="dialog-footer__hint mono">{t('方形 · 像素完美')}</div>
           <Button variant="ghost" onClick={closeDialog}>
             {t('取消')}
           </Button>

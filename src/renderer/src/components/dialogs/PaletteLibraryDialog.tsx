@@ -26,6 +26,7 @@ import {
 } from '../../commands'
 import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
+import { useT } from '../../i18n'
 
 const SOURCE_LABEL: Record<string, string> = {
   generated: '生成',
@@ -45,6 +46,7 @@ function formatDate(timestamp: number): string {
 }
 
 export function PaletteLibraryDialog() {
+  const t = useT()
   const {
     library,
     activePalette,
@@ -101,16 +103,18 @@ export function PaletteLibraryDialog() {
       onOpenChange={(open) => {
         if (!open) closeDialog()
       }}
-      eyebrow="PALETTE LIBRARY"
-      title="调色卡库"
-      description="调色卡独立于画布存在，保存在本机。点击任意卡片载入，或从 PNG / JSON 导入。"
+      eyebrow={t('调色卡库')}
+      title={t('调色卡库')}
+      description={t('调色卡独立于画布存在，保存在本机。点击任意卡片载入，或从 PNG / JSON 导入。')}
       width={840}
       className="library-dialog"
       footer={
         <>
-          <div className="dialog-footer__hint mono">{library.length} SAVED PALETTES</div>
+          <div className="dialog-footer__hint mono">
+            {t('{count} 个已保存调色卡', { count: library.length })}
+          </div>
           <Button variant="ghost" onClick={closeDialog}>
-            完成
+            {t('完成')}
           </Button>
         </>
       }
@@ -179,7 +183,7 @@ export function PaletteLibraryDialog() {
 
       {!libraryLoaded ? (
         <div className="library-loading">
-          <span className="mono">LOADING LOCAL PALETTES…</span>
+          <span className="mono">{t('正在载入本地调色卡…')}</span>
         </div>
       ) : filtered.length === 0 ? (
         <div className="library-empty">
@@ -234,7 +238,7 @@ export function PaletteLibraryDialog() {
                 <div className="library-card__body">
                   <div className="library-card__title-row">
                     <h3>{palette.name}</h3>
-                    {active ? <span className="library-card__current mono">CURRENT</span> : null}
+                    {active ? <span className="library-card__current mono">{t('当前')}</span> : null}
                   </div>
                   <div className="library-card__meta">
                     <span className={clsx('source-pill', `source-pill--${palette.source}`)}>

@@ -277,8 +277,8 @@ export function GeneratorPanel({
                 onChange={(low, high) => updateRampParams({ lightnessRange: [low, high] })}
               />
               <div className="range-endpoints mono">
-                <span>SHADOW</span>
-                <span>HIGHLIGHT</span>
+                <span>{t('阴影')}</span>
+                <span>{t('高光')}</span>
               </div>
             </SliderRow>
 
@@ -383,7 +383,9 @@ export function GeneratorPanel({
         <div className="ramp-preview-block">
           <div className="ramp-preview__head">
             <span className="field__label">{t('实时色阶')}</span>
-            <span className="ramp-preview__count mono">{rampParams.count} COLORS</span>
+            <span className="ramp-preview__count mono">
+              {t('{count} 色', { count: rampParams.count })}
+            </span>
           </div>
           <div className="ramp-strip" role="group" aria-label="生成的色阶">
             {ramp.colors.map((color, index) => (

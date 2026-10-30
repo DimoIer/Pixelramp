@@ -197,10 +197,10 @@ export function CanvasHeader({
       </div>
 
       <div className="canvas-header__right">
-        <span className="nearest-badge mono">
-          <span className="nearest-badge__dot" />
-          NEAREST
-        </span>
+          <span className="nearest-badge mono">
+            <span className="nearest-badge__dot" />
+            {t('最近邻')}
+          </span>
         <span className="canvas-header__divider" />
         <div className="canvas-header__icon-group">
           <IconButton

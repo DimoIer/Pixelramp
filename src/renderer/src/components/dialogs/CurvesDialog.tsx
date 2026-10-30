@@ -111,7 +111,7 @@ export function CurvesDialog() {
       width={650}
       footer={
         <>
-          <div className="dialog-footer__hint mono">RGB MASTER · 5 POINTS</div>
+          <div className="dialog-footer__hint mono">{t('RGB 主曲线 · 5 个控制点')}</div>
           <Button
             variant="ghost"
             onClick={() => setPoints(DEFAULT_POINTS)}
@@ -166,7 +166,7 @@ export function CurvesDialog() {
           </svg>
           <div className="curves-editor__axis mono">
             <span>0</span>
-            <span>INPUT</span>
+            <span>{t('输入')}</span>
             <span>255</span>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useEffect, useId, useState, type CSSProperties, type ReactNode } from '
 import { HexColorPicker } from 'react-colorful'
 import type { RGBA } from '@shared/types'
 import { cssColor, rgbaToHex, parseHex } from '../../core/color'
+import { useT } from '../../i18n'
 import { ColorSwatch } from './ColorSwatch'
 
 interface ColorPickerPopoverProps {
@@ -20,11 +21,13 @@ export function ColorPickerPopover({
   color,
   onChange,
   children,
-  title = '选择颜色',
+  title,
   align = 'start',
   side = 'bottom',
   disabled = false
 }: ColorPickerPopoverProps) {
+  const t = useT()
+  const resolvedTitle = title ?? t('选择颜色')
   const [open, setOpen] = useState(false)
   const [hexText, setHexText] = useState(rgbaToHex(color))
   const alphaId = useId()
@@ -56,8 +59,8 @@ export function ColorPickerPopover({
         >
           <div className="color-popover__head">
             <div>
-              <div className="eyebrow">COLOR</div>
-              <div className="color-popover__title">{title}</div>
+              <div className="eyebrow">{t('颜色')}</div>
+              <div className="color-popover__title">{resolvedTitle}</div>
             </div>
             <ColorSwatch color={color} size={28} />
           </div>
@@ -74,7 +77,7 @@ export function ColorPickerPopover({
 
           <div className="color-fields">
             <label className="field field--compact color-hex-field">
-              <span className="field__label">HEX</span>
+              <span className="field__label">{t('十六进制')}</span>
               <span className="color-hex-input">
                 <span className="color-hex-input__hash">#</span>
                 <input
@@ -88,7 +91,7 @@ export function ColorPickerPopover({
               </span>
             </label>
             <label className="field field--compact color-alpha-field" htmlFor={alphaId}>
-              <span className="field__label">ALPHA</span>
+              <span className="field__label">{t('透明度')}</span>
               <span className="color-alpha-value mono">{Math.round((color.a / 255) * 100)}%</span>
               <input
                 id={alphaId}

@@ -8,10 +8,12 @@ import { useUi } from '../../store/ui'
 import { exportPngCommand } from '../../commands'
 import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
+import { useT } from '../../i18n'
 
 const SCALES = [1, 2, 4, 8, 16]
 
 export function ExportImageDialog() {
+  const t = useT()
   const closeDialog = useUi((state) => state.closeDialog)
   const { doc, revision } = useWorkbench(
     useShallow((state) => ({ doc: state.doc, revision: state.revision }))
@@ -58,7 +60,7 @@ export function ExportImageDialog() {
       footer={
         <>
           <div className="dialog-footer__hint mono">
-            {doc.width * scale} × {doc.height * scale} PX
+            {doc.width * scale} × {doc.height * scale} {t('像素')}
           </div>
           <Button variant="ghost" onClick={closeDialog}>
             取消
@@ -116,8 +118,8 @@ export function ExportImageDialog() {
           <div className="export-image__filetype">
             <FileImage size={14} />
             <div>
-              <strong>Portable Network Graphics</strong>
-              <span className="mono">PNG · LOSSLESS RGBA</span>
+              <strong>{t('便携式网络图形')}</strong>
+              <span className="mono">{t('PNG · 无损 RGBA')}</span>
             </div>
           </div>
         </div>

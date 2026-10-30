@@ -635,8 +635,24 @@ export function PixelCanvas() {
   const cancelGestureRef = useRef(cancelGesture)
   cancelGestureRef.current = cancelGesture
 
+  useEffect(() => {
+    const onRightButton = (event: MouseEvent): void => {
+      if (event.button !== 2 || !gestureRef.current) return
+      event.preventDefault()
+      event.stopPropagation()
+      cancelGestureRef.current()
+    }
+    window.addEventListener('mousedown', onRightButton, true)
+    return () => window.removeEventListener('mousedown', onRightButton, true)
+  }, [])
+
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (event.button !== 0 && event.button !== 1 && event.button !== 2) return
+    if (event.button === 2 && gestureRef.current) {
+      event.preventDefault()
+      cancelGesture()
+      return
+    }
     if (gestureRef.current) return
     const state = useWorkbench.getState()
     if (useUi.getState().busy) return
@@ -775,6 +791,10 @@ export function PixelCanvas() {
   }
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (gestureRef.current && (event.buttons & 2) !== 0) {
+      cancelGesture()
+      return
+    }
     const cell = getCellFromEvent(event)
     const gesture = gestureRef.current
     if (!gesture) {
@@ -947,10 +967,10 @@ export function PixelCanvas() {
       <div className="canvas-stage__grain" aria-hidden />
       <div className="canvas-hints">
         <span className="canvas-hint">
-          <span className="canvas-hint__key mono">SCROLL</span> {t('缩放')}
+          <span className="canvas-hint__key mono">{t('滚轮')}</span> {t('缩放')}
         </span>
         <span className="canvas-hint">
-          <span className="canvas-hint__key mono">SPACE</span> {t('平移')}
+          <span className="canvas-hint__key mono">{t('空格')}</span> {t('平移')}
         </span>
         <span className="canvas-hint canvas-hint--accent">
           <span className="canvas-hint__dot" />
@@ -960,7 +980,7 @@ export function PixelCanvas() {
       {dragOver ? (
         <div className="canvas-drop-label">
           <span>{t('拖放调色卡颜色')}</span>
-          <span className="mono">PAINT PIXEL</span>
+          <span className="mono">{t('绘制像素')}</span>
         </div>
       ) : null}
     </div>

@@ -10,10 +10,12 @@ import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
 import { RangeSlider } from '../ui/Slider'
 import { Switch } from '../ui/Switch'
+import { useT } from '../../i18n'
 
 type Format = 'png' | 'json'
 
 export function ExportPaletteDialog() {
+  const t = useT()
   const palette = useWorkbench((state) => state.activePalette)
   const closeDialog = useUi((state) => state.closeDialog)
   const toast = useUi((state) => state.toast)
@@ -141,7 +143,7 @@ export function ExportPaletteDialog() {
           <div className="export-palette__png">
             <div className="export-palette__preview">
               <div className="export-palette__preview-head">
-                <span className="eyebrow">STRIP PREVIEW</span>
+                <span className="eyebrow">{t('色卡预览')}</span>
                 {previewing ? <Loader2 size={12} className="spin" /> : null}
               </div>
               <div className="export-palette__preview-stage">
@@ -149,7 +151,7 @@ export function ExportPaletteDialog() {
                   <img src={previewUrl} alt="调色卡条预览" />
                 ) : (
                   <div className="export-palette__preview-empty mono">
-                    {palette.colors.length === 0 ? 'NO COLORS' : 'RENDERING…'}
+                    {palette.colors.length === 0 ? t('无颜色') : t('渲染中…')}
                   </div>
                 )}
               </div>
@@ -174,17 +176,19 @@ export function ExportPaletteDialog() {
                 <Switch checked={showName} onChange={setShowName} label="显示调色卡名称" />
               </div>
               <div className="export-palette__spec mono">
-                <span>SWATCH {swatchSize} PX</span>
-                <span>GAP 6 PX</span>
-                <span>LABELS {showHex ? "ON" : "OFF"}</span>
+                <span>{t('色块 {size} px', { size: swatchSize })}</span>
+                <span>{t('间距 6 px')}</span>
+                <span>
+                  {t('标注')} {showHex ? t('开') : t('关')}
+                </span>
               </div>
             </div>
           </div>
         ) : (
           <div className="export-json">
             <div className="export-json__head">
-              <span className="eyebrow">PALETTE JSON</span>
-              <span className="mono">{jsonPreview.split('\n').length} LINES</span>
+              <span className="eyebrow">{t('调色卡 JSON')}</span>
+              <span className="mono">{t('{count} 行', { count: jsonPreview.split('\n').length })}</span>
             </div>
             <pre className="export-json__preview">{jsonPreview}</pre>
             <p className="export-json__note">
