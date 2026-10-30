@@ -7,8 +7,10 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Plus,
+  Redo2,
   Scaling,
   Sparkles,
+  Undo2,
   X
 } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
@@ -46,7 +48,11 @@ export function CanvasHeader({
     showGrid,
     setShowGrid,
     selection,
-    extracting
+    extracting,
+    canUndo,
+    canRedo,
+    undo,
+    redo
   } = useWorkbench(
     useShallow((state) => ({
       tool: state.tool,
@@ -62,7 +68,11 @@ export function CanvasHeader({
       showGrid: state.showGrid,
       setShowGrid: state.setShowGrid,
       selection: state.selection,
-      extracting: state.extracting
+      extracting: state.extracting,
+      canUndo: state.history.length > 0,
+      canRedo: state.redoStack.length > 0,
+      undo: state.undo,
+      redo: state.redo
     }))
   )
   const openDialog = useUi((state) => state.openDialog)
@@ -193,6 +203,24 @@ export function CanvasHeader({
         </span>
         <span className="canvas-header__divider" />
         <div className="canvas-header__icon-group">
+          <IconButton
+            label={t('撤销')}
+            shortcut="Ctrl Z"
+            size="sm"
+            disabled={!canUndo}
+            onClick={undo}
+          >
+            <Undo2 size={15} />
+          </IconButton>
+          <IconButton
+            label={t('重做')}
+            shortcut="Ctrl Shift Z"
+            size="sm"
+            disabled={!canRedo}
+            onClick={redo}
+          >
+            <Redo2 size={15} />
+          </IconButton>
           <IconButton
             label={layersOpen ? t('收起图层面板') : t('展开图层面板')}
             active={layersOpen}

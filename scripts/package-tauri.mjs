@@ -11,8 +11,8 @@ if (!existsSync(exe)) {
   process.exit(1)
 }
 
-const outDir = path.join(root, `release/PixelRamp-${version}-tauri`)
-const archive = path.join(root, `release/PixelRamp-${version}-tauri-win-x64.zip`)
+const outDir = path.join(root, `release/PixelRamp-${version}`)
+const archive = path.join(root, `release/PixelRamp-${version}-win-x64.zip`)
 rmSync(outDir, { recursive: true, force: true })
 rmSync(archive, { force: true })
 mkdirSync(outDir, { recursive: true })

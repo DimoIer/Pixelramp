@@ -24,8 +24,7 @@ import { requestWindowCloseCommand } from './commands'
 export default function App() {
   const t = useT()
   const [paletteOpen, setPaletteOpen] = useState(true)
-  const [layersOpen, setLayersOpen] = useState(true)
-  const [floatLayersOpen, setFloatLayersOpen] = useState(false)
+  const [layersOpen, setLayersOpen] = useState(false)
   const [railWidth, setRailWidth] = useState(66)
   const [paletteWidth, setPaletteWidth] = useState(374)
   const [toolbarSpawn, setToolbarSpawn] = useState<{ x: number; y: number } | null>(null)
@@ -120,8 +119,8 @@ export default function App() {
         >
           {!floatToolbar && toolbarOpen ? (
             <ToolRail
-              floatLayersOpen={floatLayersOpen}
-              onToggleFloatLayers={() => setFloatLayersOpen((open) => !open)}
+              layersOpen={layersOpen}
+              onToggleLayers={() => setLayersOpen((open) => !open)}
               onCollapse={() => setToolbarOpen(false)}
               onFloat={(point) => {
                 setToolbarOpen(true)
@@ -158,7 +157,6 @@ export default function App() {
             <DocumentTabs />
             <div className="workspace__canvas">
               <PixelCanvas />
-              <LayersPanel open={layersOpen} onClose={() => setLayersOpen(false)} />
             </div>
           </main>
           {!floatPalette && paletteOpen ? (
@@ -190,33 +188,33 @@ export default function App() {
             </div>
           ) : null}
         </div>
-        {floatLayersOpen ? (
+        {layersOpen ? (
           <FloatingPanel
-            id="layers-float-v2"
+            id="layers-float-v3"
             title={t('图层')}
             initial={{
               x: railWidth + 8,
-              y: Math.max(120, window.innerHeight - 480),
-              width: 286,
-              height: 440
+              y: Math.max(120, window.innerHeight - 340),
+              width: 240,
+              height: 300
             }}
             minWidth={240}
             minHeight={300}
             hideDock
-            onDock={() => setFloatLayersOpen(false)}
+            onDock={() => setLayersOpen(false)}
             actions={
               <button
                 type="button"
                 className="floating-panel__action"
-                aria-label={t('关闭浮动图层面板')}
-                title={t('关闭浮动图层面板')}
-                onClick={() => setFloatLayersOpen(false)}
+                aria-label={t('关闭图层面板')}
+                title={t('关闭图层面板')}
+                onClick={() => setLayersOpen(false)}
               >
                 <X size={13} />
               </button>
             }
           >
-            <LayersPanel floating open onClose={() => setFloatLayersOpen(false)} />
+            <LayersPanel floating open onClose={() => setLayersOpen(false)} />
           </FloatingPanel>
         ) : null}
         {!toolbarOpen ? (
@@ -292,8 +290,6 @@ export default function App() {
             <ToolRail
               floating
               horizontal={toolbarOrientation === 'horizontal'}
-              floatLayersOpen={floatLayersOpen}
-              onToggleFloatLayers={() => setFloatLayersOpen((open) => !open)}
             />
           </FloatingPanel>
         ) : null}

@@ -1,5 +1,5 @@
-PixelRamp Studio 0.1.0 — Tauri edition
-======================================
+PixelRamp Studio 0.2.0
+=====================
 
 Start here
 ----------

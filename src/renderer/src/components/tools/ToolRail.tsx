@@ -1,4 +1,4 @@
-import { ArrowLeftRight, CircleHelp, GripHorizontal, Layers2, PanelLeftClose, PictureInPicture2, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, CircleHelp, GripHorizontal, Layers2, PanelLeftClose, PictureInPicture2 } from 'lucide-react'
 import { useRef, type PointerEvent as ReactPointerEvent } from 'react'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
@@ -17,8 +17,8 @@ interface ToolRailProps {
   onCollapse?: () => void
   onFloat?: (point?: { x: number; y: number }) => void
   onToggleOrientation?: () => void
-  floatLayersOpen?: boolean
-  onToggleFloatLayers?: () => void
+  layersOpen?: boolean
+  onToggleLayers?: () => void
 }
 
 export function ToolRail({
@@ -26,8 +26,8 @@ export function ToolRail({
   horizontal = false,
   onCollapse,
   onFloat,
-  floatLayersOpen = false,
-  onToggleFloatLayers
+  layersOpen = false,
+  onToggleLayers
 }: ToolRailProps) {
   const t = useT()
   const {
@@ -38,10 +38,6 @@ export function ToolRail({
     setForeground,
     setBackground,
     swapColors,
-    undo,
-    redo,
-    canUndo,
-    canRedo,
     layerCount
   } = useWorkbench(
     useShallow((state) => ({
@@ -52,10 +48,6 @@ export function ToolRail({
       setForeground: state.setForeground,
       setBackground: state.setBackground,
       swapColors: state.swapColors,
-      undo: state.undo,
-      redo: state.redo,
-      canUndo: state.history.length > 0,
-      canRedo: state.redoStack.length > 0,
       layerCount: state.doc.layers.length
     }))
   )
@@ -214,33 +206,6 @@ export function ToolRail({
         </ColorPickerPopover>
       </div>
 
-      <div className="tool-rail__rule" />
-
-      <div className="tool-rail__group tool-rail__group--history">
-        <Tooltip content={t('撤销')} shortcut="Ctrl Z" side="right">
-          <button
-            type="button"
-            className="rail-tool rail-tool--small"
-            aria-label={t('撤销')}
-            disabled={!canUndo}
-            onClick={undo}
-          >
-            <Undo2 size={17} strokeWidth={1.8} />
-          </button>
-        </Tooltip>
-        <Tooltip content={t('重做')} shortcut="Ctrl Shift Z" side="right">
-          <button
-            type="button"
-            className="rail-tool rail-tool--small"
-            aria-label={t('重做')}
-            disabled={!canRedo}
-            onClick={redo}
-          >
-            <Redo2 size={17} strokeWidth={1.8} />
-          </button>
-        </Tooltip>
-      </div>
-
       <div className="tool-rail__spacer" />
 
       <div className="tool-rail__footer">
@@ -248,6 +213,18 @@ export function ToolRail({
           <span className="rail-status__dot" />
           {layerCount} LAYER{layerCount === 1 ? '' : 'S'}
         </div>
+        {onToggleLayers ? (
+          <Tooltip content={layersOpen ? t('关闭图层面板') : t('打开图层面板')} side="right">
+            <button
+              type="button"
+              className={clsx('rail-tool', 'rail-tool--small', layersOpen && 'is-active')}
+              aria-label={layersOpen ? t('关闭图层面板') : t('打开图层面板')}
+              onClick={onToggleLayers}
+            >
+              <Layers2 size={16} strokeWidth={1.8} />
+            </button>
+          </Tooltip>
+        ) : null}
         <Tooltip content={t('键盘快捷键')} shortcut="?" side="right">
           <button
             type="button"
@@ -258,25 +235,6 @@ export function ToolRail({
             <CircleHelp size={16} strokeWidth={1.8} />
           </button>
         </Tooltip>
-        {onToggleFloatLayers ? (
-          <Tooltip
-            content={floatLayersOpen ? t('关闭浮动图层面板') : t('浮动图层面板')}
-            side="right"
-          >
-            <button
-              type="button"
-              className={clsx(
-                'rail-tool',
-                'rail-tool--small',
-                floatLayersOpen && 'is-active'
-              )}
-              aria-label={floatLayersOpen ? t('关闭浮动图层面板') : t('浮动图层面板')}
-              onClick={onToggleFloatLayers}
-            >
-              <Layers2 size={16} strokeWidth={1.8} />
-            </button>
-          </Tooltip>
-        ) : null}
       </div>
     </aside>
   )
