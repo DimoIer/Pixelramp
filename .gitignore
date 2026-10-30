@@ -3,10 +3,16 @@ out/
 dist-web/
 release/
 .build-temp/
+.build-temp-web/
+.tauri-data/
+.tauri-webview/
+.tauri-release-data/
+.tauri-release-webview/
+PixelRampData/
+PixelRampWebView/
 screenshots/
 fixtures/
 test-userdata/
-PixelRampData/
 *.log
 *.tsbuildinfo
 .DS_Store

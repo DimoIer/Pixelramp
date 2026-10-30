@@ -18,8 +18,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/platform-Windows%2010%2F11-0f766e?style=flat-square" alt="Platform" />
   <img src="https://img.shields.io/badge/license-MIT-a3e635?style=flat-square" alt="License" />
-  <img src="https://img.shields.io/badge/Electron-45-47848F?style=flat-square&logo=electron&logoColor=white" alt="Electron" />
-  <img src="https://img.shields.io/badge/status-phase%20one-d97706?style=flat-square" alt="Phase one" />
+  <img src="https://img.shields.io/badge/Tauri-2-24C8DB?style=flat-square&logo=tauri&logoColor=white" alt="Tauri 2" />
+  <img src="https://img.shields.io/badge/status-Tauri%20v2-d97706?style=flat-square" alt="Tauri v2" />
 </p>
 
 <p align="center">
@@ -33,7 +33,7 @@
 
 **PixelRamp Studio** is a desktop pixel-art workstation built around palettes. Build a readable ramp first, then paint the texture: stop hunting for shadow and highlight colors one swatch at a time.
 
-> **Status:** phase-one, runnable source release. The Windows portable package is distributed through [Releases](https://github.com/DimoIer/Pixelramp/releases); the 135 MB ZIP is intentionally not committed to this repository.
+> **Status:** Tauri v2 + Rust desktop build with a React/TypeScript renderer. The Windows portable package is distributed through [Releases](https://github.com/DimoIer/Pixelramp/releases); the generated ZIP is intentionally not committed to this repository.
 
 ### Highlights
 
@@ -47,39 +47,41 @@
 
 ### Run from source
 
-Requirements: Windows 10/11 and Node.js 20.19+ or 22.12+.
+Requirements: Windows 10/11, WebView2 (included with Windows 11), Node.js 20.19+ or 22.12+, Rust stable-msvc, and Visual Studio C++ Build Tools. The Tauri CLI, `@tauri-apps/api`, and the dialog plugin are already listed in `package.json`.
 
 ```powershell
 npm install
-npm run dev
+npm run dev:tauri
 ```
 
-Browser-only UI preview (file operations degrade to downloads / file input):
+`npm run dev:tauri` starts the Vite frontend and the Rust/WebView2 desktop window. Browser-only UI preview (file operations degrade to downloads / file input):
 
 ```powershell
 npm run dev:web
 # http://localhost:5173
 ```
 
-Build and test:
+Test and build:
 
 ```powershell
 npm test
-npm run build
-npm run dist
+npm run build:tauri
+npm run package:tauri
 ```
 
-`npm run dist` creates `release/PixelRamp-0.1.0-win-x64.zip`. `npm run pack` creates only the unpacked `release/win-unpacked/` folder. `scripts/build.mjs` keeps esbuild's temporary files inside the project to work around a delete lock in the Windows build environment.
+`npm run build:tauri` builds the frontend and produces an executable at `src-tauri/target/release/pixelramp.exe`. `npm run package:tauri` copies that executable into `release/PixelRamp-0.1.0-tauri/` and creates `release/PixelRamp-0.1.0-tauri-win-x64.zip`. `scripts/build-web.mjs` keeps esbuild's temporary files inside the project to work around a delete lock in the Windows build environment.
+
+The Tauri project lives in `src-tauri/`. The earlier Electron shell remains in `src/main` and `src/preload` as a legacy reference, but it is not part of the Tauri desktop build.
 
 ### Portable build
 
-1. Download the ZIP from [Releases](https://github.com/DimoIer/Pixelramp/releases) and extract it.
-2. Run **`PixelRamp.cmd`**. The script starts `PixelRamp.exe` with `--no-sandbox` and keeps data beside the app in `PixelRampData\`.
-3. If `PixelRamp.exe` starts normally on your machine, it can be launched directly, but the script is the supported path.
+1. Download the Tauri ZIP from [Releases](https://github.com/DimoIer/Pixelramp/releases) and extract it.
+2. Run **`PixelRamp.cmd`**. It starts `PixelRamp.exe` and keeps data beside the app in `PixelRampData\`.
+3. `PixelRamp.exe` is the unsigned Tauri binary; the launcher is the supported entry point.
 
-Windows SmartScreen may warn on first launch because the portable build is unsigned. Use `PixelRamp.cmd`; the script avoids the direct executable prompt and supplies the portable data path.
+Windows SmartScreen may warn on first launch because the build is unsigned. Use `PixelRamp.cmd`; it avoids the direct executable prompt and supplies the portable data folder.
 
-The `--no-sandbox` switch is required by the environment this phase-one build was produced in, where Chromium's Windows OS sandbox could not start. The renderer still runs with `contextIsolation`, Node integration disabled, navigation blocked, and a restrictive CSP. This is a deliberate, documented trade-off for the local offline app.
+This build uses the Tauri/WebView2 runtime instead of Electron. The renderer runs with a restrictive CSP, no Node integration, and a narrow set of Tauri capabilities. WebView2 is included with Windows 11; Windows 10 users may need the Evergreen WebView2 Runtime.
 
 ### Data
 
@@ -88,17 +90,19 @@ Portable builds launched with `PixelRamp.cmd` keep their data beside the executa
 - Palette library: `PixelRampData\palettes\` (one JSON per palette, `index.json` for the index).
 - Recent files: `PixelRampData\recent.json`.
 - Projects: `.pxramp` files chosen by the user; the ZIP contains `manifest.json` and `pixels.rgba`.
+- WebView2 profile/cache: `PixelRampWebView\`.
 
-Development builds and direct `PixelRamp.exe` launches use `%APPDATA%\PixelRamp\` for the same files. Set `PIXELRAMP_USER_DATA` to override the data directory:
+Development builds use `%APPDATA%\studio.pixelramp.desktop\` for the same files unless overridden. The portable launcher sets `PIXELRAMP_USER_DATA` and `WEBVIEW2_USER_DATA_FOLDER` to keep everything self-contained. Set `PIXELRAMP_USER_DATA` manually to override the data directory:
 
 ```powershell
 $env:PIXELRAMP_USER_DATA = "D:\PixelRampData"
-npm run dev
+npm run dev:tauri
 ```
 
 ### Technical notes
 
-- **Electron, not Tauri** — the recommended Tauri v2 + Rust stack could not be built in the original environment because Rust and the MSVC build tools were unavailable. This phase-one build uses Electron 45 + React 19 + TypeScript + Vite. Color math, extraction, pixel operations, and project serialization live in `src/renderer/src/core/` without React dependencies, so they can be migrated to Rust/Tauri commands later without changing the UI or file formats.
+- **Tauri v2 + Rust backend** — `src-tauri/src/files.rs` handles file reads/writes/reveal; `palettes.rs` persists the palette library; `recent.rs` handles recent files; `storage.rs` resolves data paths and performs atomic writes. Native dialogs use `tauri-plugin-dialog`, and a single-instance lock uses `tauri-plugin-single-instance`.
+- **React renderer reused** — the color math, extraction, raster operations, and project serialization stay in `src/renderer/src/core/` without framework dependencies. `src/renderer/src/platform/tauri.ts` adapts the existing desktop API to Tauri.
 - **No interpolation** — the canvas explicitly sets `imageSmoothingEnabled = false` before drawing, uses integer zoom levels, and uses nearest-neighbor scaling for import and PNG export.
 - **Rendering and extraction are separated** — interactive pixel work stays local; extraction and OKLab merging run in an inline Web Worker.
 - **Offline by design** — no telemetry, no remote content, and no network dependency at runtime.
@@ -124,11 +128,11 @@ npm run dev
 
 ### Known limitations
 
-- The UI is single-layer for phase one. The data model already uses `layers[]`, but a layer-management panel is not exposed yet.
+- The UI is single-layer for this build. The data model already uses `layers[]`, but a layer-management panel is not exposed yet.
 - Copy/paste uses an in-app clipboard; it does not write to the system clipboard.
 - Animation frames and drag-to-preview layer blending are not implemented.
 - PNG palette strips are intended for normal palette sizes; very large palettes are better exported as JSON.
-- The portable package is unsigned, so Windows SmartScreen may warn. There is no auto-updater.
+- The portable package is unsigned, so Windows SmartScreen may warn. There is no auto-updater. Windows 10 needs the WebView2 Runtime.
 
 ---
 
@@ -137,7 +141,7 @@ npm run dev
 
 **PixelRamp Studio** 是一个以调色卡为核心的桌面像素艺术工作台。先建立一套可读的色阶，再开始画纹理：不用为了找阴影色和高光色一遍遍试色。
 
-> **当前状态：** 一期可运行源码版本。Windows 便携包通过 [Releases](https://github.com/DimoIer/Pixelramp/releases) 分发；135 MB 的 ZIP 不提交到源码仓库。
+> **当前状态：** 使用 Tauri v2 + Rust 桌面后端和 React/TypeScript 渲染层。Windows 便携包通过 [Releases](https://github.com/DimoIer/Pixelramp/releases) 分发；生成的 ZIP 不提交到源码仓库。
 
 ### 功能
 
@@ -151,14 +155,14 @@ npm run dev
 
 ### 从源码运行
 
-环境：Windows 10/11，Node.js 20.19+ 或 22.12+。
+环境：Windows 10/11、WebView2（Windows 11 已内置）、Node.js 20.19+ 或 22.12+、Rust stable-msvc，以及 Visual Studio C++ Build Tools。Tauri CLI、`@tauri-apps/api` 和 dialog 插件已写入 `package.json`。
 
 ```powershell
 npm install
-npm run dev
+npm run dev:tauri
 ```
 
-浏览器界面预览（文件操作降级为下载 / 文件选择框）：
+`npm run dev:tauri` 会启动 Vite 前端和 Rust/WebView2 桌面窗口。浏览器界面预览（文件操作降级为下载 / 文件选择框）：
 
 ```powershell
 npm run dev:web
@@ -169,21 +173,23 @@ npm run dev:web
 
 ```powershell
 npm test
-npm run build
-npm run dist
+npm run build:tauri
+npm run package:tauri
 ```
 
-`npm run dist` 会生成 `release/PixelRamp-0.1.0-win-x64.zip`；`npm run pack` 只生成未压缩的 `release/win-unpacked/`。`scripts/build.mjs` 会把 esbuild 临时目录放进项目内，以绕开当前 Windows 环境的临时文件删除锁。
+`npm run build:tauri` 会构建前端并生成 `src-tauri/target/release/pixelramp.exe`。`npm run package:tauri` 会把可执行文件复制到 `release/PixelRamp-0.1.0-tauri/`，并生成 `release/PixelRamp-0.1.0-tauri-win-x64.zip`。`scripts/build-web.mjs` 会把 esbuild 临时目录放进项目内，以绕开当前 Windows 环境的临时文件删除锁。
+
+Tauri 工程位于 `src-tauri/`。之前的 Electron 主进程仍保留在 `src/main` / `src/preload` 作为历史参考，但不参与 Tauri 构建。
 
 ### 便携版
 
-1. 从 [Releases](https://github.com/DimoIer/Pixelramp/releases) 下载 ZIP 并解压。
-2. 双击 **`PixelRamp.cmd`**；脚本会带 `--no-sandbox` 启动，并把数据保存在程序同目录的 `PixelRampData\`。
-3. 如果你的系统可以直接运行 `PixelRamp.exe`，也可以直接启动，但推荐使用启动脚本。
+1. 从 [Releases](https://github.com/DimoIer/Pixelramp/releases) 下载 Tauri ZIP 并解压。
+2. 双击 **`PixelRamp.cmd`**；它会启动 `PixelRamp.exe`，并把数据保存在程序同目录的 `PixelRampData\`。
+3. `PixelRamp.exe` 是未签名的 Tauri 程序，推荐始终通过启动脚本进入。
 
 便携包未签名，首次启动可能触发 Windows SmartScreen。请使用 `PixelRamp.cmd`；它避开直接运行 exe 的提示，并设置便携数据目录。
 
-`--no-sandbox` 是当前一期构建环境的限制：这里的 Chromium Windows OS sandbox 无法启动。渲染层仍保持 `contextIsolation`、禁用 Node、限制导航，并使用限制性 CSP。这是为本地离线应用做出的、明确记录在案的取舍。
+当前桌面端使用 Tauri/WebView2，而不是 Electron。渲染层使用限制性 CSP、禁用 Node，并只开放必要的 Tauri 能力。Windows 11 自带 WebView2；Windows 10 如缺失请安装 Evergreen WebView2 Runtime。
 
 ### 数据位置
 
@@ -192,17 +198,19 @@ npm run dist
 - 调色卡库：`PixelRampData\palettes\`（每张调色卡一个 JSON，`index.json` 为索引）。
 - 最近文件：`PixelRampData\recent.json`。
 - 工程：用户选择的 `.pxramp` 文件；ZIP 内含 `manifest.json` 和 `pixels.rgba`。
+- WebView2 配置 / 缓存：`PixelRampWebView\`。
 
-开发模式或直接启动 `PixelRamp.exe` 时，同样的文件位于 `%APPDATA%\PixelRamp\`。可用环境变量覆盖数据目录：
+开发模式默认使用 `%APPDATA%\studio.pixelramp.desktop\`，除非通过环境变量覆盖。便携启动脚本会设置 `PIXELRAMP_USER_DATA` 和 `WEBVIEW2_USER_DATA_FOLDER`，让数据保持自包含。也可以手动覆盖：
 
 ```powershell
 $env:PIXELRAMP_USER_DATA = "D:\PixelRampData"
-npm run dev
+npm run dev:tauri
 ```
 
 ### 技术说明
 
-- **为什么是 Electron 而不是 Tauri** — 规格推荐 Tauri v2 + Rust，但原始构建环境没有 Rust 和 MSVC Build Tools，无法构建可运行的 Tauri 应用。一期使用 Electron 45 + React 19 + TypeScript + Vite。颜色计算、提取、像素操作和工程序列化位于 `src/renderer/src/core/`，不依赖 React，后续可以逐项迁移为 Rust / Tauri command，而 UI、数据模型和文件格式无需改变。
+- **Tauri v2 + Rust 后端** — `src-tauri/src/files.rs` 负责文件读写 / 定位，`palettes.rs` 负责调色卡库持久化，`recent.rs` 负责最近文件，`storage.rs` 负责数据路径和原子写入。原生对话框使用 `tauri-plugin-dialog`，单实例锁使用 `tauri-plugin-single-instance`。
+- **复用 React 渲染层** — 颜色计算、提取、光栅操作和工程序列化仍在 `src/renderer/src/core/`，不依赖框架。`src/renderer/src/platform/tauri.ts` 把现有桌面 API 适配到 Tauri。
 - **无插值** — 画布每次绘制前都关闭 `imageSmoothingEnabled`，只使用整数缩放；导入缩放和 PNG 导出缩放均使用最近邻。
 - **渲染与提取分离** — 交互式像素操作留在本地；颜色提取与 OKLab 合并通过内联 Web Worker 执行。
 - **默认离线** — 无遥测、无远程内容、运行时不依赖网络。
@@ -228,26 +236,34 @@ npm run dev
 
 ### 已知限制
 
-- 一期 UI 为单图层。数据模型已经使用 `layers[]`，但暂未提供图层管理面板。
+- 初期构建的 UI 为单图层。数据模型已经使用 `layers[]`，但暂未提供图层管理面板。
 - 复制 / 粘贴使用应用内剪贴板，不写入系统剪贴板。
 - 未实现动画帧和拖拽试色叠加。
 - PNG 色卡条适合常规规模调色卡；颜色极多时建议导出 JSON。
-- 便携包未签名，Windows SmartScreen 可能提示；没有自动更新器。
+- 便携包未签名，Windows SmartScreen 可能提示；没有自动更新器。Windows 10 需要 WebView2 Runtime。
 
 ---
 
 ## Project layout / 代码结构
 
 ```text
+src-tauri/
+  src/main.rs        Tauri binary entry
+  src/lib.rs         window creation, plugins, command registration
+  src/files.rs       native file read/write/reveal commands
+  src/palettes.rs    palette JSON library and atomic index
+  src/recent.rs      recent-file JSON store
+  src/storage.rs     data directory resolution and atomic writes
+  capabilities/      Tauri window/dialog permissions
 src/
-  main/              Electron main process: file dialogs, palette persistence, recents, windows
-  preload/           contextBridge API
+  main/              legacy Electron main process (not in the Tauri build)
+  preload/           legacy Electron contextBridge API
   shared/            shared types / 共享类型
   renderer/src/
     core/            OKLab/OKLCh, ramps, extraction, raster ops, palettes, project files
     store/           workbench state, history, palette and UI state
     components/      canvas, tools, palette workspace, dialogs
-    platform/        Electron / browser file and storage adapters
+    platform/        Tauri / legacy Electron / browser adapters
     workers/         color extraction worker
 docs/                 screenshots / 界面截图
 ```
@@ -258,12 +274,14 @@ docs/                 screenshots / 界面截图
 npm test
 ```
 
-**26** unit tests cover color conversion, ramp generation, extraction/merging, raster operations, and project archives. The packaged Electron build was also smoke-tested for preload IPC, the extraction worker, palette persistence, PNG and `.pxramp` export, recent files, and the unsaved-close guard.
+**26** unit tests cover color conversion, ramp generation, extraction/merging, raster operations, and project archives. The Tauri build was smoke-tested for IPC, native file dialogs, palette persistence, file read/write, recent files, the extraction worker, the unsaved-close guard, and a production (`--no-bundle`) build.
 
-**26** 项单元测试覆盖颜色转换、色阶生成、颜色提取 / 合并、光栅操作和工程归档；此外已在打包后的 Electron 应用中实测 preload IPC、提取 Worker、调色卡持久化、PNG 与 `.pxramp` 导出、最近文件和未保存关闭拦截。
+**26** 项单元测试覆盖颜色转换、色阶生成、颜色提取 / 合并、光栅操作和工程归档；此外已在 Tauri 构建中实测 IPC、原生文件对话框、调色卡持久化、文件读写、最近文件、提取 Worker、未保存关闭拦截和生产构建。
 
 ## References / 参考
 
+- [Tauri v2](https://v2.tauri.app/) and [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
+- [Microsoft Edge WebView2](https://developer.microsoft.com/microsoft-edge/webview2/).
 - OKLab / OKLCh: Björn Ottosson, *A perceptual color space for image processing*.
 - Palette and pixel format conventions follow the project's original specification. / 调色卡与像素格式遵循项目原始规格。
 

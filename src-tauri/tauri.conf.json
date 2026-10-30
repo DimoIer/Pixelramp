@@ -1,0 +1,48 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "PixelRamp",
+  "version": "0.1.0",
+  "identifier": "studio.pixelramp.desktop",
+  "build": {
+    "frontendDist": "../dist-web",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev:web",
+    "beforeBuildCommand": "npm run build:web"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "PixelRamp",
+        "width": 1480,
+        "height": 940,
+        "minWidth": 1040,
+        "minHeight": 650,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "center": true,
+        "create": false,
+        "dragDropEnabled": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "shortDescription": "Palette-first pixel texture workbench",
+    "longDescription": "A palette-first pixel texture workbench for Minecraft artists."
+  }
+}

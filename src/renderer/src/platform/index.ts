@@ -8,14 +8,19 @@ import type {
   SaveFileRequest
 } from '@shared/types'
 import { normalizePalette } from '../core/palette'
+import { createTauriDesktop } from './tauri'
 
 export type OpenKind = 'image' | 'project' | 'any' | 'json' | 'paletteImage'
 
 const PALETTE_KEY = 'pixelramp.palettes.v1'
 const RECENT_KEY = 'pixelramp.recent.v1'
 
+const tauriRuntime =
+  typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 const desktop: DesktopApi | undefined =
-  typeof window !== 'undefined' ? window.pixelramp : undefined
+  typeof window !== 'undefined'
+    ? window.pixelramp ?? (tauriRuntime ? createTauriDesktop() : undefined)
+    : undefined
 
 export const isDesktop = !!desktop
 

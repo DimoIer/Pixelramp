@@ -487,12 +487,7 @@ export function TitleBar({ paletteOpen, onTogglePalette }: TitleBarProps) {
   const docIcon = doc.kind === 'project' ? <FileArchive size={12} /> : doc.kind === 'image' ? <FileImage size={12} /> : <FilePlus2 size={12} />
 
   return (
-    <header
-      className="titlebar"
-      onDoubleClick={(event) => {
-        if (!(event.target as HTMLElement).closest('.no-drag')) windowControls.toggleMaximize()
-      }}
-    >
+    <header className="titlebar" data-tauri-drag-region>
       <div className="titlebar__left no-drag">
         <div className="brand">
           <BrandMark />
@@ -512,7 +507,7 @@ export function TitleBar({ paletteOpen, onTogglePalette }: TitleBarProps) {
         </nav>
       </div>
 
-      <div className="titlebar__center">
+      <div className="titlebar__center" data-tauri-drag-region>
         <div className={clsx('doc-chip', doc.dirty && 'is-dirty')}>
           <span className="doc-chip__icon">{docIcon}</span>
           <span className="doc-chip__name">{doc.name}</span>

@@ -1,0 +1,22 @@
+[package]
+name = "pixelramp"
+version = "0.1.0"
+description = "A palette-first pixel texture workbench for Minecraft artists."
+authors = ["PixelRamp"]
+license = "MIT"
+edition = "2024"
+rust-version = "1.90"
+
+[lib]
+name = "pixelramp_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-single-instance = "2"

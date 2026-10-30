@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   root: resolve('src/renderer'),
+  base: './',
+  clearScreen: false,
   plugins: [react()],
   resolve: {
     alias: {

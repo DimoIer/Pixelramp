@@ -102,7 +102,7 @@ export interface ProjectManifest {
 }
 
 export interface DesktopApi {
-  platform: 'electron'
+  platform: 'electron' | 'tauri'
   version: string
   window: {
     minimize: () => void
