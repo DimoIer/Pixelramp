@@ -507,7 +507,7 @@ function tabSnapshot(tab: DocumentTab): Partial<WorkbenchState> {
 export const useWorkbench = create<WorkbenchStore>((set, get) => ({
   ...makeInitialState(),
 
-  setTool: (tool) => set({ tool }),
+  setTool: (tool) => set(tool === 'eraser' ? { tool, pixelPerfect: false } : { tool }),
   setBrushSize: (size) => set({ brushSize: Math.max(1, Math.min(32, Math.round(size))) }),
   setForeground: (color) => set({ foreground: normalizeRgba(color) }),
   setBackground: (color) => set({ background: normalizeRgba(color) }),

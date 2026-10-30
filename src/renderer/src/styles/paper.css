@@ -54,6 +54,47 @@
   background: var(--surface-2);
 }
 
+:root[data-theme="paper"] .library-search {
+  background: var(--surface-2);
+}
+
+:root[data-theme="paper"] .library-search button:hover {
+  background: rgba(48, 43, 31, 0.07);
+}
+
+:root[data-theme="paper"] .library-empty {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(125, 157, 53, 0.09), transparent 55%),
+    var(--surface-2);
+}
+
+:root[data-theme="paper"] .library-card {
+  background: var(--surface-2);
+}
+
+:root[data-theme="paper"] .library-card:hover {
+  background: var(--surface-3);
+}
+
+:root[data-theme="paper"] .library-card__more,
+:root[data-theme="paper"] .library-card__menu {
+  background: var(--surface-3);
+}
+
+:root[data-theme="paper"] .library-card__menu:hover {
+  background: var(--surface-4);
+}
+
+:root[data-theme="paper"] .about-tech {
+  background: var(--surface-2);
+}
+
+:root[data-theme="paper"] .kbd {
+  background: var(--surface-3);
+  border-bottom-color: var(--line-strong);
+  box-shadow: 0 1px 0 rgba(63, 54, 39, 0.12);
+}
+
 :root[data-theme="paper"] .range {
   --range-gradient: linear-gradient(90deg, #c7c0af, var(--accent));
 }
@@ -140,6 +181,14 @@
 
 :root[data-theme="paper"] .color-popover {
   background: var(--surface);
+}
+
+:root[data-theme="paper"] .extract-popover {
+  background: var(--surface);
+}
+
+:root[data-theme="paper"] .extract-popover__arrow {
+  fill: var(--surface);
 }
 
 :root[data-theme="paper"] .color-popover__arrow {

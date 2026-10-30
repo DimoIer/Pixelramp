@@ -264,6 +264,14 @@
   position: relative;
 }
 
+.palette-section + .palette-section,
+.section-dock-placeholder + .palette-section,
+.palette-section + .section-dock-placeholder {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-strong);
+}
+
 .palette-section .section-head {
   cursor: grab;
   touch-action: none;

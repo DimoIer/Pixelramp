@@ -35,8 +35,9 @@ function readStored(): Partial<PreferencesState> {
         parsed.theme === 'moss' ||
         parsed.theme === 'paper'
           ? parsed.theme
-          : 'moss',
-      canvasLight: parsed.canvasLight === true,
+          : undefined,
+      canvasLight:
+        typeof parsed.canvasLight === 'boolean' ? parsed.canvasLight : undefined,
       language: parsed.language === 'en' ? 'en' : 'zh',
       floatToolbar: parsed.floatToolbar === true,
       floatPalette: parsed.floatPalette === true,
@@ -56,11 +57,13 @@ function apply(theme: UiTheme, canvasLight: boolean, language: Language = 'zh'):
 }
 
 const stored = readStored()
-apply(stored.theme ?? 'moss', stored.canvasLight ?? false, stored.language ?? 'zh')
+const initialTheme = stored.theme ?? 'paper'
+const initialCanvasLight = stored.canvasLight ?? initialTheme === 'paper'
+apply(initialTheme, initialCanvasLight, stored.language ?? 'zh')
 
 export const usePreferences = create<PreferencesState>((set) => ({
-  theme: stored.theme ?? 'moss',
-  canvasLight: stored.canvasLight ?? false,
+  theme: initialTheme,
+  canvasLight: initialCanvasLight,
   language: stored.language ?? 'zh',
   floatToolbar: stored.floatToolbar ?? false,
   floatPalette: stored.floatPalette ?? false,
