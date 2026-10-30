@@ -34,7 +34,13 @@ import {
   MousePointerSquareDashed,
   FileJson,
   Settings2,
-  Palette
+  Palette,
+  SlidersHorizontal,
+  SunMedium,
+  Droplets,
+  Blend,
+  Spline,
+  Scaling
 } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
@@ -55,7 +61,8 @@ import {
   pasteCommand,
   requestWindowCloseCommand,
   saveProjectCommand,
-  selectAllCommand
+  selectAllCommand,
+  invertActiveLayerCommand
 } from '../../commands'
 
 interface TitleBarProps {
@@ -315,6 +322,59 @@ function EditMenu() {
             shortcut="Esc"
             disabled={!selection}
             onSelect={deselectCommand}
+          />
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  )
+}
+
+function AdjustMenu() {
+  const t = useT()
+  const openDialog = useUi((state) => state.openDialog)
+  const { hasLayer } = useWorkbench(
+    useShallow((state) => ({ hasLayer: !!state.doc.layers[state.doc.activeLayer] }))
+  )
+  return (
+    <DropdownMenu.Root>
+      <MenuTrigger>{t('调整')}</MenuTrigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content className="menu-content" align="start" sideOffset={5}>
+          <MenuAction
+            icon={<SunMedium size={14} />}
+            label={t('调整亮度和对比度…')}
+            onSelect={() => openDialog('brightness-contrast')}
+            disabled={!hasLayer}
+          />
+          <MenuAction
+            icon={<Droplets size={14} />}
+            label={t('调整饱和度和色调…')}
+            onSelect={() => openDialog('hue-saturation')}
+            disabled={!hasLayer}
+          />
+          <MenuAction
+            icon={<Blend size={14} />}
+            label={t('调整不透明度…')}
+            onSelect={() => openDialog('opacity')}
+            disabled={!hasLayer}
+          />
+          <MenuAction
+            icon={<SlidersHorizontal size={14} />}
+            label={t('反转颜色')}
+            onSelect={invertActiveLayerCommand}
+            disabled={!hasLayer}
+          />
+          <MenuAction
+            icon={<Spline size={14} />}
+            label={t('调整曲线…')}
+            onSelect={() => openDialog('curves')}
+            disabled={!hasLayer}
+          />
+          <Divider />
+          <MenuAction
+            icon={<Scaling size={14} />}
+            label={t('纹理缩放…')}
+            onSelect={() => openDialog('texture-scale')}
           />
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
@@ -584,6 +644,7 @@ export function TitleBar({ paletteOpen, onTogglePalette }: TitleBarProps) {
         <nav className="menubar" aria-label={t('主菜单')}>
           <FileMenu />
           <EditMenu />
+          <AdjustMenu />
           <ViewMenu paletteOpen={paletteOpen} onTogglePalette={onTogglePalette} />
           <HelpMenu />
         </nav>

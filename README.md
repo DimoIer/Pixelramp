@@ -38,6 +38,8 @@
 ### Highlights
 
 - **Pixel canvas** — 8 / 16 / 32 / 64 presets and custom square canvases from 1–256 px. Pencil and eraser with 1–32 px square brushes, pixel-perfect mode, bucket (tolerance 0, contiguous toggle), eyedropper, line, rectangle, and rectangular selections with move / copy / cut / paste / delete. Left-drag paints; right-drag or Space-drag pans.
+- **Image adjustments** — brightness/contrast, hue/saturation, per-layer alpha opacity, invert colors, and a five-point RGB master curve. Each dialog previews the current layer; adjustments are undoable.
+- **Texture scaling** — percentage-based nearest-neighbor scaling of all layers (10–400%, clamped to 1–256 px), preserving the layer stack and visibility.
 - **Tabs and layers** — multiple documents open as tabs with independent history, selection, zoom and pan. Layer stack with add, duplicate, delete, reorder, merge-down, visibility, opacity and inline rename. Projects preserve the layer stack.
 - **Current build/design** — 3 UI accent themes (Moss / Cobalt / Ember) plus a light canvas toggle; Chinese/English interface switch in the appearance menu; resizable canvas with nine-point anchoring and non-scaling crop/pad.
 - **Drawing experience** — integer zoom levels, cursor-anchored wheel zoom, space / middle-button / right-button panning, X/Y mirror symmetry, toggleable pixel grid, 80-step stroke-based undo/redo, transparent checkerboard, and hard-edged nearest-neighbor rendering.
@@ -155,6 +157,8 @@ npm run dev:tauri
 ### 功能
 
 - **像素画布** — 8 / 16 / 32 / 64 预设，以及 1–256 像素的自定义方形画布。铅笔和橡皮支持 1–32 像素方形笔刷；另有像素完美、油漆桶（容差 0，连续 / 全局）、吸管、直线、矩形，以及支持移动 / 复制 / 剪切 / 粘贴 / 删除的矩形选区。左键绘制，右键拖动或空格拖动平移。
+- **图像调整** — 亮度 / 对比度、色相 / 饱和度、逐像素 alpha 不透明度、反转颜色，以及五点 RGB 主曲线；对话框提供当前图层预览，调整可撤销。
+- **纹理缩放** — 按百分比以最近邻缩放所有图层（10–400%，限制 1–256 px），保留图层栈和可见性。
 - **标签页与图层** — 多个文档以标签页打开，各自保留历史、选区、缩放和平移。图层支持新建、复制、删除、排序、向下合并、可见性、不透明度和双击重命名；工程文件保留图层栈。
 - **界面与画布** — 苔绿 / 钴蓝 / 余烬三套强调色主题，可切换浅色画布；中英文界面切换；画布可按九宫格锚点裁剪或扩展，不缩放像素。
 - **绘制体验** — 整数倍缩放、以鼠标位置为锚点的滚轮缩放、空格 / 中键 / 右键平移、水平 / 垂直镜像、可开关的像素网格、80 步笔触级撤销 / 重做、透明棋盘，以及最近邻硬边渲染。

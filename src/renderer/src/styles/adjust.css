@@ -1,0 +1,190 @@
+.adjust-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 1.05fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.adjust-preview {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.adjust-preview__canvas {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background-color: var(--canvas-checker-b);
+  background-image:
+    linear-gradient(45deg, var(--canvas-checker-a) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--canvas-checker-a) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--canvas-checker-a) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--canvas-checker-a) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.adjust-preview__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 9px;
+  border-top: 1px solid var(--line);
+  color: var(--text-4);
+  font-size: 8.5px;
+}
+
+.adjust-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 2px 1px;
+}
+
+.adjust-note {
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.curves-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(200px, 0.9fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.curves-editor {
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.curves-editor__head,
+.curves-editor__axis {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-3);
+  font-size: 9px;
+}
+
+.curves-editor__head {
+  padding-bottom: 7px;
+}
+
+.curves-editor__axis {
+  padding-top: 5px;
+}
+
+.curve-svg {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.curve-svg__background {
+  fill: var(--surface-3);
+}
+
+.curve-svg__grid {
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.curve-svg__diagonal {
+  stroke: var(--text-4);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.6;
+}
+
+.curve-svg__path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.curve-svg__point {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 2;
+  cursor: grab;
+}
+
+.curve-svg__point:active {
+  cursor: grabbing;
+}
+
+.curves-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.texture-scale {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.texture-scale__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.texture-scale__value {
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.texture-scale__presets {
+  display: flex;
+  gap: 5px;
+}
+
+.texture-scale__sizebox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.texture-scale__sizebox > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--text-3);
+  font-size: 10px;
+}
+
+.texture-scale__sizebox strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.texture-scale__arrow {
+  color: var(--text-4);
+}

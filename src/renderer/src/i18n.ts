@@ -289,6 +289,45 @@ const EN: Record<string, string> = {
   '导出 PNG': 'Export PNG',
   '拖动铅笔时移除 L 形冗余拐角，斜线保持 1 px。':
     'Removes redundant L-corners while drawing; diagonals stay 1 px.',
+  '调整': 'Adjust',
+  '调整亮度和对比度…': 'Brightness & contrast…',
+  '调整饱和度和色调…': 'Saturation & hue…',
+  '调整不透明度…': 'Opacity…',
+  '反转颜色': 'Invert colors',
+  '调整曲线…': 'Curves…',
+  '纹理缩放…': 'Texture scale…',
+  '调整亮度和对比度': 'Brightness & contrast',
+  '调整饱和度和色调': 'Saturation & hue',
+  '调整不透明度': 'Opacity',
+  '调整当前图层「{name}」。应用后可用撤销恢复。':
+    'Adjust the current layer "{name}". The result can be undone.',
+  '重置': 'Reset',
+  '当前图层预览': 'Current layer preview',
+  '亮度': 'Brightness',
+  '对比度': 'Contrast',
+  '色相偏移': 'Hue shift',
+  '不透明度会乘以当前图层每个像素的 alpha；透明像素保持透明。':
+    'Opacity multiplies each pixel alpha in the current layer; transparent pixels stay transparent.',
+  '调整仅作用于当前图层，不修改调色卡或其他图层。':
+    'Adjustments affect only the current layer, not the palette or other layers.',
+  '图层调整已应用': 'Layer adjustment applied',
+  '调整曲线': 'Curves',
+  '曲线已应用': 'Curves applied',
+  '拖动控制点调整 RGB 主曲线；应用后可用撤销恢复。':
+    'Drag control points to adjust the RGB master curve. The result can be undone.',
+  'RGB 主曲线': 'RGB master curve',
+  '曲线只作用于当前图层，不修改调色卡。':
+    'Curves affect only the current layer, not the palette.',
+  '纹理缩放': 'Texture scale',
+  '按百分比以最近邻方式缩放所有图层。宽高取整后限制在 1–256 px；历史记录会清空。':
+    'Scale all layers by percentage with nearest-neighbor sampling. Rounded to 1–256 px; history is cleared.',
+  '缩放比例': 'Scale',
+  '纹理已缩放': 'Texture scaled',
+  '原尺寸': 'Original',
+  '新尺寸': 'New size',
+  '缩放后会保持图层栈与可见性；像素使用最近邻采样，不产生平滑颜色。':
+    'The layer stack and visibility are preserved; nearest-neighbor sampling adds no blended colors.',
+  '图层颜色已反转': 'Layer colors inverted',
   '正方形画布，1–256 px。': 'Square canvas, 1–256 px.',
   '关闭「{name}」？': 'Close "{name}"?',
   '这个标签页有尚未保存的像素修改。关闭会丢失这些修改。':

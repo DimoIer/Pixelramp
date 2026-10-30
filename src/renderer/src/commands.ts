@@ -22,6 +22,7 @@ import { paletteWorker } from './workers/paletteClient'
 import { normalizeSelection, useWorkbench, type ExtractSummary } from './store/workbench'
 import { useUi } from './store/ui'
 import { tr } from './i18n'
+import { invertPixels } from './core/adjustments'
 
 function baseName(filePath: string): string {
   const normalized = filePath.replace(/\\/g, '/')
@@ -554,4 +555,12 @@ export function applyForegroundFromPalette(index: number): void {
   if (!color) return
   state.setSelectedColorIndex(index)
   state.setForeground(color.rgba)
+}
+
+export function invertActiveLayerCommand(): void {
+  const state = useWorkbench.getState()
+  const layer = state.doc.layers[state.doc.activeLayer]
+  if (!layer) return
+  state.applyActiveLayerPixels(tr('反转颜色'), invertPixels(layer.pixels))
+  useUi.getState().toast(tr('图层颜色已反转'), 'success', layer.name)
 }

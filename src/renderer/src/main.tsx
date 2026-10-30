@@ -11,6 +11,7 @@ import './styles/canvas.css'
 import './styles/layers.css'
 import './styles/tabs.css'
 import './styles/resize.css'
+import './styles/adjust.css'
 import './styles/dialogs.css'
 import App from './App'
 

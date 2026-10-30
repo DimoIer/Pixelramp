@@ -36,6 +36,7 @@ import {
   extractRegion,
   flattenLayers,
   resizeCanvasPixels,
+  resizeNearest,
   toRgbaBytes,
   type Rect
 } from '../core/pixels'
@@ -235,6 +236,8 @@ export interface WorkbenchActions {
   markSaved: (filePath: string, name?: string) => void
   setDocumentDirty: (dirty: boolean) => void
   resizeDocument: (width: number, height: number, anchor: ResizeAnchor) => void
+  applyActiveLayerPixels: (label: string, pixels: Uint32Array) => void
+  scaleTexture: (width: number, height: number) => void
 
   addLayer: () => void
   duplicateLayer: (index?: number) => void
@@ -858,6 +861,47 @@ export const useWorkbench = create<WorkbenchStore>((set, get) => ({
     get().fitView()
   },
 
+  applyActiveLayerPixels: (label, pixels) => {
+    const state = get()
+    if (state.transaction) return
+    const active = state.doc.layers[state.doc.activeLayer]
+    if (!active) return
+    state.beginTransaction(label)
+    state.setDraftPixels(pixels)
+    state.commitTransaction()
+  },
+
+  scaleTexture: (width, height) => {
+    const state = get()
+    const nextWidth = Math.max(1, Math.min(256, Math.round(width)))
+    const nextHeight = Math.max(1, Math.min(256, Math.round(height)))
+    if (nextWidth === state.doc.width && nextHeight === state.doc.height) return
+    const layers = state.doc.layers.map((layer) => ({
+      ...layer,
+      pixels: resizeNearest(
+        layer.pixels,
+        state.doc.width,
+        state.doc.height,
+        nextWidth,
+        nextHeight
+      )
+    }))
+    set({
+      doc: {
+        ...state.doc,
+        width: nextWidth,
+        height: nextHeight,
+        layers,
+        dirty: true
+      },
+      revision: state.revision + 1,
+      selection: null,
+      history: [],
+      redoStack: [],
+      transaction: null
+    })
+    get().fitView()
+  },
   addLayer: () => {
     const state = get()
     if (state.transaction || !state.beginTransaction('新建图层')) return
