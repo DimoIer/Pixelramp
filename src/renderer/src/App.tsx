@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
-import { PanelLeftOpen } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen, Rows3, Columns3 } from 'lucide-react'
 import { TooltipProvider } from './components/ui/Tooltip'
 import { TitleBar } from './components/titlebar/TitleBar'
 import { ToolRail } from './components/tools/ToolRail'
@@ -192,17 +192,40 @@ export default function App() {
             minWidth={toolbarOrientation === 'horizontal' ? 280 : 66}
             minHeight={toolbarOrientation === 'horizontal' ? 68 : 320}
             onDock={() => setFloatToolbar(false)}
+            actions={
+              <>
+                <button
+                  type="button"
+                  className="floating-panel__action"
+                  aria-label={t('收起工具栏')}
+                  title={t('收起工具栏')}
+                  onClick={() => setToolbarOpen(false)}
+                >
+                  <PanelLeftClose size={13} />
+                </button>
+                <button
+                  type="button"
+                  className="floating-panel__action"
+                  aria-label={toolbarOrientation === 'horizontal' ? t('纵向排列') : t('横向排列')}
+                  title={toolbarOrientation === 'horizontal' ? t('纵向排列') : t('横向排列')}
+                  onClick={() =>
+                    setToolbarOrientation(
+                      toolbarOrientation === 'horizontal' ? 'vertical' : 'horizontal'
+                    )
+                  }
+                >
+                  {toolbarOrientation === 'horizontal' ? (
+                    <Columns3 size={13} />
+                  ) : (
+                    <Rows3 size={13} />
+                  )}
+                </button>
+              </>
+            }
           >
             <ToolRail
               floating
               horizontal={toolbarOrientation === 'horizontal'}
-              onCollapse={() => setToolbarOpen(false)}
-              onFloat={() => setFloatToolbar(false)}
-              onToggleOrientation={() =>
-                setToolbarOrientation(
-                  toolbarOrientation === 'horizontal' ? 'vertical' : 'horizontal'
-                )
-              }
             />
           </FloatingPanel>
         ) : null}

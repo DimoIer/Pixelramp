@@ -1,4 +1,4 @@
-import { FolderOpen, PanelRightClose, PictureInPicture2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, FolderOpen, PanelRightClose, PictureInPicture2 } from 'lucide-react'
 import { useState } from 'react'
 import clsx from 'clsx'
 import { useWorkbench } from '../../store/workbench'
@@ -54,15 +54,15 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
               <PanelRightClose size={15} />
             </button>
           </Tooltip>
-          {onFloat ? (
+          {onFloat && !floating ? (
             <Tooltip
-              content={floating ? t('停靠调色卡工作台') : t('悬浮调色卡工作台')}
+              content={t('悬浮调色卡工作台')}
               side="bottom"
             >
               <button
                 type="button"
                 className="panel-collapse"
-                aria-label={floating ? t('停靠调色卡工作台') : t('悬浮调色卡工作台')}
+                aria-label={t('悬浮调色卡工作台')}
                 onClick={onFloat}
               >
                 <PictureInPicture2 size={15} />
@@ -96,6 +96,17 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
         minWidth={330}
         minHeight={360}
         onDock={() => setGeneratorFloating(false)}
+        actions={
+          <button
+            type="button"
+            className="floating-panel__action"
+            aria-label={generatorCollapsed ? t('展开') : t('收起')}
+            title={generatorCollapsed ? t('展开') : t('收起')}
+            onClick={() => setGeneratorCollapsed((value) => !value)}
+          >
+            {generatorCollapsed ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
+          </button>
+        }
       >
         <div className="floating-section">
           <GeneratorPanel
@@ -115,6 +126,17 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
         minWidth={340}
         minHeight={360}
         onDock={() => setActiveFloating(false)}
+        actions={
+          <button
+            type="button"
+            className="floating-panel__action"
+            aria-label={activeCollapsed ? t('展开') : t('收起')}
+            title={activeCollapsed ? t('展开') : t('收起')}
+            onClick={() => setActiveCollapsed((value) => !value)}
+          >
+            {activeCollapsed ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
+          </button>
+        }
       >
         <div className="floating-section">
           <ActivePalettePanel

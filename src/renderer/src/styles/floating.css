@@ -56,6 +56,27 @@
   color: var(--text-4);
 }
 
+.floating-panel__actions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex: none;
+}
+
+.floating-panel__action {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 21px;
+  border-radius: 3px;
+  color: var(--text-4);
+}
+
+.floating-panel__action:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+
 .floating-panel__dock:hover {
   color: var(--text);
   background: rgba(255, 255, 255, 0.07);

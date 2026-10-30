@@ -113,7 +113,6 @@ export function GeneratorPanel({
   return (
     <section className={clsx('panel-section generator', collapsed && 'is-collapsed')}>
       <SectionHead
-        index="01"
         title={t('色阶生成器')}
         aside={<span className="mode-pill mono">{rampParams.colorSpace}</span>}
         action={

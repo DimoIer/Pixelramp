@@ -1,4 +1,4 @@
-import { ArrowLeftRight, CircleHelp, Columns3, PanelLeftClose, PictureInPicture2, Redo2, Rows3, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, CircleHelp, PanelLeftClose, PictureInPicture2, Redo2, Undo2 } from 'lucide-react'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useWorkbench } from '../../store/workbench'
@@ -21,8 +21,7 @@ export function ToolRail({
   floating = false,
   horizontal = false,
   onCollapse,
-  onFloat,
-  onToggleOrientation
+  onFloat
 }: ToolRailProps) {
   const t = useT()
   const {
@@ -61,45 +60,29 @@ export function ToolRail({
       className={clsx('tool-rail', floating && 'is-floating', horizontal && 'is-horizontal')}
       aria-label={t('工具与颜色')}
     >
-      <div className="tool-rail__controls">
-        {onCollapse ? (
-          <Tooltip content={t('收起工具栏')} side={horizontal ? 'bottom' : 'right'}>
-            <button type="button" className="rail-control" aria-label={t('收起工具栏')} onClick={onCollapse}>
-              <PanelLeftClose size={14} />
-            </button>
-          </Tooltip>
-        ) : null}
-        {onFloat ? (
-          <Tooltip
-            content={floating ? t('停靠工具栏') : t('悬浮工具栏')}
-            side={horizontal ? 'bottom' : 'right'}
-          >
-            <button
-              type="button"
-              className="rail-control"
-              aria-label={floating ? t('停靠工具栏') : t('悬浮工具栏')}
-              onClick={onFloat}
-            >
-              <PictureInPicture2 size={14} />
-            </button>
-          </Tooltip>
-        ) : null}
-        {floating && onToggleOrientation ? (
-          <Tooltip
-            content={horizontal ? t('纵向排列') : t('横向排列')}
-            side={horizontal ? 'bottom' : 'right'}
-          >
-            <button
-              type="button"
-              className="rail-control"
-              aria-label={horizontal ? t('纵向排列') : t('横向排列')}
-              onClick={onToggleOrientation}
-            >
-              {horizontal ? <Columns3 size={14} /> : <Rows3 size={14} />}
-            </button>
-          </Tooltip>
-        ) : null}
-      </div>
+      {!floating ? (
+        <div className="tool-rail__controls">
+          {onCollapse ? (
+            <Tooltip content={t('收起工具栏')} side="right">
+              <button type="button" className="rail-control" aria-label={t('收起工具栏')} onClick={onCollapse}>
+                <PanelLeftClose size={14} />
+              </button>
+            </Tooltip>
+          ) : null}
+          {onFloat ? (
+            <Tooltip content={t('悬浮工具栏')} side="right">
+              <button
+                type="button"
+                className="rail-control"
+                aria-label={t('悬浮工具栏')}
+                onClick={onFloat}
+              >
+                <PictureInPicture2 size={14} />
+              </button>
+            </Tooltip>
+          ) : null}
+        </div>
+      ) : null}
       <div className="tool-rail__group">
         <span className="tool-rail__label eyebrow">{t('工具')}</span>
         {TOOLS.map((entry) => {

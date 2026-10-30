@@ -249,6 +249,15 @@
   margin-bottom: 0;
 }
 
+.panel-section.is-collapsed .section-head__aside,
+.panel-section.is-collapsed .generator-head-actions {
+  display: none;
+}
+
+.panel-section.is-collapsed .section-head {
+  padding: 2px 0;
+}
+
 .mode-pill {
   padding: 3px 5px;
   border: 1px solid rgba(134, 181, 223, 0.18);

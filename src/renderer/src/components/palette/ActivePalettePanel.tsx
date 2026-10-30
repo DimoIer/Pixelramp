@@ -480,7 +480,6 @@ export function ActivePalettePanel({
       className={clsx('panel-section active-palette', collapsed && 'is-collapsed')}
     >
       <SectionHead
-        index="02"
         title={t('当前调色卡')}
         collapsed={collapsed}
         floating={floating}

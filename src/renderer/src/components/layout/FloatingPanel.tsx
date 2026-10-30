@@ -26,6 +26,7 @@ interface FloatingPanelProps {
   children: ReactNode
   onDock: () => void
   className?: string
+  actions?: ReactNode
 }
 
 const STORAGE_PREFIX = 'pixelramp.float.'
@@ -73,7 +74,8 @@ export function FloatingPanel({
   minHeight,
   children,
   onDock,
-  className
+  className,
+  actions
 }: FloatingPanelProps) {
   const t = useT()
   const [rect, setRect] = useState<Rect>(() => clampRect(readRect(id, initial), minWidth, minHeight))
@@ -186,7 +188,8 @@ export function FloatingPanel({
       >
         <GripHorizontal size={13} />
         <span>{title}</span>
-        <button type="button" className="floating-panel__dock" onClick={onDock} aria-label={t('停靠面板')}> 
+        {actions ? <div className="floating-panel__actions">{actions}</div> : null}
+        <button type="button" className="floating-panel__dock" onClick={onDock} aria-label={t('停靠面板')}>
           <PanelTopClose size={13} />
         </button>
       </div>

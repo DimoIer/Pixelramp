@@ -17,6 +17,9 @@ import {
   Minus,
   PanelRightClose,
   PanelRightOpen,
+  PanelLeft,
+  PanelRight,
+  PictureInPicture2,
   Redo2,
   Save,
   Scan,
@@ -101,11 +104,13 @@ function CheckAction({
   checked,
   label,
   shortcut,
+  icon,
   onSelect
 }: {
   checked: boolean
   label: string
   shortcut?: string
+  icon?: ReactNode
   onSelect: () => void
 }) {
   return (
@@ -114,9 +119,14 @@ function CheckAction({
       checked={checked}
       onCheckedChange={() => onSelect()}
     >
-      <span className="menu-item__icon">{checked ? <Check size={13} /> : null}</span>
+      <span className="menu-item__icon">{icon ?? (checked ? <Check size={13} /> : null)}</span>
       <span className="menu-item__label">{label}</span>
       {shortcut ? <span className="menu-item__shortcut">{shortcut}</span> : null}
+      {checked ? (
+        <span className="menu-item__indicator">
+          <Check size={12} />
+        </span>
+      ) : null}
     </DropdownMenu.CheckboxItem>
   )
 }
@@ -453,23 +463,30 @@ function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
             onSelect={() => toggleSymmetry('y')}
           />
           <Divider />
-          <MenuAction
-            icon={paletteOpen ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
-            label={paletteOpen ? t('收起调色卡面板') : t('展开调色卡面板')}
-            onSelect={onTogglePalette}
-          />
-          <CheckAction
-            checked={floatToolbar}
-            label={t('浮动工具栏')}
-            onSelect={() => setFloatToolbar(!floatToolbar)}
-          />
           <CheckAction
             checked={toolbarOpen}
+            icon={<PanelLeft size={14} />}
             label={t('显示工具栏')}
             onSelect={() => setToolbarOpen(!toolbarOpen)}
           />
           <CheckAction
+            checked={floatToolbar}
+            icon={<PictureInPicture2 size={14} />}
+            label={t('浮动工具栏')}
+            onSelect={() => {
+              setFloatToolbar(!floatToolbar)
+              if (!floatToolbar) setToolbarOpen(true)
+            }}
+          />
+          <CheckAction
+            checked={paletteOpen}
+            icon={<PanelRight size={14} />}
+            label={t('显示调色卡工作台')}
+            onSelect={onTogglePalette}
+          />
+          <CheckAction
             checked={floatPalette}
+            icon={<PictureInPicture2 size={14} />}
             label={t('浮动调色卡工作台')}
             onSelect={() => {
               setFloatPalette(!floatPalette)

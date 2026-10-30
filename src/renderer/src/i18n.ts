@@ -341,6 +341,7 @@ const EN: Record<string, string> = {
   '横向排列': 'Horizontal layout',
   '纵向排列': 'Vertical layout',
   '显示工具栏': 'Show toolbar',
+  '显示调色卡工作台': 'Show palette workbench',
   '停靠调色卡工作台': 'Dock palette workbench',
   '悬浮调色卡工作台': 'Float palette workbench',
   '展开': 'Expand',

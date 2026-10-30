@@ -3,7 +3,6 @@ import type { ReactNode } from 'react'
 import { useT } from '../../i18n'
 
 export function SectionHead({
-  index,
   eyebrow,
   title,
   aside,
@@ -13,7 +12,6 @@ export function SectionHead({
   onCollapse,
   onFloat
 }: {
-  index: string
   eyebrow?: string
   title: string
   aside?: ReactNode
@@ -27,7 +25,6 @@ export function SectionHead({
   return (
     <div className="section-head">
       <div className="section-head__left">
-        <span className="section-index mono">{index}</span>
         <div className="section-head__copy">
           {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
           <h2 className="section-title">{title}</h2>
@@ -36,7 +33,7 @@ export function SectionHead({
       <div className="section-head__right">
         {action}
         {aside ? <div className="section-head__aside">{aside}</div> : null}
-        {onCollapse ? (
+        {onCollapse && !floating ? (
           <button
             type="button"
             className="section-control"
@@ -47,12 +44,12 @@ export function SectionHead({
             {collapsed ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
           </button>
         ) : null}
-        {onFloat ? (
+        {onFloat && !floating ? (
           <button
             type="button"
             className="section-control"
-            aria-label={floating ? t('停靠') : t('悬浮')}
-            title={floating ? t('停靠') : t('悬浮')}
+            aria-label={t('悬浮')}
+            title={t('悬浮')}
             onClick={onFloat}
           >
             <PictureInPicture2 size={13} />
