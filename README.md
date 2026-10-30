@@ -37,13 +37,15 @@
 
 ### Highlights
 
-- **Pixel canvas** — 8 / 16 / 32 / 64 presets and custom square canvases from 1–256 px. Pencil with pixel-perfect mode, eraser, bucket (tolerance 0, contiguous toggle), eyedropper, line, rectangle, and rectangular selections with move / copy / cut / paste / delete.
-- **Drawing experience** — integer zoom levels, cursor-anchored wheel zoom, space / middle-button panning, X/Y mirror symmetry, toggleable pixel grid, 80-step stroke-based undo/redo, transparent checkerboard, and hard-edged nearest-neighbor rendering.
+- **Pixel canvas** — 8 / 16 / 32 / 64 presets and custom square canvases from 1–256 px. Pencil and eraser with 1–32 px square brushes, pixel-perfect mode, bucket (tolerance 0, contiguous toggle), eyedropper, line, rectangle, and rectangular selections with move / copy / cut / paste / delete. Left-drag paints; right-drag or Space-drag pans.
+- **Tabs and layers** — multiple documents open as tabs with independent history, selection, zoom and pan. Layer stack with add, duplicate, delete, reorder, merge-down, visibility, opacity and inline rename. Projects preserve the layer stack.
+- **Current build/design** — 3 UI accent themes (Moss / Cobalt / Ember) plus a light canvas toggle; Chinese/English interface switch in the appearance menu; resizable canvas with nine-point anchoring and non-scaling crop/pad.
+- **Drawing experience** — integer zoom levels, cursor-anchored wheel zoom, space / middle-button / right-button panning, X/Y mirror symmetry, toggleable pixel grid, 80-step stroke-based undo/redo, transparent checkerboard, and hard-edged nearest-neighbor rendering.
 - **OKLCh ramp generator** — 3–15 steps, editable base color, lightness range, cool-shadow / warm-highlight hue shifts, chroma taper, linear or eased interpolation, OKLCh/HSL modes, live preview, gamut warnings, and too-many-steps warnings.
 - **Color extraction** — exact unique-color extraction with frequency counts, alpha-0 ignored, optional semi-transparent pixels, optional OKLab ΔE merging, sorting by lightness / hue / chroma / frequency or manual drag order; works on the whole canvas or a selection. Runs in a Web Worker.
 - **Palette library** — named palettes are first-class, persisted local objects. Edit any swatch, add/remove/reorder colors, save, duplicate, delete, import/export JSON, export a PNG palette strip with optional hex labels, and drag swatches directly onto the canvas.
-- **Files** — open PNG / JPEG / BMP / GIF (first frame), crop or nearest-neighbor scale for non-square or oversized images, export integer-scaled PNG, save/open `.pxramp` projects (ZIP with manifest, raw RGBA pixels, and a palette snapshot), and reopen recent files.
-- **Desktop details** — custom frameless titlebar, unsaved-changes close guard, local persistence, and a custom application icon.
+- **Files** — open PNG / JPEG / BMP / GIF (first frame), crop or nearest-neighbor scale for non-square or oversized images, export integer-scaled PNG, save/open `.pxramp` projects (ZIP with manifest, raw RGBA pixels, per-layer pixel data and a palette snapshot), and reopen recent files.
+- **Desktop details** — custom frameless titlebar, unsaved-changes close guard for all tabs, local persistence, theme/language preferences, and a custom application icon.
 
 ### Run from source
 
@@ -136,9 +138,8 @@ npm run dev:tauri
 
 ### Known limitations
 
-- The UI is single-layer for this build. The data model already uses `layers[]`, but a layer-management panel is not exposed yet.
 - Copy/paste uses an in-app clipboard; it does not write to the system clipboard.
-- Animation frames and drag-to-preview layer blending are not implemented.
+- Animation frames and layer effects (blend modes, masks) are not implemented.
 - PNG palette strips are intended for normal palette sizes; very large palettes are better exported as JSON.
 - The portable package is unsigned, so Windows SmartScreen may warn. There is no auto-updater. Windows 10 needs the WebView2 Runtime.
 
@@ -153,13 +154,15 @@ npm run dev:tauri
 
 ### 功能
 
-- **像素画布** — 8 / 16 / 32 / 64 预设，以及 1–256 像素的自定义方形画布。铅笔（像素完美）、橡皮、油漆桶（容差 0，连续 / 全局）、吸管、直线、矩形，以及支持移动 / 复制 / 剪切 / 粘贴 / 删除的矩形选区。
-- **绘制体验** — 整数倍缩放、以鼠标位置为锚点的滚轮缩放、空格 / 中键平移、水平 / 垂直镜像、可开关的像素网格、80 步笔触级撤销 / 重做、透明棋盘，以及最近邻硬边渲染。
+- **像素画布** — 8 / 16 / 32 / 64 预设，以及 1–256 像素的自定义方形画布。铅笔和橡皮支持 1–32 像素方形笔刷；另有像素完美、油漆桶（容差 0，连续 / 全局）、吸管、直线、矩形，以及支持移动 / 复制 / 剪切 / 粘贴 / 删除的矩形选区。左键绘制，右键拖动或空格拖动平移。
+- **标签页与图层** — 多个文档以标签页打开，各自保留历史、选区、缩放和平移。图层支持新建、复制、删除、排序、向下合并、可见性、不透明度和双击重命名；工程文件保留图层栈。
+- **界面与画布** — 苔绿 / 钴蓝 / 余烬三套强调色主题，可切换浅色画布；中英文界面切换；画布可按九宫格锚点裁剪或扩展，不缩放像素。
+- **绘制体验** — 整数倍缩放、以鼠标位置为锚点的滚轮缩放、空格 / 中键 / 右键平移、水平 / 垂直镜像、可开关的像素网格、80 步笔触级撤销 / 重做、透明棋盘，以及最近邻硬边渲染。
 - **OKLCh 色阶生成器** — 3–15 阶、可编辑基色、明度范围、阴影偏冷 / 高光偏暖、chroma 衰减、线性 / 缓动插值、OKLCh / HSL 模式、实时预览、超色域提示和色阶过密提示。
 - **颜色提取** — 精确去重并统计频次，忽略 alpha 0，可选包含半透明像素，可选 OKLab ΔE 合并；支持按明度 / 色相 / 饱和度 / 频次排序或拖拽自定义排序。可处理整张画布或选区，并通过 Web Worker 执行。
 - **调色卡库** — 调色卡是独立、可命名、持久化的一等对象。支持编辑任意色块、增删与拖拽排序、保存、复制、删除、JSON 导入导出、PNG 色卡条导出（可选 HEX 标注），以及把色块直接拖到画布上。
-- **文件** — 打开 PNG / JPEG / BMP / GIF（首帧）；非正方形或超大图可选择居中裁剪或最近邻缩放；整数倍 PNG 导出；保存 / 打开 `.pxramp` 工程（ZIP 内含 manifest、原始 RGBA 像素和调色卡快照）；最近文件。
-- **桌面细节** — 无边框自绘标题栏、未保存关闭拦截、本地持久化和应用图标。
+- **文件** — 打开 PNG / JPEG / BMP / GIF（首帧）；非正方形或超大图可选择居中裁剪或最近邻缩放；整数倍 PNG 导出；保存 / 打开 `.pxramp` 工程（ZIP 内含 manifest、原始 RGBA 像素、逐层像素数据和调色卡快照）；最近文件。
+- **桌面细节** — 无边框自绘标题栏、所有标签页的未保存关闭拦截、本地持久化、主题 / 语言偏好和应用图标。
 
 ### 从源码运行
 
@@ -252,9 +255,8 @@ npm run dev:tauri
 
 ### 已知限制
 
-- 初期构建的 UI 为单图层。数据模型已经使用 `layers[]`，但暂未提供图层管理面板。
 - 复制 / 粘贴使用应用内剪贴板，不写入系统剪贴板。
-- 未实现动画帧和拖拽试色叠加。
+- 未实现动画帧和图层效果（混合模式、蒙版）。
 - PNG 色卡条适合常规规模调色卡；颜色极多时建议导出 JSON。
 - 便携包未签名，Windows SmartScreen 可能提示；没有自动更新器。Windows 10 需要 WebView2 Runtime。
 

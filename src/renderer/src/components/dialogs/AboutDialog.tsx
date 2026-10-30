@@ -1,28 +1,30 @@
-import { Layers, Palette, ScanLine, Sparkles } from 'lucide-react'
+import { Layers, Palette, ScanLine } from 'lucide-react'
 import { useUi } from '../../store/ui'
 import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
 import { platformVersion, isDesktop } from '../../platform'
+import { useT } from '../../i18n'
 
 const PRINCIPLES = [
   {
     icon: ScanLine,
     title: '像素级无插值',
-    text: '画布缩放、绘制与 PNG 导出全程 nearest-neighbor，不引入任何抗锯齿或平滑像素。'
+    text: '画布缩放、绘制和 PNG 导出使用最近邻采样，不添加抗锯齿。'
   },
   {
     icon: Palette,
-    title: '调色卡是一等公民',
-    text: '调色卡可命名、保存、复用，并作为独立于图像的数据对象存在；色块可直接拖到画布。'
+    title: '调色卡工作流',
+    text: '调色卡可命名、保存和复用；色块可直接拖到画布。'
   },
   {
     icon: Layers,
-    title: '遵循像素画色彩规范',
-    text: '阴影向蓝紫偏冷并保留色度，高光向暖色收敛；明度在 OKLCh 空间等距分布。'
+    title: 'OKLCh 色阶',
+    text: '按感知明度生成色阶，并提供阴影偏冷、高光偏暖与色度收敛控制。'
   }
 ]
 
 export function AboutDialog() {
+  const t = useT()
   const closeDialog = useUi((state) => state.closeDialog)
   const version = platformVersion()
   return (
@@ -36,9 +38,9 @@ export function AboutDialog() {
       width={600}
       footer={
         <>
-          <div className="dialog-footer__hint mono">A PALETTE-FIRST PIXEL TOOL</div>
+          <div className="dialog-footer__hint mono">TAURI · LOCAL FIRST</div>
           <Button variant="primary" onClick={closeDialog}>
-            开始创作
+            {t('关闭')}
           </Button>
         </>
       }
@@ -54,9 +56,7 @@ export function AboutDialog() {
           <div className="about-hero__title">
             PIXELRAMP<span>.</span>
           </div>
-          <p>
-            为 Minecraft 材质创作者打造。先画基色，再让色阶围绕调色卡工作，而不是在取色器里反复猜阴影和高光。
-          </p>
+          <p>{t('面向 Minecraft 材质创作的像素画与调色卡工作台。')}</p>
           <div className="about-hero__meta mono">
             <span>VERSION {version || '0.1.0'}</span>
             <span>{isDesktop ? 'DESKTOP BUILD' : 'WEB PREVIEW'}</span>
@@ -75,8 +75,8 @@ export function AboutDialog() {
                 <Icon size={15} />
               </span>
               <div>
-                <h3>{principle.title}</h3>
-                <p>{principle.text}</p>
+                <h3>{t(principle.title)}</h3>
+                <p>{t(principle.text)}</p>
               </div>
             </div>
           )
@@ -84,21 +84,17 @@ export function AboutDialog() {
       </div>
 
       <div className="about-tech">
-        <span className="eyebrow">IMPLEMENTATION NOTE</span>
+        <span className="eyebrow">IMPLEMENTATION</span>
         <p>
-          一期实现使用 Electron + React + TypeScript，颜色统计与合并运行在 Web Worker 中，避免阻塞绘制。
-          图像与颜色计算层保持独立，后续可迁移到 Tauri + Rust 核心。
+          {t(
+            'Tauri v2 + Rust 后端，React + TypeScript 渲染层。颜色统计与合并运行在 Web Worker 中，调色卡以本地 JSON 保存。'
+          )}
         </p>
         <div className="about-tech__row mono">
           <span>NO INTERPOLATION</span>
           <span>OKLCH RAMPS</span>
           <span>LOCAL JSON PALETTES</span>
         </div>
-      </div>
-
-      <div className="about-sign">
-        <Sparkles size={13} />
-        <span>为像素画而生 · 调色卡优先</span>
       </div>
     </Dialog>
   )

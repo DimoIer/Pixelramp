@@ -199,6 +199,54 @@ export function paintPoints(
   }
 }
 
+/** Expand stroke centres into a square brush footprint. */
+export function brushStampPoints(points: Point[], size: number): Point[] {
+  const side = Math.max(1, Math.min(64, Math.round(size)))
+  if (side === 1 || points.length === 0) return points
+  const offset = -Math.floor((side - 1) / 2)
+  const seen = new Set<string>()
+  const output: Point[] = []
+  for (const point of points) {
+    for (let dy = 0; dy < side; dy += 1) {
+      for (let dx = 0; dx < side; dx += 1) {
+        const x = point.x + offset + dx
+        const y = point.y + offset + dy
+        const key = `${x}:${y}`
+        if (seen.has(key)) continue
+        seen.add(key)
+        output.push({ x, y })
+      }
+    }
+  }
+  return output
+}
+
+/** Resize a packed pixel buffer without scaling, cropping or padding at an offset. */
+export function resizeCanvasPixels(
+  source: Uint32Array,
+  sourceWidth: number,
+  sourceHeight: number,
+  width: number,
+  height: number,
+  offsetX = 0,
+  offsetY = 0
+): Uint32Array {
+  const target = createPixels(width, height)
+  const left = Math.max(0, -offsetX)
+  const top = Math.max(0, -offsetY)
+  const right = Math.min(sourceWidth, width - offsetX)
+  const bottom = Math.min(sourceHeight, height - offsetY)
+  for (let y = top; y < bottom; y += 1) {
+    const sourceRow = y * sourceWidth
+    const targetRow = (y + offsetY) * width
+    for (let x = left; x < right; x += 1) {
+      target[targetRow + x + offsetX] = source[sourceRow + x] ?? 0
+    }
+  }
+  return target
+}
+
+
 export interface Rect {
   x: number
   y: number

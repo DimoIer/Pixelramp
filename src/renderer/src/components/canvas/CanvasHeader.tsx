@@ -2,25 +2,40 @@ import {
   FlipHorizontal2,
   FlipVertical2,
   Grid3X3,
+  Layers2,
+  Minus,
   PanelRightClose,
   PanelRightOpen,
+  Plus,
+  Scaling,
   Sparkles,
   X
 } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { TOOL_BY_ID } from '../tools/tools'
 import { useWorkbench } from '../../store/workbench'
+import { useUi } from '../../store/ui'
 import { IconButton } from '../ui/Button'
 import { deselectCommand, extractColorsCommand } from '../../commands'
+import { useT } from '../../i18n'
 
 interface CanvasHeaderProps {
   paletteOpen: boolean
   onTogglePalette: () => void
+  layersOpen: boolean
+  onToggleLayers: () => void
 }
 
-export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps) {
+export function CanvasHeader({
+  paletteOpen,
+  onTogglePalette,
+  layersOpen,
+  onToggleLayers
+}: CanvasHeaderProps) {
   const {
     tool,
+    brushSize,
+    setBrushSize,
     pixelPerfect,
     togglePixelPerfect,
     contiguous,
@@ -35,6 +50,8 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
   } = useWorkbench(
     useShallow((state) => ({
       tool: state.tool,
+      brushSize: state.brushSize,
+      setBrushSize: state.setBrushSize,
       pixelPerfect: state.pixelPerfect,
       togglePixelPerfect: state.togglePixelPerfect,
       contiguous: state.contiguous,
@@ -48,8 +65,14 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
       extracting: state.extracting
     }))
   )
+  const openDialog = useUi((state) => state.openDialog)
+  const t = useT()
   const definition = TOOL_BY_ID[tool]
   const Icon = definition.icon
+  const detail =
+    tool === 'pencil' || tool === 'eraser'
+      ? `${brushSize}px · ${t('硬边')}${pixelPerfect && tool === 'pencil' ? ` · ${t('像素完美')}` : ''}`
+      : t(definition.detail)
 
   return (
     <div className="canvas-header">
@@ -59,23 +82,46 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
         </span>
         <div className="canvas-header__tool-copy">
           <div className="eyebrow">
-            {definition.shortcut} <span className="canvas-header__slash">/</span> {definition.detail}
+            {definition.shortcut} <span className="canvas-header__slash">/</span> {detail}
           </div>
-          <div className="canvas-header__tool-name">{definition.label}</div>
+          <div className="canvas-header__tool-name">{t(definition.label)}</div>
         </div>
       </div>
 
       <div className="canvas-header__options">
         {(tool === 'pencil' || tool === 'eraser') && (
-          <button
-            type="button"
-            className={`option-chip ${pixelPerfect ? 'is-on' : ''}`}
-            aria-pressed={pixelPerfect}
-            onClick={togglePixelPerfect}
-          >
-            <span className="option-chip__dot" />
-            像素完美
-          </button>
+          <>
+            <div className="option-chip option-chip--size" title={t('笔刷大小')}>
+              <button
+                type="button"
+                className="option-chip__step"
+                onClick={() => setBrushSize(brushSize - 1)}
+                disabled={brushSize <= 1}
+                aria-label={t('减小笔刷')}
+              >
+                <Minus size={11} />
+              </button>
+              <span className="option-chip__value mono">{brushSize}px</span>
+              <button
+                type="button"
+                className="option-chip__step"
+                onClick={() => setBrushSize(brushSize + 1)}
+                disabled={brushSize >= 32}
+                aria-label={t('增大笔刷')}
+              >
+                <Plus size={11} />
+              </button>
+            </div>
+            <button
+              type="button"
+              className={`option-chip ${pixelPerfect ? 'is-on' : ''}`}
+              aria-pressed={pixelPerfect}
+              onClick={togglePixelPerfect}
+            >
+              <span className="option-chip__dot" />
+              {t('像素完美')}
+            </button>
+          </>
         )}
         {tool === 'bucket' && (
           <>
@@ -86,13 +132,13 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
               onClick={toggleContiguous}
             >
               <span className="option-chip__dot" />
-              仅连续区域
+              {t('仅连续区域')}
             </button>
-            <span className="option-chip option-chip--static">容差 0</span>
+            <span className="option-chip option-chip--static">{t('容差 0')}</span>
           </>
         )}
         {(tool === 'line' || tool === 'rectangle') && (
-          <span className="option-chip option-chip--static">按住 Shift 约束像素</span>
+          <span className="option-chip option-chip--static">{t('按住 Shift 约束像素')}</span>
         )}
         {tool === 'select' && (
           <>
@@ -108,7 +154,7 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
                   disabled={extracting}
                 >
                   <Sparkles size={11} />
-                  提取选区
+                  {t('提取选区')}
                 </button>
                 <button
                   type="button"
@@ -116,16 +162,16 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
                   onClick={deselectCommand}
                 >
                   <X size={11} />
-                  取消
+                  {t('取消')}
                 </button>
               </>
             ) : (
-              <span className="option-chip option-chip--static">拖拽框选 · 区内拖拽移动</span>
+              <span className="option-chip option-chip--static">{t('拖拽框选 · 区内拖拽移动')}</span>
             )}
           </>
         )}
         {tool === 'eyedropper' && (
-          <span className="option-chip option-chip--static">左键取前景 · Shift 取背景</span>
+          <span className="option-chip option-chip--static">{t('左键取前景 · Shift 取背景')}</span>
         )}
         {tool !== 'select' && selection ? (
           <button
@@ -135,7 +181,7 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
             disabled={extracting}
           >
             <Sparkles size={11} />
-            提取选区颜色
+            {t('提取选区颜色')}
           </button>
         ) : null}
       </div>
@@ -148,7 +194,22 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
         <span className="canvas-header__divider" />
         <div className="canvas-header__icon-group">
           <IconButton
-            label="水平镜像对称"
+            label={layersOpen ? t('收起图层面板') : t('展开图层面板')}
+            active={layersOpen}
+            size="sm"
+            onClick={onToggleLayers}
+          >
+            <Layers2 size={15} />
+          </IconButton>
+          <IconButton
+            label={t('调整画布大小')}
+            size="sm"
+            onClick={() => openDialog('resize-canvas')}
+          >
+            <Scaling size={15} />
+          </IconButton>
+          <IconButton
+            label={t('水平镜像对称')}
             active={symmetryX}
             size="sm"
             onClick={() => toggleSymmetry('x')}
@@ -156,7 +217,7 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
             <FlipHorizontal2 size={15} />
           </IconButton>
           <IconButton
-            label="垂直镜像对称"
+            label={t('垂直镜像对称')}
             active={symmetryY}
             size="sm"
             onClick={() => toggleSymmetry('y')}
@@ -164,7 +225,7 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
             <FlipVertical2 size={15} />
           </IconButton>
           <IconButton
-            label="像素网格"
+            label={t('像素网格')}
             active={showGrid}
             size="sm"
             onClick={() => setShowGrid(!showGrid)}
@@ -174,7 +235,7 @@ export function CanvasHeader({ paletteOpen, onTogglePalette }: CanvasHeaderProps
         </div>
         <span className="canvas-header__divider" />
         <IconButton
-          label={paletteOpen ? '收起调色卡面板' : '展开调色卡面板'}
+          label={paletteOpen ? t('收起调色卡面板') : t('展开调色卡面板')}
           size="sm"
           onClick={onTogglePalette}
         >

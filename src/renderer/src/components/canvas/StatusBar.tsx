@@ -5,8 +5,11 @@ import { useWorkbench } from '../../store/workbench'
 import { ColorSwatch } from '../ui/ColorSwatch'
 import { Tooltip } from '../ui/Tooltip'
 import { TOOL_BY_ID } from '../tools/tools'
+import { usePreferences } from '../../store/preferences'
+import { useT } from '../../i18n'
 
 export function StatusBar() {
+  const t = useT()
   const {
     cursor,
     foreground,
@@ -14,6 +17,8 @@ export function StatusBar() {
     zoom,
     selection,
     tool,
+    brushSize,
+    pixelPerfect,
     fitView,
     zoomStep
   } = useWorkbench(
@@ -24,11 +29,18 @@ export function StatusBar() {
       zoom: state.zoom,
       selection: state.selection,
       tool: state.tool,
+      brushSize: state.brushSize,
+      pixelPerfect: state.pixelPerfect,
       fitView: state.fitView,
       zoomStep: state.zoomStep
     }))
   )
+  const canvasLight = usePreferences((state) => state.canvasLight)
   const definition = TOOL_BY_ID[tool]
+  const detail =
+    tool === 'pencil' || tool === 'eraser'
+      ? `${brushSize} px · ${t('硬边')}${pixelPerfect && tool === 'pencil' ? ` · ${t('像素完美')}` : ''}`
+      : t(definition.detail)
   const hex = rgbaToHex(foreground, true)
 
   return (
@@ -47,17 +59,19 @@ export function StatusBar() {
         </span>
         <span className="status-divider" />
         <span className="status-item status-item--hint">
-          {selection ? `选区 ${selection.w} × ${selection.h}` : definition.detail}
+          {selection ? `${t('选区')} ${selection.w} × ${selection.h}` : detail}
         </span>
       </div>
 
       <div className="statusbar__center">
         <span className="status-state">
           <span className={`status-state__dot ${doc.dirty ? "is-dirty" : ""}`} />
-          {doc.dirty ? "画布未保存" : "画布已同步"}
+          {doc.dirty ? t('画布未保存') : t('画布已同步')}
         </span>
         <span className="statusbar__center-slash">/</span>
-        <span className="mono statusbar__mode">NEAREST · 1:1 PIXELS</span>
+        <span className="mono statusbar__mode">
+          {canvasLight ? 'LIGHT CANVAS' : 'DARK CANVAS'} · NEAREST · 1:1 PIXELS
+        </span>
       </div>
 
       <div className="statusbar__right">
@@ -66,23 +80,23 @@ export function StatusBar() {
         </span>
         <span className="status-divider" />
         <div className="status-zoom">
-          <Tooltip content="缩小" shortcut="−">
-            <button type="button" className="status-zoom__button" onClick={() => zoomStep(-1)} aria-label="缩小">
+          <Tooltip content={t('缩小')} shortcut="−">
+            <button type="button" className="status-zoom__button" onClick={() => zoomStep(-1)} aria-label={t('缩小')}>
               <Minus size={12} />
             </button>
           </Tooltip>
-          <Tooltip content="适合窗口" shortcut="Ctrl 0">
+          <Tooltip content={t('适合窗口')} shortcut="Ctrl 0">
             <button type="button" className="status-zoom__value mono" onClick={fitView}>
               {Math.round(zoom * 100)}%
             </button>
           </Tooltip>
-          <Tooltip content="放大" shortcut="+">
-            <button type="button" className="status-zoom__button" onClick={() => zoomStep(1)} aria-label="放大">
+          <Tooltip content={t('放大')} shortcut="+">
+            <button type="button" className="status-zoom__button" onClick={() => zoomStep(1)} aria-label={t('放大')}>
               <Plus size={12} />
             </button>
           </Tooltip>
-          <Tooltip content="适合窗口" shortcut="Ctrl 0">
-            <button type="button" className="status-zoom__button" onClick={fitView} aria-label="适合窗口">
+          <Tooltip content={t('适合窗口')} shortcut="Ctrl 0">
+            <button type="button" className="status-zoom__button" onClick={fitView} aria-label={t('适合窗口')}>
               <Focus size={12} />
             </button>
           </Tooltip>

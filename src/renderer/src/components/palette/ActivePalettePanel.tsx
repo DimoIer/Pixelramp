@@ -41,6 +41,7 @@ import { RangeSlider } from '../ui/Slider'
 import { Switch } from '../ui/Switch'
 import { Tooltip } from '../ui/Tooltip'
 import { SectionHead } from './SectionHead'
+import { useT } from '../../i18n'
 
 const DIMENSION_LABEL: Record<SortDimension, string> = {
   lightness: '明度',
@@ -70,6 +71,7 @@ const ROLE_DOT: Record<ColorRole, string> = {
 }
 
 function SortMenu() {
+  const t = useT()
   const { palette, sortState, sortActivePalette } = useWorkbench(
     useShallow((state) => ({
       palette: state.activePalette,
@@ -96,13 +98,13 @@ function SortMenu() {
         <DropdownMenu.Trigger asChild>
           <button type="button" className="sort-trigger">
             <ArrowUpDown size={12} />
-            <span>{activeDimension ? DIMENSION_LABEL[activeDimension] : '手动顺序'}</span>
+            <span>{activeDimension ? t(DIMENSION_LABEL[activeDimension]) : t('手动顺序')}</span>
             <ChevronDown size={11} className="sort-trigger__chevron" />
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
           <DropdownMenu.Content className="menu-content" align="start" sideOffset={5}>
-            <div className="menu-heading">排序方式</div>
+            <div className="menu-heading">{t('排序方式')}</div>
             {(['lightness', 'hue', 'chroma', 'frequency'] as SortDimension[]).map((dimension) => (
               <DropdownMenu.Item
                 key={dimension}
@@ -112,14 +114,14 @@ function SortMenu() {
                 <span className="menu-item__icon">
                   {activeDimension === dimension ? <Check size={13} /> : null}
                 </span>
-                <span className="menu-item__label">{DIMENSION_LABEL[dimension]}</span>
+                <span className="menu-item__label">{t(DIMENSION_LABEL[dimension])}</span>
                 <span className="menu-item__shortcut mono">
                   {activeDimension === dimension ? (direction === 'asc' ? '↑' : '↓') : ''}
                 </span>
               </DropdownMenu.Item>
             ))}
             <DropdownMenu.Separator className="menu-separator" />
-            <div className="menu-hint">拖拽色块可自定义顺序</div>
+            <div className="menu-hint">{t('拖拽色块可自定义顺序')}</div>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
@@ -139,6 +141,7 @@ function SortMenu() {
 }
 
 function ExtractOptionsPopover() {
+  const t = useT()
   const { extractOptions, setExtractOptions, extracting } = useWorkbench(
     useShallow((state) => ({
       extractOptions: state.extractOptions,
@@ -150,9 +153,9 @@ function ExtractOptionsPopover() {
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
-        <button type="button" className="icon-text-button" aria-label="提取设置">
+        <button type="button" className="icon-text-button" aria-label={t('提取设置')}>
           <Settings2 size={13} />
-          <span>设置</span>
+          <span>{t('设置')}</span>
         </button>
       </Popover.Trigger>
       <Popover.Portal>
@@ -160,19 +163,19 @@ function ExtractOptionsPopover() {
           <div className="extract-popover__head">
             <div>
               <span className="eyebrow">EXTRACT</span>
-              <div className="extract-popover__title">颜色提取设置</div>
+              <div className="extract-popover__title">{t('颜色提取设置')}</div>
             </div>
           </div>
           <div className="extract-popover__body">
             <Switch
               checked={extractOptions.includeSemiTransparent}
               onChange={(checked) => setExtractOptions({ includeSemiTransparent: checked })}
-              label="包含半透明像素"
+              label={t('包含半透明像素')}
             />
-            <p className="extract-popover__hint">alpha = 0 的像素始终忽略。关闭后只统计完全不透明像素。</p>
+            <p className="extract-popover__hint">{t('alpha = 0 的像素始终忽略。关闭后只统计完全不透明像素。')}</p>
             <div className="extract-merge">
               <div className="extract-merge__top">
-                <span>颜色合并阈值</span>
+                <span>{t('颜色合并阈值')}</span>
                 <span className="mono">
                   ΔE {extractOptions.mergeThreshold === 0 ? 'OFF' : extractOptions.mergeThreshold.toFixed(3)}
                 </span>
@@ -183,14 +186,14 @@ function ExtractOptionsPopover() {
                 step={0.005}
                 value={extractOptions.mergeThreshold}
                 onValueChange={(value) => setExtractOptions({ mergeThreshold: value })}
-                aria-label="颜色合并阈值"
+                aria-label={t('颜色合并阈值')}
               />
               <p className="extract-popover__hint">
-                0 为精确去重。大于 0 时在 OKLab 空间合并感知相近的颜色，频次会保留。
+                {t('0 为精确去重。大于 0 时在 OKLab 空间合并感知相近的颜色，频次会保留。')}
               </p>
             </div>
             <div className="extract-popover__note">
-              提取会创建一张新的当前调色卡，不覆盖已有调色卡。
+              {t('提取会创建一张新的当前调色卡，不覆盖已有调色卡。')}
             </div>
           </div>
           <button
@@ -202,7 +205,7 @@ function ExtractOptionsPopover() {
             disabled={extracting}
           >
             <Sparkles size={13} />
-            从画布提取
+            {t('从画布提取')}
           </button>
           <Popover.Arrow className="extract-popover__arrow" />
         </Popover.Content>
@@ -322,6 +325,7 @@ function SelectedColorEditor({ index }: { index: number }) {
 }
 
 function PaletteEmptyState() {
+  const t = useT()
   const applyRampToPalette = useWorkbench((state) => state.applyRampToPalette)
   const openDialog = useUi((state) => state.openDialog)
   const toast = useUi((state) => state.toast)
@@ -336,8 +340,8 @@ function PaletteEmptyState() {
       </div>
       <div className="palette-empty__copy">
         <div className="eyebrow">NO ACTIVE PALETTE</div>
-        <h3>还没有当前调色卡</h3>
-        <p>先从生成器创建一张，或从画布中提取纹理现有的颜色。</p>
+        <h3>{t('还没有当前调色卡')}</h3>
+        <p>{t('先从生成器创建一张，或从画布中提取纹理现有的颜色。')}</p>
       </div>
       <div className="palette-empty__actions">
         <Button
@@ -345,16 +349,16 @@ function PaletteEmptyState() {
           size="sm"
           onClick={() => {
             const palette = applyRampToPalette('new')
-            if (palette) toast('已创建调色卡', 'success', palette.name)
+            if (palette) toast(t('已创建调色卡'), 'success', palette.name)
           }}
         >
-          用生成器创建
+          {t('用生成器创建')}
         </Button>
         <Button variant="outline" size="sm" onClick={() => void extractColorsCommand()}>
-          从画布提取
+          {t('从画布提取')}
         </Button>
         <button type="button" className="text-button" onClick={() => openDialog('library')}>
-          打开调色卡库
+          {t('打开调色卡库')}
           <FolderOpen size={12} />
         </button>
       </div>
@@ -363,6 +367,7 @@ function PaletteEmptyState() {
 }
 
 export function ActivePalettePanel() {
+  const t = useT()
   const {
     palette,
     paletteDirty,
@@ -456,15 +461,15 @@ export function ActivePalettePanel() {
   const selectedColor: PaletteColor | undefined =
     palette && selectedColorIndex !== null ? palette.colors[selectedColorIndex] : undefined
   const selectionLabel = extractCount
-    ? `提取选区 ${extractCount.w}×${extractCount.h}`
-    : '从画布提取'
+    ? t('提取选区 {w}×{h}', { w: extractCount.w, h: extractCount.h })
+    : t('从画布提取')
 
   return (
     <section ref={sectionRef} className="panel-section active-palette">
       <SectionHead
         index="02"
         eyebrow="WORKING PALETTE"
-        title="当前调色卡"
+        title={t('当前调色卡')}
         aside={
           palette ? (
             <span className="section-count mono">{palette.colors.length} COLORS</span>
@@ -500,10 +505,10 @@ export function ActivePalettePanel() {
               />
               <div className="palette-meta">
                 <span className={clsx('source-pill', `source-pill--${palette.source}`)}>
-                  {SOURCE_LABEL[palette.source]}
+                  {t(SOURCE_LABEL[palette.source])}
                 </span>
                 <span className="palette-meta__sep">·</span>
-                <span>{inLibrary ? (paletteDirty ? '有未保存修改' : '已保存到库') : '草稿未保存'}</span>
+                <span>{inLibrary ? (paletteDirty ? t('有未保存修改') : t('已保存到库')) : t('草稿未保存')}</span>
                 {paletteDirty || !inLibrary ? <span className="unsaved-dot" /> : null}
               </div>
             </div>
@@ -515,11 +520,11 @@ export function ActivePalettePanel() {
               leadingIcon={saved ? <Check size={13} /> : <Save size={13} />}
               onClick={() => void handleSave()}
             >
-              {saved ? '已保存' : '保存'}
+              {saved ? t('已保存') : t('保存')}
             </Button>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
-                <button type="button" className="btn btn--ghost btn--icon-sm" aria-label="更多调色卡操作">
+                <button type="button" className="btn btn--ghost btn--icon-sm" aria-label={t('更多调色卡操作')}>
                   <MoreHorizontal size={14} />
                 </button>
               </DropdownMenu.Trigger>
@@ -534,7 +539,7 @@ export function ActivePalettePanel() {
                     }}
                   >
                     <span className="menu-item__icon"><Plus size={14} /></span>
-                    <span className="menu-item__label">新建调色卡</span>
+                    <span className="menu-item__label">{t('新建调色卡')}</span>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item
                     className="menu-item"
@@ -555,20 +560,20 @@ export function ActivePalettePanel() {
                     }}
                   >
                     <span className="menu-item__icon"><Copy size={14} /></span>
-                    <span className="menu-item__label">复制为新调色卡</span>
+                    <span className="menu-item__label">{t('复制为新调色卡')}</span>
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator className="menu-separator" />
                   <DropdownMenu.Item className="menu-item" onSelect={() => openDialog('export-palette')}>
                     <span className="menu-item__icon"><Download size={14} /></span>
-                    <span className="menu-item__label">导出调色卡…</span>
+                    <span className="menu-item__label">{t('导出调色卡…')}</span>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item className="menu-item" onSelect={() => void importPaletteJsonCommand()}>
                     <span className="menu-item__icon"><Upload size={14} /></span>
-                    <span className="menu-item__label">导入 JSON…</span>
+                    <span className="menu-item__label">{t('导入 JSON…')}</span>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item className="menu-item" onSelect={() => void importPalettePngCommand()}>
                     <span className="menu-item__icon"><FolderOpen size={14} /></span>
-                    <span className="menu-item__label">从 PNG 导入…</span>
+                    <span className="menu-item__label">{t('从 PNG 导入…')}</span>
                   </DropdownMenu.Item>
                   {inLibrary ? (
                     <>
@@ -578,7 +583,7 @@ export function ActivePalettePanel() {
                         onSelect={() => void deletePaletteCommand(palette.id)}
                       >
                         <span className="menu-item__icon"><Trash2 size={14} /></span>
-                        <span className="menu-item__label">从调色卡库删除</span>
+                        <span className="menu-item__label">{t('从调色卡库删除')}</span>
                       </DropdownMenu.Item>
                     </>
                   ) : null}
@@ -598,15 +603,15 @@ export function ActivePalettePanel() {
               disabled={extracting}
             >
               <Sparkles size={12} />
-              {extracting ? '提取中…' : selectionLabel}
+              {extracting ? t('提取中…') : selectionLabel}
             </button>
           </div>
 
           <div className="swatch-block">
             <div className="swatch-block__head">
-              <span className="field__label">色块 / SWATCHES</span>
+              <span className="field__label">{t('色块 / SWATCHES')}</span>
               <span className="swatch-block__hint">
-                <GripVertical size={10} /> 拖拽排序或拖到画布
+                <GripVertical size={10} /> {t('拖拽排序或拖到画布')}
               </span>
             </div>
             <div
@@ -680,14 +685,13 @@ export function ActivePalettePanel() {
           ) : (
             <div className="palette-color-hint">
               <span className="palette-color-hint__dot" />
-              点击色块应用并编辑；拖到画布可直接落色。
-            </div>
+              {t('点击色块应用并编辑；拖到画布可直接落色。')}            </div>
           )}
 
           <div className="palette-footer-actions">
             <button type="button" className="text-button" onClick={() => openDialog('library')}>
               <FolderOpen size={12} />
-              调色卡库
+              {t('调色卡库')}
             </button>
             <span className="palette-footer-actions__sep" />
             <button
@@ -696,7 +700,7 @@ export function ActivePalettePanel() {
               onClick={() => openDialog('export-palette')}
             >
               <Download size={12} />
-              导出
+              {t('导出')}
             </button>
           </div>
         </div>

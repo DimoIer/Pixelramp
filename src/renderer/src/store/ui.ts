@@ -5,6 +5,7 @@ import * as platform from '../platform'
 
 export type DialogKind =
   | 'new-canvas'
+  | 'resize-canvas'
   | 'image-import'
   | 'shortcuts'
   | 'library'

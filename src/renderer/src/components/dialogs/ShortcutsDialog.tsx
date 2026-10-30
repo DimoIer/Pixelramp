@@ -3,6 +3,7 @@ import { useUi } from '../../store/ui'
 import { Button } from '../ui/Button'
 import { Dialog } from '../ui/Dialog'
 import { Kbd } from '../ui/Kbd'
+import { useT } from '../../i18n'
 
 interface ShortcutItem {
   keys: string[]
@@ -57,6 +58,7 @@ const GROUPS: Array<{ title: string; hint?: string; items: ShortcutItem[] }> = [
 ]
 
 export function ShortcutsDialog() {
+  const t = useT()
   const closeDialog = useUi((state) => state.closeDialog)
   return (
     <Dialog
@@ -65,17 +67,17 @@ export function ShortcutsDialog() {
         if (!open) closeDialog()
       }}
       eyebrow="KEYBOARD"
-      title="键盘快捷键"
-      description="所有绘制操作都落在画布像素网格上，撤销按笔触记录，而不是按像素。"
+      title={t('键盘快捷键')}
+      description={t('画布与编辑操作的快捷键。')}
       width={720}
       footer={
         <>
           <div className="dialog-footer__hint">
             <MousePointer2 size={12} />
-            提示：在画布内按住空格拖拽即可平移
+            {t('空格 + 拖拽可平移画布')}
           </div>
           <Button variant="primary" onClick={closeDialog}>
-            知道了
+            {t('关闭')}
           </Button>
         </>
       }
@@ -84,13 +86,13 @@ export function ShortcutsDialog() {
         {GROUPS.map((group) => (
           <section key={group.title} className="shortcut-group">
             <div className="shortcut-group__head">
-              <h3>{group.title}</h3>
-              {group.hint ? <span className="mono">{group.hint}</span> : null}
+              <h3>{t(group.title)}</h3>
+              {group.hint ? <span className="mono">{t(group.hint)}</span> : null}
             </div>
             <div className="shortcut-list">
               {group.items.map((item) => (
                 <div key={item.label} className="shortcut-row">
-                  <span>{item.label}</span>
+                  <span>{t(item.label)}</span>
                   <span className="shortcut-row__keys">
                     {item.keys.map((key) => (
                       <Kbd key={key}>{key}</Kbd>
@@ -107,8 +109,8 @@ export function ShortcutsDialog() {
           <Sparkles size={15} />
         </span>
         <div>
-          <strong>像素完美</strong>
-          <p>拖动铅笔时自动移除 L 形冗余拐角，斜线保持 1 px 清晰；可在画布顶栏随时开关。</p>
+          <strong>{t('像素完美')}</strong>
+          <p>{t('拖动铅笔时移除 L 形冗余拐角，斜线保持 1 px。')}</p>
         </div>
         <Pencil size={16} className="shortcut-callout__pencil" />
       </div>

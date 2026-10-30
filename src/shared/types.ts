@@ -89,9 +89,16 @@ export interface SaveFileRequest {
   saveAs?: boolean
 }
 
+export interface ProjectLayerMeta {
+  id: string
+  name: string
+  visible: boolean
+  opacity: number
+}
+
 export interface ProjectManifest {
   format: 'pixelramp-project'
-  version: 1
+  version: 1 | 2
   app: 'PixelRamp'
   width: number
   height: number
@@ -99,6 +106,8 @@ export interface ProjectManifest {
   createdAt: number
   savedAt: number
   palette: Palette | null
+  layers?: ProjectLayerMeta[]
+  activeLayer?: number
 }
 
 export interface DesktopApi {

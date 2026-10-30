@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   bresenham,
+  brushStampPoints,
   clearRegion,
   extractRegion,
   floodFill,
@@ -12,6 +13,7 @@ import {
   prepareImportedPixels,
   rectFromPoints,
   rectPoints,
+  resizeCanvasPixels,
   unpackColor,
   resizeNearest
 } from './pixels'
@@ -24,6 +26,26 @@ describe('raster primitives', () => {
   it('packs and unpacks colors', () => {
     expect(unpackColor(packColor(red))).toEqual(red)
     expect(unpackColor(packColor(blue))).toEqual(blue)
+  })
+
+  it('expands a square brush footprint without duplicate pixels', () => {
+    expect(brushStampPoints([{ x: 4, y: 4 }], 1)).toEqual([{ x: 4, y: 4 }])
+    const three = brushStampPoints([{ x: 4, y: 4 }], 3)
+    expect(three).toHaveLength(9)
+    expect(three).toContainEqual({ x: 3, y: 3 })
+    expect(three).toContainEqual({ x: 5, y: 5 })
+    expect(brushStampPoints([{ x: 1, y: 1 }, { x: 2, y: 1 }], 3)).toHaveLength(12)
+  })
+
+  it('resizes a canvas by cropping and padding without scaling', () => {
+    const source = packColor(red)
+    const pixels = new Uint32Array(4 * 4)
+    pixels[1 * 4 + 1] = source
+    const cropped = resizeCanvasPixels(pixels, 4, 4, 3, 3, -1, -1)
+    expect(cropped[0]).toBe(source)
+    expect(cropped).toHaveLength(9)
+    const padded = resizeCanvasPixels(pixels, 4, 4, 6, 6, 1, 1)
+    expect(padded[2 * 6 + 2]).toBe(source)
   })
 
   it('draws a connected Bresenham line with no gaps', () => {
@@ -137,5 +159,33 @@ describe('project archive', () => {
     expect(Array.from(project.pixels)).toEqual(Array.from(pixels))
     expect(project.palette?.name).toBe('Test ramp')
     expect(project.palette?.id).toBe('palette-1')
+  })
+
+  it('round-trips layer order, visibility, opacity and active layer', () => {
+    const lower = new Uint32Array([packColor(red), 0])
+    const upper = new Uint32Array([0, packColor(blue)])
+    const bytes = buildProjectBytes({
+      width: 2,
+      height: 1,
+      name: 'Layered',
+      pixels: new Uint32Array([packColor(red), packColor(blue)]),
+      layers: [
+        { id: 'a', name: 'Base', visible: true, opacity: 1, pixels: lower },
+        { id: 'b', name: 'Shade', visible: false, opacity: 0.5, pixels: upper }
+      ],
+      activeLayer: 1,
+      palette: null
+    })
+    const project = parseProjectBytes(bytes)
+    expect(project.manifest.version).toBe(2)
+    expect(project.layers).toHaveLength(2)
+    expect(project.layers[1]).toMatchObject({
+      id: 'b',
+      name: 'Shade',
+      visible: false,
+      opacity: 0.5
+    })
+    expect(project.activeLayer).toBe(1)
+    expect(Array.from(project.layers[1].pixels)).toEqual(Array.from(upper))
   })
 })

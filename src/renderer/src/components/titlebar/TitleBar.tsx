@@ -33,13 +33,16 @@ import {
   Trash2,
   MousePointerSquareDashed,
   FileJson,
-  Settings2
+  Settings2,
+  Palette
 } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useWorkbench } from '../../store/workbench'
 import { useUi } from '../../store/ui'
+import { usePreferences, type Language, type UiTheme } from '../../store/preferences'
+import { useT } from '../../i18n'
 import { platformVersion, isDesktop, onMaximizedChange, windowControls } from '../../platform'
 import {
   copySelectionCommand,
@@ -122,6 +125,7 @@ function MenuTrigger({ children }: { children: ReactNode }) {
 }
 
 function RecentMenu() {
+  const t = useT()
   const { recentFiles, refreshRecent, clearRecent } = useUi(
     useShallow((state) => ({
       recentFiles: state.recentFiles,
@@ -136,7 +140,7 @@ function RecentMenu() {
         <span className="menu-item__icon">
           <Archive size={14} />
         </span>
-        <span className="menu-item__label">最近打开</span>
+        <span className="menu-item__label">{t('最近打开')}</span>
         <span className="menu-item__chevron">
           <ChevronRight size={13} />
         </span>
@@ -144,7 +148,7 @@ function RecentMenu() {
       <DropdownMenu.Portal>
         <DropdownMenu.SubContent className="menu-content menu-content--sub" sideOffset={5} alignOffset={-5}>
           {recentFiles.length === 0 ? (
-            <div className="menu-empty">还没有最近打开的文件</div>
+            <div className="menu-empty">{t('还没有最近打开的文件')}</div>
           ) : (
             recentFiles.map((entry) => (
               <DropdownMenu.Item
@@ -166,7 +170,7 @@ function RecentMenu() {
           {recentFiles.length > 0 ? (
             <>
               <Divider />
-              <MenuAction label="清空最近记录" onSelect={() => void clearRecent()} />
+              <MenuAction label={t('清空最近记录')} onSelect={() => void clearRecent()} />
             </>
           ) : null}
         </DropdownMenu.SubContent>
@@ -176,6 +180,7 @@ function RecentMenu() {
 }
 
 function FileMenu() {
+  const t = useT()
   const openDialog = useUi((state) => state.openDialog)
   const refreshRecent = useUi((state) => state.refreshRecent)
   return (
@@ -184,18 +189,18 @@ function FileMenu() {
         if (open) void refreshRecent()
       }}
     >
-      <MenuTrigger>文件</MenuTrigger>
+      <MenuTrigger>{t('文件')}</MenuTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content className="menu-content" align="start" sideOffset={5}>
           <MenuAction
             icon={<FilePlus2 size={14} />}
-            label="新建画布…"
+            label={t('新建画布…')}
             shortcut="Ctrl N"
             onSelect={openNewCanvasDialog}
           />
           <MenuAction
             icon={<FolderOpen size={14} />}
-            label="打开图像 / 工程…"
+            label={t('打开图像 / 工程…')}
             shortcut="Ctrl O"
             onSelect={() => void openFileCommand()}
           />
@@ -203,26 +208,26 @@ function FileMenu() {
           <Divider />
           <MenuAction
             icon={<Save size={14} />}
-            label="保存工程"
+            label={t('保存工程')}
             shortcut="Ctrl S"
             onSelect={() => void saveProjectCommand(false)}
           />
           <MenuAction
             icon={<Save size={14} />}
-            label="工程另存为…"
+            label={t('工程另存为…')}
             shortcut="Ctrl Shift S"
             onSelect={() => void saveProjectCommand(true)}
           />
           <MenuAction
             icon={<Download size={14} />}
-            label="导出 PNG…"
+            label={t('导出 PNG…')}
             shortcut="Ctrl Shift E"
             onSelect={() => openDialog('export-image')}
           />
           <Divider />
           <MenuAction
             icon={<FolderOpen size={14} />}
-            label="调色卡库…"
+            label={t('调色卡库…')}
             onSelect={() => openDialog('library')}
           />
         </DropdownMenu.Content>
@@ -232,6 +237,7 @@ function FileMenu() {
 }
 
 function EditMenu() {
+  const t = useT()
   const {
     undo,
     redo,
@@ -252,19 +258,19 @@ function EditMenu() {
 
   return (
     <DropdownMenu.Root>
-      <MenuTrigger>编辑</MenuTrigger>
+      <MenuTrigger>{t('编辑')}</MenuTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content className="menu-content" align="start" sideOffset={5}>
           <MenuAction
             icon={<Undo2 size={14} />}
-            label="撤销"
+            label={t('撤销')}
             shortcut="Ctrl Z"
             disabled={history === 0}
             onSelect={undo}
           />
           <MenuAction
             icon={<Redo2 size={14} />}
-            label="重做"
+            label={t('重做')}
             shortcut="Ctrl Shift Z"
             disabled={redoStack === 0}
             onSelect={redo}
@@ -272,27 +278,27 @@ function EditMenu() {
           <Divider />
           <MenuAction
             icon={<Scissors size={14} />}
-            label="剪切选区"
+            label={t('剪切选区')}
             shortcut="Ctrl X"
             disabled={!selection}
             onSelect={cutSelectionCommand}
           />
           <MenuAction
             icon={<Copy size={14} />}
-            label="复制"
+            label={t('复制')}
             shortcut="Ctrl C"
             onSelect={copySelectionCommand}
           />
           <MenuAction
             icon={<ClipboardPaste size={14} />}
-            label="粘贴"
+            label={t('粘贴')}
             shortcut="Ctrl V"
             disabled={!clipboard}
             onSelect={pasteCommand}
           />
           <MenuAction
             icon={<Trash2 size={14} />}
-            label="删除选区"
+            label={t('删除选区')}
             shortcut="Del"
             disabled={!selection}
             onSelect={deleteSelectionCommand}
@@ -300,12 +306,12 @@ function EditMenu() {
           <Divider />
           <MenuAction
             icon={<MousePointerSquareDashed size={14} />}
-            label="全选"
+            label={t('全选')}
             shortcut="Ctrl A"
             onSelect={selectAllCommand}
           />
           <MenuAction
-            label="取消选择"
+            label={t('取消选择')}
             shortcut="Esc"
             disabled={!selection}
             onSelect={deselectCommand}
@@ -317,6 +323,7 @@ function EditMenu() {
 }
 
 function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
+  const t = useT()
   const {
     showGrid,
     setShowGrid,
@@ -339,53 +346,53 @@ function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
   const openDialog = useUi((state) => state.openDialog)
   return (
     <DropdownMenu.Root>
-      <MenuTrigger>视图</MenuTrigger>
+      <MenuTrigger>{t('视图')}</MenuTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content className="menu-content" align="start" sideOffset={5}>
           <MenuAction
             icon={<ZoomIn size={14} />}
-            label="放大"
+            label={t('放大')}
             shortcut="+"
             onSelect={() => zoomStep(1)}
           />
           <MenuAction
             icon={<ZoomOut size={14} />}
-            label="缩小"
+            label={t('缩小')}
             shortcut="−"
             onSelect={() => zoomStep(-1)}
           />
           <MenuAction
             icon={<Focus size={14} />}
-            label="适合窗口"
+            label={t('适合窗口')}
             shortcut="Ctrl 0"
             onSelect={fitView}
           />
           <Divider />
           <CheckAction
             checked={showGrid}
-            label="显示像素网格"
+            label={t('显示像素网格')}
             shortcut="Shift G"
             onSelect={() => setShowGrid(!showGrid)}
           />
           <CheckAction
             checked={symmetryX}
-            label="水平镜像对称"
+            label={t('水平镜像对称')}
             onSelect={() => toggleSymmetry('x')}
           />
           <CheckAction
             checked={symmetryY}
-            label="垂直镜像对称"
+            label={t('垂直镜像对称')}
             onSelect={() => toggleSymmetry('y')}
           />
           <Divider />
           <MenuAction
             icon={paletteOpen ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
-            label={paletteOpen ? "收起调色卡面板" : "展开调色卡面板"}
+            label={paletteOpen ? t('收起调色卡面板') : t('展开调色卡面板')}
             onSelect={onTogglePalette}
           />
           <MenuAction
             icon={<Keyboard size={14} />}
-            label="键盘快捷键"
+            label={t('键盘快捷键')}
             shortcut="?"
             onSelect={() => openDialog('shortcuts')}
           />
@@ -396,27 +403,28 @@ function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
 }
 
 function HelpMenu() {
+  const t = useT()
   const openDialog = useUi((state) => state.openDialog)
   return (
     <DropdownMenu.Root>
-      <MenuTrigger>帮助</MenuTrigger>
+      <MenuTrigger>{t('帮助')}</MenuTrigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content className="menu-content" align="start" sideOffset={5}>
           <MenuAction
             icon={<Keyboard size={14} />}
-            label="键盘快捷键"
+            label={t('键盘快捷键')}
             shortcut="?"
             onSelect={() => openDialog('shortcuts')}
           />
           <MenuAction
             icon={<HelpCircle size={14} />}
-            label="使用提示"
+            label={t('使用提示')}
             onSelect={() => openDialog('shortcuts')}
           />
           <Divider />
           <MenuAction
             icon={<Info size={14} />}
-            label="关于 PixelRamp"
+            label={t('关于 PixelRamp')}
             onSelect={() => openDialog('about')}
           />
         </DropdownMenu.Content>
@@ -437,6 +445,7 @@ function BrandMark() {
 }
 
 function WindowControls() {
+  const t = useT()
   const [maximized, setMaximized] = useState(false)
 
   useEffect(() => {
@@ -456,7 +465,7 @@ function WindowControls() {
       <button
         type="button"
         className="window-control"
-        aria-label="最小化"
+        aria-label={t('最小化')}
         onClick={() => windowControls.minimize()}
       >
         <Minus size={14} />
@@ -464,7 +473,7 @@ function WindowControls() {
       <button
         type="button"
         className="window-control"
-        aria-label={maximized ? "还原" : "最大化"}
+        aria-label={maximized ? t('还原') : t('最大化')}
         onClick={() => windowControls.toggleMaximize()}
       >
         {maximized ? <Copy size={11} /> : <Square size={11} />}
@@ -472,7 +481,7 @@ function WindowControls() {
       <button
         type="button"
         className="window-control window-control--close"
-        aria-label="关闭"
+        aria-label={t('关闭')}
         onClick={() => void requestWindowCloseCommand()}
       >
         <X size={14} />
@@ -481,7 +490,80 @@ function WindowControls() {
   )
 }
 
+function ThemeMenu() {
+  const { theme, canvasLight, language, setTheme, setCanvasLight, setLanguage } = usePreferences()
+  const t = useT()
+  const themes: Array<{ id: UiTheme; label: string }> = [
+    { id: 'moss', label: t('苔绿') },
+    { id: 'cobalt', label: t('钴蓝') },
+    { id: 'ember', label: t('余烬') }
+  ]
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <button type="button" className="theme-trigger" aria-label={t('外观设置')} title={t('外观设置')}>
+          <Palette size={14} />
+        </button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content className="menu-content theme-menu" align="end" sideOffset={6}>
+          <div className="menu-section-label">{t('界面主题')}</div>
+          <DropdownMenu.RadioGroup
+            value={theme}
+            onValueChange={(value) => setTheme(value as UiTheme)}
+          >
+            {themes.map((entry) => (
+              <DropdownMenu.RadioItem
+                key={entry.id}
+                value={entry.id}
+                className="menu-item theme-menu__item"
+              >
+                <span className={`theme-swatch theme-swatch--${entry.id}`} aria-hidden />
+                <span className="menu-item__label">{entry.label}</span>
+                <DropdownMenu.ItemIndicator className="menu-item__indicator">
+                  <Check size={12} />
+                </DropdownMenu.ItemIndicator>
+              </DropdownMenu.RadioItem>
+            ))}
+          </DropdownMenu.RadioGroup>
+          <Divider />
+          <DropdownMenu.CheckboxItem
+            className="menu-item"
+            checked={canvasLight}
+            onCheckedChange={(checked) => setCanvasLight(checked)}
+          >
+            <span className="menu-item__icon">{canvasLight ? <Check size={13} /> : null}</span>
+            <span className="menu-item__label">{t('浅色画布背景')}</span>
+          </DropdownMenu.CheckboxItem>
+          <Divider />
+          <div className="menu-section-label">{t('界面语言')}</div>
+          <DropdownMenu.RadioGroup
+            value={language}
+            onValueChange={(value) => setLanguage(value as Language)}
+          >
+            <DropdownMenu.RadioItem value="zh" className="menu-item theme-menu__item">
+              <span className="language-mark">中</span>
+              <span className="menu-item__label">中文</span>
+              <DropdownMenu.ItemIndicator className="menu-item__indicator">
+                <Check size={12} />
+              </DropdownMenu.ItemIndicator>
+            </DropdownMenu.RadioItem>
+            <DropdownMenu.RadioItem value="en" className="menu-item theme-menu__item">
+              <span className="language-mark">EN</span>
+              <span className="menu-item__label">English</span>
+              <DropdownMenu.ItemIndicator className="menu-item__indicator">
+                <Check size={12} />
+              </DropdownMenu.ItemIndicator>
+            </DropdownMenu.RadioItem>
+          </DropdownMenu.RadioGroup>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  )
+}
+
 export function TitleBar({ paletteOpen, onTogglePalette }: TitleBarProps) {
+  const t = useT()
   const { doc } = useWorkbench(useShallow((state) => ({ doc: state.doc })))
   const version = platformVersion()
   const docIcon = doc.kind === 'project' ? <FileArchive size={12} /> : doc.kind === 'image' ? <FileImage size={12} /> : <FilePlus2 size={12} />
@@ -499,7 +581,7 @@ export function TitleBar({ paletteOpen, onTogglePalette }: TitleBarProps) {
           </div>
         </div>
         <span className="titlebar__divider" />
-        <nav className="menubar" aria-label="主菜单">
+        <nav className="menubar" aria-label={t('主菜单')}>
           <FileMenu />
           <EditMenu />
           <ViewMenu paletteOpen={paletteOpen} onTogglePalette={onTogglePalette} />
@@ -514,12 +596,13 @@ export function TitleBar({ paletteOpen, onTogglePalette }: TitleBarProps) {
           <span className="doc-chip__size mono">
             {doc.width}×{doc.height}
           </span>
-          {doc.dirty ? <span className="doc-chip__dot" aria-label="未保存" /> : null}
+          {doc.dirty ? <span className="doc-chip__dot" aria-label={t('未保存')} /> : null}
         </div>
       </div>
 
       <div className="titlebar__right no-drag">
         {!isDesktop ? <span className="web-preview-badge mono">WEB PREVIEW</span> : null}
+        <ThemeMenu />
         <span className="build-chip mono">v{version || "0.1.0"}</span>
         <WindowControls />
       </div>

@@ -5,6 +5,7 @@ import { useUi } from '../../store/ui'
 import { Tooltip } from '../ui/Tooltip'
 import { GeneratorPanel } from './GeneratorPanel'
 import { ActivePalettePanel } from './ActivePalettePanel'
+import { useT } from '../../i18n'
 
 interface PalettePanelProps {
   open: boolean
@@ -12,12 +13,13 @@ interface PalettePanelProps {
 }
 
 export function PalettePanel({ open, onClose }: PalettePanelProps) {
+  const t = useT()
   const library = useWorkbench((state) => state.library)
   const activePalette = useWorkbench((state) => state.activePalette)
   const openDialog = useUi((state) => state.openDialog)
 
   return (
-    <aside className={clsx('palette-panel', !open && 'is-collapsed')} aria-label="调色卡工作区">
+    <aside className={clsx('palette-panel', !open && 'is-collapsed')} aria-label={t('调色卡工作区')}>
       <header className="palette-panel__header">
         <div className="palette-panel__brand">
           <span className="palette-panel__spine" aria-hidden>
@@ -28,19 +30,19 @@ export function PalettePanel({ open, onClose }: PalettePanelProps) {
           </span>
           <div>
             <div className="eyebrow">COLOR WORKBENCH</div>
-            <h1 className="palette-panel__title">调色卡工作台</h1>
+            <h1 className="palette-panel__title">{t('调色卡工作台')}</h1>
           </div>
         </div>
         <div className="palette-panel__actions">
-          <Tooltip content="打开调色卡库" side="bottom">
+          <Tooltip content={t('打开调色卡库')} side="bottom">
             <button type="button" className="library-button" onClick={() => openDialog('library')}>
               <FolderOpen size={13} />
-              <span>库</span>
+              <span>{t('库')}</span>
               <span className="library-button__count mono">{library.length}</span>
             </button>
           </Tooltip>
-          <Tooltip content="收起面板" side="bottom">
-            <button type="button" className="panel-collapse" aria-label="收起调色卡面板" onClick={onClose}>
+          <Tooltip content={t('收起面板')} side="bottom">
+            <button type="button" className="panel-collapse" aria-label={t('收起调色卡面板')} onClick={onClose}>
               <PanelRightClose size={15} />
             </button>
           </Tooltip>

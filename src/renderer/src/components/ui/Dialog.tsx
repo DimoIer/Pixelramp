@@ -2,6 +2,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import type { CSSProperties, ReactNode } from 'react'
 import clsx from 'clsx'
+import { useT } from '../../i18n'
 
 interface DialogProps {
   open: boolean
@@ -30,6 +31,7 @@ export function Dialog({
   bodyClassName,
   layer = 'base'
 }: DialogProps) {
+  const t = useT()
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
@@ -54,7 +56,7 @@ export function Dialog({
                 </DialogPrimitive.Description>
               ) : null}
             </div>
-            <DialogPrimitive.Close className="dialog-close" aria-label="关闭">
+            <DialogPrimitive.Close className="dialog-close" aria-label={t('关闭')}>
               <X size={16} strokeWidth={1.8} />
             </DialogPrimitive.Close>
           </div>

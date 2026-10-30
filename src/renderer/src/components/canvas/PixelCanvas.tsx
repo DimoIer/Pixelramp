@@ -12,8 +12,10 @@ import { useShallow } from 'zustand/react/shallow'
 import type { RGBA } from '@shared/types'
 import {
   bresenham,
+  brushStampPoints,
   clearRegion,
   clonePixels,
+  countOpaque,
   extractRegion,
   flattenLayers,
   floodFill,
@@ -33,6 +35,8 @@ import {
   type Selection
 } from '../../store/workbench'
 import { useUi } from '../../store/ui'
+import { usePreferences } from '../../store/preferences'
+import { useT } from '../../i18n'
 
 interface GestureCommon {
   pointerId: number
@@ -46,6 +50,7 @@ type PaintGesture = GestureCommon & {
   points: Point[]
   last: Point
   color: number
+  brushSize: number
   pixelPerfect: boolean
   mirrorX: boolean
   mirrorY: boolean
@@ -104,12 +109,14 @@ function drawCheckerboard(
   top: number,
   width: number,
   height: number,
-  zoom: number
+  zoom: number,
+  colorA: string,
+  colorB: string
 ): void {
   const block = Math.max(CHECKER_SIZE, Math.round(zoom * 4))
-  context.fillStyle = '#242720'
+  context.fillStyle = colorA
   context.fillRect(left, top, width, height)
-  context.fillStyle = '#1e211a'
+  context.fillStyle = colorB
   const columns = Math.ceil(width / block)
   const rows = Math.ceil(height / block)
   for (let row = 0; row < rows; row += 1) {
@@ -155,7 +162,7 @@ function constrainSquare(start: Point, end: Point): Point {
 }
 
 export function PixelCanvas() {
-  const { doc, revision, tool, zoom, pan, showGrid, selection, symmetryX, symmetryY, cursor } =
+  const { doc, revision, tool, zoom, pan, showGrid, selection, symmetryX, symmetryY, cursor, brushSize } =
     useWorkbench(
       useShallow((state) => ({
         doc: state.doc,
@@ -167,9 +174,13 @@ export function PixelCanvas() {
         selection: state.selection,
         symmetryX: state.symmetryX,
         symmetryY: state.symmetryY,
-        cursor: state.cursor
+        cursor: state.cursor,
+        brushSize: state.brushSize
       }))
     )
+  const canvasTheme = usePreferences((state) => state.theme)
+  const canvasLight = usePreferences((state) => state.canvasLight)
+  const t = useT()
 
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -181,16 +192,10 @@ export function PixelCanvas() {
   const [dragOver, setDragOver] = useState(false)
   const sourceRef = useRef<HTMLCanvasElement | null>(null)
   const sourceKeyRef = useRef('')
-  const fittedDocRef = useRef('')
 
   const pixelStatus = useMemo(() => {
-    const layer = doc.layers[doc.activeLayer]
-    if (!layer) return { opaque: 0 }
-    let opaque = 0
-    for (let index = 0; index < layer.pixels.length; index += 1) {
-      if (layer.pixels[index] >>> 24) opaque += 1
-    }
-    return { opaque }
+    const composite = flattenLayers(doc.layers, doc.width, doc.height)
+    return { opaque: countOpaque(composite) }
   }, [doc, revision])
 
   useEffect(() => {
@@ -212,11 +217,7 @@ export function PixelCanvas() {
   useEffect(() => {
     if (size.width === 0 || size.height === 0) return
     useWorkbench.getState().setViewport(size)
-    if (fittedDocRef.current !== doc.id) {
-      fittedDocRef.current = doc.id
-      useWorkbench.getState().fitView()
-    }
-  }, [doc.id, size.width, size.height])
+  }, [size.width, size.height])
 
   const updateSource = useCallback((): HTMLCanvasElement | null => {
     const key = `${doc.id}:${revision}:${doc.width}:${doc.height}`
@@ -263,12 +264,22 @@ export function PixelCanvas() {
     const width = doc.width * zoom
     const height = doc.height * zoom
     const devicePixel = 1 / dpr
+    const computed = getComputedStyle(document.documentElement)
+    const cssVar = (name: string, fallback: string): string =>
+      computed.getPropertyValue(name).trim() || fallback
+    const checkerA = cssVar('--canvas-checker-a', canvasLight ? '#f4f0e7' : '#242720')
+    const checkerB = cssVar('--canvas-checker-b', canvasLight ? '#e2dccf' : '#1e211a')
+    const canvasField = cssVar('--canvas-field', canvasLight ? '#e9e4d8' : '#191b16')
+    const canvasEdge = cssVar('--canvas-edge', canvasLight ? 'rgba(42,46,34,.28)' : 'rgba(242,240,231,.16)')
+    const canvasGrid = cssVar('--canvas-grid', canvasLight ? 'rgba(42,46,34,.13)' : 'rgba(245,243,232,.055)')
+    const canvasInk = cssVar('--canvas-ink', canvasLight ? 'rgba(32,36,25,.62)' : 'rgba(252,250,240,.58)')
+    const canvasEmpty = cssVar('--canvas-empty', canvasLight ? 'rgba(32,36,25,.055)' : 'rgba(252,250,240,.06)')
 
     context.save()
-    context.shadowColor = 'rgba(0, 0, 0, 0.55)'
+    context.shadowColor = canvasLight ? 'rgba(61, 54, 40, 0.28)' : 'rgba(0, 0, 0, 0.55)'
     context.shadowBlur = 30
     context.shadowOffsetY = 10
-    context.fillStyle = '#10110d'
+    context.fillStyle = canvasField
     context.beginPath()
     context.rect(left, top, width, height)
     context.fill()
@@ -279,14 +290,14 @@ export function PixelCanvas() {
     context.rect(left, top, width, height)
     context.clip()
 
-    drawCheckerboard(context, left, top, width, height, zoom)
+    drawCheckerboard(context, left, top, width, height, zoom, checkerA, checkerB)
 
     context.imageSmoothingEnabled = false
     context.drawImage(source, 0, 0, doc.width, doc.height, left, top, width, height)
     context.restore()
 
     context.save()
-    context.strokeStyle = 'rgba(242, 240, 231, 0.16)'
+    context.strokeStyle = canvasEdge
     context.lineWidth = devicePixel
     context.strokeRect(left - devicePixel / 2, top - devicePixel / 2, width + devicePixel, height + devicePixel)
     context.restore()
@@ -297,7 +308,7 @@ export function PixelCanvas() {
       context.rect(left, top, width, height)
       context.clip()
       context.lineWidth = devicePixel
-      context.strokeStyle = 'rgba(245, 243, 232, 0.055)'
+      context.strokeStyle = canvasGrid
       context.beginPath()
       for (let x = 1; x < doc.width; x += 1) {
         if (x % 8 === 0) continue
@@ -382,29 +393,34 @@ export function PixelCanvas() {
 
     if (cursor && cursor.x >= 0 && cursor.y >= 0 && cursor.x < doc.width && cursor.y < doc.height) {
       const cellSize = zoom
-      const mirrors: Point[] = [{ x: cursor.x, y: cursor.y }]
-      if (symmetryX) mirrors.push({ x: doc.width - 1 - cursor.x, y: cursor.y })
-      if (symmetryY) mirrors.push({ x: cursor.x, y: doc.height - 1 - cursor.y })
-      if (symmetryX && symmetryY) {
-        mirrors.push({ x: doc.width - 1 - cursor.x, y: doc.height - 1 - cursor.y })
-      }
+      const footprint = brushStampPoints(
+        [{ x: cursor.x, y: cursor.y }],
+        tool === 'pencil' || tool === 'eraser' ? brushSize : 1
+      )
+      const preview = mirrorPoints(
+        footprint,
+        doc.width,
+        doc.height,
+        symmetryX,
+        symmetryY
+      )
       context.save()
       const seen = new Set<string>()
-      for (const point of mirrors) {
+      for (const point of preview) {
         const key = `${point.x}:${point.y}`
         if (seen.has(key)) continue
         seen.add(key)
         const mx = left + point.x * zoom
         const my = top + point.y * zoom
-        context.fillStyle = 'rgba(252, 250, 240, 0.06)'
+        context.fillStyle = canvasEmpty
         context.fillRect(mx, my, cellSize, cellSize)
         context.lineWidth = devicePixel
-        context.strokeStyle = 'rgba(252, 250, 240, 0.58)'
+        context.strokeStyle = canvasInk
         context.strokeRect(mx + devicePixel / 2, my + devicePixel / 2, cellSize - devicePixel, cellSize - devicePixel)
       }
       context.restore()
     }
-  }, [cursor, doc, pan, revision, selection, showGrid, size, symmetryX, symmetryY, updateSource, zoom])
+  }, [brushSize, canvasLight, canvasTheme, cursor, doc, pan, revision, selection, showGrid, size, symmetryX, symmetryY, tool, updateSource, zoom])
 
   useEffect(() => {
     const onWheel = (event: WheelEvent): void => {
@@ -514,7 +530,8 @@ export function PixelCanvas() {
     if (!insideCanvas(point)) return
     const layer = state.doc.layers[state.doc.activeLayer]
     if (!layer) return
-    const value = layer.pixels[point.y * state.doc.width + point.x] ?? 0
+    const composite = flattenLayers(state.doc.layers, state.doc.width, state.doc.height)
+    const value = composite[point.y * state.doc.width + point.x] ?? 0
     const color: RGBA = {
       r: value & 0xff,
       g: (value >>> 8) & 0xff,
@@ -528,9 +545,13 @@ export function PixelCanvas() {
   const paintGesture = (gesture: PaintGesture): void => {
     const state = useWorkbench.getState()
     const next = clonePixels(gesture.base)
-    const points = gesture.pixelPerfect ? pixelPerfectPath(gesture.points) : gesture.points
+    const points =
+      gesture.pixelPerfect && gesture.brushSize === 1
+        ? pixelPerfectPath(gesture.points)
+        : gesture.points
+    const stamped = brushStampPoints(points, gesture.brushSize)
     const mirrored = mirrorPoints(
-      points,
+      stamped,
       state.doc.width,
       state.doc.height,
       gesture.mirrorX,
@@ -615,8 +636,7 @@ export function PixelCanvas() {
   cancelGestureRef.current = cancelGesture
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>): void => {
-    if (event.button === 2) return
-    if (event.button !== 0 && event.button !== 1) return
+    if (event.button !== 0 && event.button !== 1 && event.button !== 2) return
     if (gestureRef.current) return
     const state = useWorkbench.getState()
     if (useUi.getState().busy) return
@@ -624,7 +644,7 @@ export function PixelCanvas() {
     const point = getCellFromEvent(event)
     const screen = getScreenPoint(event)
 
-    if (event.button === 1 || spaceRef.current) {
+    if (event.button === 2 || event.button === 1 || spaceRef.current) {
       event.preventDefault()
       gestureRef.current = {
         kind: 'pan',
@@ -724,6 +744,7 @@ export function PixelCanvas() {
         points: [{ ...point }],
         last: { ...point },
         color: tool === 'eraser' ? 0 : packColor(state.foreground),
+        brushSize: state.brushSize,
         pixelPerfect: state.pixelPerfect,
         mirrorX: state.symmetryX,
         mirrorY: state.symmetryY
@@ -895,7 +916,7 @@ export function PixelCanvas() {
   const selectionLabel = selection
     ? `${selection.w}×${selection.h}`
     : pixelStatus.opaque === 0
-      ? '空白画布'
+      ? t('空白画布')
       : `${doc.width} × ${doc.height}`
 
   return (
@@ -904,7 +925,7 @@ export function PixelCanvas() {
       className={clsx('canvas-stage', dragOver && 'is-color-drop', isPanning && 'is-panning')}
       tabIndex={0}
       role="application"
-      aria-label="像素画布"
+      aria-label={t('像素画布')}
       style={{ cursor: cursorStyle }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -926,10 +947,10 @@ export function PixelCanvas() {
       <div className="canvas-stage__grain" aria-hidden />
       <div className="canvas-hints">
         <span className="canvas-hint">
-          <span className="canvas-hint__key mono">SCROLL</span> 缩放
+          <span className="canvas-hint__key mono">SCROLL</span> {t('缩放')}
         </span>
         <span className="canvas-hint">
-          <span className="canvas-hint__key mono">SPACE</span> 平移
+          <span className="canvas-hint__key mono">SPACE</span> {t('平移')}
         </span>
         <span className="canvas-hint canvas-hint--accent">
           <span className="canvas-hint__dot" />
@@ -938,7 +959,7 @@ export function PixelCanvas() {
       </div>
       {dragOver ? (
         <div className="canvas-drop-label">
-          <span>拖放调色卡颜色</span>
+          <span>{t('拖放调色卡颜色')}</span>
           <span className="mono">PAINT PIXEL</span>
         </div>
       ) : null}
@@ -957,7 +978,7 @@ export function PixelCanvas() {
           </span>
           <span className="canvas-empty__copy">
             <span className="eyebrow">EMPTY CANVAS</span>
-            <span>从右侧取一个颜色，落下第一笔。</span>
+            <span>{t('从右侧取一个颜色，落下第一笔。')}</span>
           </span>
         </div>
       ) : null}

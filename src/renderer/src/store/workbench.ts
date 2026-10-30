@@ -35,6 +35,7 @@ import {
   createPixels,
   extractRegion,
   flattenLayers,
+  resizeCanvasPixels,
   toRgbaBytes,
   type Rect
 } from '../core/pixels'
@@ -48,6 +49,16 @@ export const MAX_HISTORY = 80
 export type ToolId = 'pencil' | 'eraser' | 'bucket' | 'eyedropper' | 'line' | 'rectangle' | 'select'
 export type DocumentKind = 'untitled' | 'image' | 'project'
 export type SortState = { dimension: SortDimension; direction: SortDirection } | 'custom'
+export type ResizeAnchor =
+  | 'top-left'
+  | 'top'
+  | 'top-right'
+  | 'left'
+  | 'center'
+  | 'right'
+  | 'bottom-left'
+  | 'bottom'
+  | 'bottom-right'
 
 export interface Layer {
   id: string
@@ -75,6 +86,17 @@ export interface DocumentState {
   layers: Layer[]
   activeLayer: number
   dirty: boolean
+}
+
+export interface DocumentTab {
+  id: string
+  doc: DocumentState
+  revision: number
+  history: HistoryEntry[]
+  redoStack: HistoryEntry[]
+  selection: Selection | null
+  zoom: number
+  pan: { x: number; y: number }
 }
 
 interface SnapshotLayer {
@@ -119,8 +141,11 @@ export interface ExtractSummary {
 
 export interface WorkbenchState {
   doc: DocumentState
+  tabs: DocumentTab[]
+  activeTabId: string
   revision: number
   tool: ToolId
+  brushSize: number
   foreground: RGBA
   background: RGBA
   pixelPerfect: boolean
@@ -151,6 +176,7 @@ export interface WorkbenchState {
 
 export interface WorkbenchActions {
   setTool: (tool: ToolId) => void
+  setBrushSize: (size: number) => void
   setForeground: (color: RGBA) => void
   setBackground: (color: RGBA) => void
   swapColors: () => void
@@ -172,6 +198,29 @@ export interface WorkbenchActions {
   setPan: (pan: { x: number; y: number }) => void
 
   newDocument: (width: number, height: number) => void
+  newDocumentTab: (width: number, height: number) => void
+  loadDocumentTab: (input: {
+    pixels: Uint32Array
+    width: number
+    height: number
+    name: string
+    kind: DocumentKind
+    sourcePath: string | null
+    projectPath: string | null
+    palette?: Palette | null
+    clean?: boolean
+    layers?: Array<{
+      id: string
+      name: string
+      visible: boolean
+      opacity: number
+      pixels: Uint32Array
+    }>
+    activeLayer?: number
+  }) => void
+  switchTab: (id: string) => void
+  closeTab: (id: string) => void
+  closeActiveTab: () => void
   loadDocument: (input: {
     pixels: Uint32Array
     width: number
@@ -185,6 +234,17 @@ export interface WorkbenchActions {
   }) => void
   markSaved: (filePath: string, name?: string) => void
   setDocumentDirty: (dirty: boolean) => void
+  resizeDocument: (width: number, height: number, anchor: ResizeAnchor) => void
+
+  addLayer: () => void
+  duplicateLayer: (index?: number) => void
+  removeLayer: (index?: number) => boolean
+  selectLayer: (index: number) => void
+  setLayerVisibility: (index: number, visible: boolean) => void
+  setLayerOpacity: (index: number, opacity: number) => void
+  renameLayer: (index: number, name: string) => void
+  moveLayer: (index: number, direction: -1 | 1) => void
+  mergeLayerDown: (index?: number) => boolean
 
   beginTransaction: (label: string) => boolean
   setDraftPixels: (pixels: Uint32Array, selection?: Selection | null) => void
@@ -236,29 +296,43 @@ function makeInitialState(): WorkbenchState {
   const rampParams = defaultRampParams(DEFAULT_BASE, 7)
   const ramp = generateRamp(rampParams)
   const activePalette = paletteFromRamp(ramp, rampParams, 'Moss & Ember')
+  const doc: DocumentState = {
+    id: makeId(),
+    width: 32,
+    height: 32,
+    name: 'untitled',
+    kind: 'untitled',
+    sourcePath: null,
+    projectPath: null,
+    layers: [
+      {
+        id: makeId(),
+        name: 'Layer 1',
+        visible: true,
+        opacity: 1,
+        pixels: createPixels(32, 32)
+      }
+    ],
+    activeLayer: 0,
+    dirty: false
+  }
+  const tab: DocumentTab = {
+    id: doc.id,
+    doc,
+    revision: 0,
+    history: [],
+    redoStack: [],
+    selection: null,
+    zoom: 16,
+    pan: { x: 0, y: 0 }
+  }
   return {
-    doc: {
-      id: makeId(),
-      width: 32,
-      height: 32,
-      name: 'untitled',
-      kind: 'untitled',
-      sourcePath: null,
-      projectPath: null,
-      layers: [
-        {
-          id: makeId(),
-          name: 'Layer 1',
-          visible: true,
-          opacity: 1,
-          pixels: createPixels(32, 32)
-        }
-      ],
-      activeLayer: 0,
-      dirty: false
-    },
+    doc,
+    tabs: [tab],
+    activeTabId: tab.id,
     revision: 0,
     tool: 'pencil',
+    brushSize: 1,
     foreground: DEFAULT_BASE,
     background: parseHex('#171913') ?? { r: 23, g: 25, b: 19, a: 255 },
     pixelPerfect: true,
@@ -313,14 +387,29 @@ function activePixels(state: WorkbenchState): Uint32Array {
 function layersEqual(a: SnapshotLayer[], layers: Layer[]): boolean {
   if (a.length !== layers.length) return false
   for (let index = 0; index < a.length; index += 1) {
-    const left = a[index].pixels
-    const right = layers[index].pixels
-    if (left.length !== right.length) return false
-    for (let i = 0; i < left.length; i += 1) {
-      if (left[i] !== right[i]) return false
+    const left = a[index]
+    const right = layers[index]
+    if (
+      left.id !== right.id ||
+      left.name !== right.name ||
+      left.visible !== right.visible ||
+      left.opacity !== right.opacity
+    ) {
+      return false
+    }
+    if (left.pixels.length !== right.pixels.length) return false
+    for (let i = 0; i < left.pixels.length; i += 1) {
+      if (left.pixels[i] !== right.pixels[i]) return false
     }
   }
   return true
+}
+
+function layerName(layers: Layer[]): string {
+  let index = layers.length + 1
+  const names = new Set(layers.map((layer) => layer.name))
+  while (names.has(`Layer ${index}`)) index += 1
+  return `Layer ${index}`
 }
 
 function withLayerPixels(layers: Layer[], activeLayer: number, pixels: Uint32Array): Layer[] {
@@ -354,10 +443,69 @@ function restoreHistoryEntry(entry: Snapshot | HistoryEntry): {
   }
 }
 
+function cloneDocument(doc: DocumentState): DocumentState {
+  return {
+    ...doc,
+    layers: doc.layers.map((layer) => ({ ...layer, pixels: clonePixels(layer.pixels) }))
+  }
+}
+
+function captureTab(state: WorkbenchState): DocumentTab {
+  return {
+    id: state.activeTabId,
+    doc: cloneDocument(state.doc),
+    revision: state.revision,
+    history: [...state.history],
+    redoStack: [...state.redoStack],
+    selection: state.selection ? { ...state.selection } : null,
+    zoom: state.zoom,
+    pan: { ...state.pan }
+  }
+}
+
+function blankDocument(width: number, height: number): DocumentState {
+  return {
+    id: makeId(),
+    width,
+    height,
+    name: 'untitled',
+    kind: 'untitled',
+    sourcePath: null,
+    projectPath: null,
+    layers: [
+      {
+        id: makeId(),
+        name: 'Layer 1',
+        visible: true,
+        opacity: 1,
+        pixels: createPixels(width, height)
+      }
+    ],
+    activeLayer: 0,
+    dirty: false
+  }
+}
+
+function tabSnapshot(tab: DocumentTab): Partial<WorkbenchState> {
+  return {
+    doc: cloneDocument(tab.doc),
+    activeTabId: tab.id,
+    revision: tab.revision,
+    history: [...tab.history],
+    redoStack: [...tab.redoStack],
+    selection: tab.selection ? { ...tab.selection } : null,
+    zoom: tab.zoom,
+    pan: { ...tab.pan },
+    transaction: null,
+    cursor: null
+  }
+}
+
 export const useWorkbench = create<WorkbenchStore>((set, get) => ({
   ...makeInitialState(),
 
   setTool: (tool) => set({ tool }),
+  setBrushSize: (size) => set({ brushSize: Math.max(1, Math.min(32, Math.round(size))) }),
   setForeground: (color) => set({ foreground: normalizeRgba(color) }),
   setBackground: (color) => set({ background: normalizeRgba(color) }),
   swapColors: () => set((state) => ({ foreground: state.background, background: state.foreground })),
@@ -518,6 +666,146 @@ export const useWorkbench = create<WorkbenchStore>((set, get) => ({
     get().fitView()
   },
 
+  newDocumentTab: (width, height) => {
+    const state = get()
+    const current = captureTab(state)
+    const tabs = state.tabs.map((tab) => (tab.id === current.id ? current : tab))
+    const doc = blankDocument(
+      Math.max(1, Math.min(256, Math.round(width))),
+      Math.max(1, Math.min(256, Math.round(height)))
+    )
+    const tab: DocumentTab = {
+      id: doc.id,
+      doc,
+      revision: 0,
+      history: [],
+      redoStack: [],
+      selection: null,
+      zoom: 16,
+      pan: { x: 0, y: 0 }
+    }
+    set({
+      tabs: [...tabs, tab],
+      ...tabSnapshot(tab),
+      activeTabId: tab.id
+    })
+    get().fitView()
+  },
+
+  loadDocumentTab: (input) => {
+    const state = get()
+    const current = captureTab(state)
+    const tabs = state.tabs.map((tab) => (tab.id === current.id ? current : tab))
+    const width = Math.max(1, Math.min(256, Math.round(input.width)))
+    const height = Math.max(1, Math.min(256, Math.round(input.height)))
+    const layers =
+      input.layers && input.layers.length > 0
+        ? input.layers.map((layer) => ({
+            id: layer.id || makeId(),
+            name: layer.name || 'Layer',
+            visible: layer.visible !== false,
+            opacity: Math.max(0, Math.min(1, layer.opacity)),
+            pixels: clonePixels(layer.pixels)
+          }))
+        : [
+            {
+              id: makeId(),
+              name: 'Layer 1',
+              visible: true,
+              opacity: 1,
+              pixels: clonePixels(input.pixels)
+            }
+          ]
+    const doc: DocumentState = {
+      id: makeId(),
+      width,
+      height,
+      name: input.name,
+      kind: input.kind,
+      sourcePath: input.sourcePath,
+      projectPath: input.projectPath,
+      layers,
+      activeLayer: Math.max(
+        0,
+        Math.min(layers.length - 1, input.activeLayer ?? layers.length - 1)
+      ),
+      dirty: false
+    }
+    const tab: DocumentTab = {
+      id: doc.id,
+      doc,
+      revision: 0,
+      history: [],
+      redoStack: [],
+      selection: null,
+      zoom: 16,
+      pan: { x: 0, y: 0 }
+    }
+    set({ tabs: [...tabs, tab], ...tabSnapshot(tab) })
+    if (input.palette !== undefined) {
+      if (input.palette) {
+        const clone: Palette = JSON.parse(JSON.stringify(input.palette)) as Palette
+        set({
+          activePalette: clone,
+          paletteDirty: !get().library.some((entry) => entry.id === clone.id),
+          selectedColorIndex: null
+        })
+        if (clone.generationParams) set({ rampParams: clone.generationParams })
+        else if (clone.baseColor) {
+          set({ rampParams: { ...get().rampParams, baseColor: clone.baseColor } })
+        }
+      } else {
+        set({ activePalette: null, paletteDirty: false, selectedColorIndex: null })
+      }
+    }
+    get().fitView()
+  },
+
+  switchTab: (id) => {
+    const state = get()
+    if (id === state.activeTabId) return
+    const current = captureTab(state)
+    const tabs = state.tabs.map((tab) => (tab.id === current.id ? current : tab))
+    const target = tabs.find((tab) => tab.id === id)
+    if (!target) return
+    set({ tabs, ...tabSnapshot(target) })
+  },
+
+  closeTab: (id) => {
+    const state = get()
+    const current = captureTab(state)
+    const savedTabs = state.tabs.map((tab) => (tab.id === current.id ? current : tab))
+    const index = savedTabs.findIndex((tab) => tab.id === id)
+    if (index < 0) return
+    const remaining = savedTabs.filter((tab) => tab.id !== id)
+    if (id !== state.activeTabId) {
+      set({ tabs: remaining })
+      return
+    }
+    if (remaining.length > 0) {
+      const next = remaining[Math.min(index, remaining.length - 1)]
+      set({ tabs: remaining, ...tabSnapshot(next) })
+      return
+    }
+    const doc = blankDocument(32, 32)
+    const tab: DocumentTab = {
+      id: doc.id,
+      doc,
+      revision: 0,
+      history: [],
+      redoStack: [],
+      selection: null,
+      zoom: 16,
+      pan: { x: 0, y: 0 }
+    }
+    set({ tabs: [tab], ...tabSnapshot(tab) })
+    get().fitView()
+  },
+
+  closeActiveTab: () => {
+    get().closeTab(get().activeTabId)
+  },
+
   markSaved: (filePath, name) =>
     set((state) => ({
       doc: {
@@ -531,6 +819,210 @@ export const useWorkbench = create<WorkbenchStore>((set, get) => ({
     })),
 
   setDocumentDirty: (dirty) => set((state) => ({ doc: { ...state.doc, dirty } })),
+
+  resizeDocument: (width, height, anchor) => {
+    const state = get()
+    const nextWidth = Math.max(1, Math.min(256, Math.round(width)))
+    const nextHeight = Math.max(1, Math.min(256, Math.round(height)))
+    if (nextWidth === state.doc.width && nextHeight === state.doc.height) return
+    const horizontal =
+      anchor.includes('left') ? 0 : anchor.includes('right') ? nextWidth - state.doc.width : Math.round((nextWidth - state.doc.width) / 2)
+    const vertical =
+      anchor.startsWith('top') ? 0 : anchor.startsWith('bottom') ? nextHeight - state.doc.height : Math.round((nextHeight - state.doc.height) / 2)
+    const layers = state.doc.layers.map((layer) => ({
+      ...layer,
+      pixels: resizeCanvasPixels(
+        layer.pixels,
+        state.doc.width,
+        state.doc.height,
+        nextWidth,
+        nextHeight,
+        horizontal,
+        vertical
+      )
+    }))
+    set({
+      doc: {
+        ...state.doc,
+        width: nextWidth,
+        height: nextHeight,
+        layers,
+        dirty: true
+      },
+      revision: state.revision + 1,
+      selection: null,
+      history: [],
+      redoStack: [],
+      transaction: null
+    })
+    get().fitView()
+  },
+
+  addLayer: () => {
+    const state = get()
+    if (state.transaction || !state.beginTransaction('新建图层')) return
+    const index = state.doc.activeLayer + 1
+    const layers = [...state.doc.layers]
+    layers.splice(index, 0, {
+      id: makeId(),
+      name: layerName(state.doc.layers),
+      visible: true,
+      opacity: 1,
+      pixels: createPixels(state.doc.width, state.doc.height)
+    })
+    set({
+      doc: { ...state.doc, layers, activeLayer: index },
+      revision: state.revision + 1
+    })
+    get().commitTransaction()
+  },
+
+  duplicateLayer: (index) => {
+    const state = get()
+    if (state.transaction) return
+    const sourceIndex = index ?? state.doc.activeLayer
+    const source = state.doc.layers[sourceIndex]
+    if (!source) return
+    state.beginTransaction('复制图层')
+    const layers = [...state.doc.layers]
+    layers.splice(sourceIndex + 1, 0, {
+      ...source,
+      id: makeId(),
+      name: `${source.name} copy`,
+      pixels: clonePixels(source.pixels)
+    })
+    set({
+      doc: { ...state.doc, layers, activeLayer: sourceIndex + 1 },
+      revision: state.revision + 1
+    })
+    get().commitTransaction()
+  },
+
+  removeLayer: (index) => {
+    const state = get()
+    if (state.transaction || state.doc.layers.length <= 1) return false
+    const target = index ?? state.doc.activeLayer
+    if (target < 0 || target >= state.doc.layers.length) return false
+    state.beginTransaction('删除图层')
+    const layers = state.doc.layers.filter((_, layerIndex) => layerIndex !== target)
+    const activeLayer =
+      target < state.doc.activeLayer
+        ? state.doc.activeLayer - 1
+        : Math.min(target, layers.length - 1)
+    set({
+      doc: { ...state.doc, layers, activeLayer },
+      revision: state.revision + 1
+    })
+    get().commitTransaction()
+    return true
+  },
+
+  selectLayer: (index) => {
+    const state = get()
+    if (index < 0 || index >= state.doc.layers.length || index === state.doc.activeLayer) return
+    set({
+      doc: { ...state.doc, activeLayer: index },
+      revision: state.revision + 1
+    })
+  },
+
+  setLayerVisibility: (index, visible) => {
+    const state = get()
+    const layer = state.doc.layers[index]
+    if (!layer || layer.visible === visible || state.transaction) return
+    state.beginTransaction('切换图层可见性')
+    set({
+      doc: {
+        ...state.doc,
+        layers: state.doc.layers.map((entry, layerIndex) =>
+          layerIndex === index ? { ...entry, visible } : entry
+        )
+      },
+      revision: state.revision + 1
+    })
+    get().commitTransaction()
+  },
+
+  setLayerOpacity: (index, opacity) => {
+    const state = get()
+    const next = Math.max(0, Math.min(1, opacity))
+    if (state.transaction || state.doc.layers[index]?.opacity === next) return
+    set({
+      doc: {
+        ...state.doc,
+        layers: state.doc.layers.map((entry, layerIndex) =>
+          layerIndex === index ? { ...entry, opacity: next } : entry
+        ),
+        dirty: true
+      },
+      revision: state.revision + 1
+    })
+  },
+
+  renameLayer: (index, name) => {
+    const state = get()
+    const layer = state.doc.layers[index]
+    const trimmed = name.trim()
+    if (!layer || !trimmed || layer.name === trimmed || state.transaction) return
+    state.beginTransaction('重命名图层')
+    set({
+      doc: {
+        ...state.doc,
+        layers: state.doc.layers.map((entry, layerIndex) =>
+          layerIndex === index ? { ...entry, name: trimmed } : entry
+        )
+      },
+      revision: state.revision + 1
+    })
+    get().commitTransaction()
+  },
+
+  moveLayer: (index, direction) => {
+    const state = get()
+    const target = index + direction
+    if (
+      state.transaction ||
+      index < 0 ||
+      index >= state.doc.layers.length ||
+      target < 0 ||
+      target >= state.doc.layers.length
+    ) {
+      return
+    }
+    state.beginTransaction('调整图层顺序')
+    const layers = [...state.doc.layers]
+    const [moved] = layers.splice(index, 1)
+    layers.splice(target, 0, moved)
+    set({
+      doc: { ...state.doc, layers, activeLayer: target },
+      revision: state.revision + 1
+    })
+    get().commitTransaction()
+  },
+
+  mergeLayerDown: (index) => {
+    const state = get()
+    const sourceIndex = index ?? state.doc.activeLayer
+    if (state.transaction || sourceIndex <= 0 || sourceIndex >= state.doc.layers.length) return false
+    state.beginTransaction('向下合并图层')
+    const layers = [...state.doc.layers]
+    const below = layers[sourceIndex - 1]
+    const above = layers[sourceIndex]
+    const merged = flattenLayers([below, above], state.doc.width, state.doc.height)
+    layers.splice(sourceIndex - 1, 2, {
+      ...below,
+      visible: true,
+      opacity: 1,
+      pixels: merged
+    })
+    set({
+      doc: { ...state.doc, layers, activeLayer: sourceIndex - 1 },
+      revision: state.revision + 1
+    })
+    get().commitTransaction()
+    return true
+  },
+
 
   beginTransaction: (label) => {
     const state = get()
@@ -546,7 +1038,9 @@ export const useWorkbench = create<WorkbenchStore>((set, get) => ({
 
   setDraftPixels: (pixels, selection) => {
     const state = get()
-    const layers = withLayerPixels(state.doc.layers, state.doc.activeLayer, pixels)
+    const layers = withLayerPixels(state.doc.layers, state.doc.activeLayer, pixels).map(
+      (layer, index) => (index === state.doc.activeLayer ? { ...layer, visible: true } : layer)
+    )
     set({
       doc: { ...state.doc, layers },
       revision: state.revision + 1,

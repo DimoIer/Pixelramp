@@ -5,10 +5,10 @@
   overflow: hidden;
   outline: none;
   touch-action: none;
-  background-color: #191b16;
+  background-color: var(--canvas-field);
   background-image:
-    radial-gradient(circle at 50% 42%, rgba(235, 243, 216, 0.035), transparent 48%),
-    radial-gradient(circle, rgba(238, 236, 227, 0.05) 1px, transparent 1.2px);
+    radial-gradient(circle at 50% 42%, var(--canvas-glow), transparent 48%),
+    radial-gradient(circle, var(--canvas-dot) 1px, transparent 1.2px);
   background-size: auto, 18px 18px;
   background-position: center, center;
 }
@@ -22,6 +22,27 @@
     linear-gradient(180deg, rgba(0, 0, 0, 0.12), transparent 18%, transparent 80%, rgba(0, 0, 0, 0.28)),
     radial-gradient(ellipse at center, transparent 45%, rgba(3, 4, 2, 0.24) 100%);
   pointer-events: none;
+}
+
+:root[data-canvas="light"] .canvas-stage::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 18%, transparent 80%, rgba(54, 48, 35, 0.08)),
+    radial-gradient(ellipse at center, transparent 55%, rgba(82, 70, 48, 0.09) 100%);
+}
+
+:root[data-canvas="light"] .canvas-hint {
+  border-color: rgba(42, 46, 34, 0.14);
+  background: rgba(250, 246, 236, 0.78);
+  color: rgba(40, 44, 32, 0.75);
+}
+
+:root[data-canvas="light"] .canvas-hint__key {
+  background: rgba(42, 46, 34, 0.07);
+  color: rgba(35, 39, 28, 0.72);
+}
+
+:root[data-canvas="light"] .canvas-empty {
+  color: rgba(35, 39, 28, 0.62);
 }
 
 .canvas-stage::after {

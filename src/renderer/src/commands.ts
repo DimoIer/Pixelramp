@@ -21,6 +21,7 @@ import * as platform from './platform'
 import { paletteWorker } from './workers/paletteClient'
 import { normalizeSelection, useWorkbench, type ExtractSummary } from './store/workbench'
 import { useUi } from './store/ui'
+import { tr } from './i18n'
 
 function baseName(filePath: string): string {
   const normalized = filePath.replace(/\\/g, '/')
@@ -60,28 +61,42 @@ export async function ensureCanDiscard(): Promise<boolean> {
   })
 }
 
+export async function closeDocumentTabCommand(id: string): Promise<void> {
+  const state = useWorkbench.getState()
+  const tab = state.tabs.find((entry) => entry.id === id)
+  if (!tab) return
+  const dirty = id === state.activeTabId ? state.doc.dirty : tab.doc.dirty
+  if (dirty) {
+    const confirmed = await useUi.getState().askConfirm({
+      title: tr('关闭「{name}」？', { name: tab.doc.name }),
+      description: tr('这个标签页有尚未保存的像素修改。关闭会丢失这些修改。'),
+      confirmLabel: tr('放弃并关闭'),
+      cancelLabel: tr('返回标签页'),
+      tone: 'danger'
+    })
+    if (!confirmed) return
+  }
+  useWorkbench.getState().closeTab(id)
+}
+
 export async function createNewCanvasCommand(width: number, height: number): Promise<boolean> {
-  if (!(await ensureCanDiscard())) return false
-  useWorkbench.getState().newDocument(width, height)
+  useWorkbench.getState().newDocumentTab(width, height)
   useUi.getState().closeDialog()
-  useUi.getState().toast(`已新建 ${width} × ${height} 画布`, 'success')
+  useUi.getState().toast(tr('已新建 {width} × {height} 画布', { width, height }), 'success')
   return true
 }
 
 export function openNewCanvasDialog(): void {
   useUi.getState().openDialog('new-canvas')
 }
-
 interface LoadOptions {
   askDiscard?: boolean
 }
 
 export async function loadOpenedFile(
   opened: OpenedFile,
-  options: LoadOptions = {}
+  _options: LoadOptions = {}
 ): Promise<void> {
-  const askDiscard = options.askDiscard ?? true
-
   if (opened.kind === 'project') {
     let project: ReturnType<typeof parseProjectBytes>
     try {
@@ -90,9 +105,8 @@ export async function loadOpenedFile(
       reportError(error, '无法打开该工程')
       return
     }
-    if (askDiscard && !(await ensureCanDiscard())) return
     const palette = project.manifest.palette
-    useWorkbench.getState().loadDocument({
+    useWorkbench.getState().loadDocumentTab({
       pixels: project.pixels,
       width: project.width,
       height: project.height,
@@ -100,6 +114,8 @@ export async function loadOpenedFile(
       kind: 'project',
       sourcePath: opened.path,
       projectPath: opened.path,
+      layers: project.layers,
+      activeLayer: project.activeLayer,
       ...(palette ? { palette } : {})
     })
     useUi.getState().toast('工程已打开', 'success', `${project.width} × ${project.height}`)
@@ -115,8 +131,7 @@ export async function loadOpenedFile(
       return
     }
     if (decoded.width === decoded.height && decoded.width <= 256) {
-      if (askDiscard && !(await ensureCanDiscard())) return
-      useWorkbench.getState().loadDocument({
+      useWorkbench.getState().loadDocumentTab({
         pixels: decoded.pixels,
         width: decoded.width,
         height: decoded.height,
@@ -176,9 +191,8 @@ export async function confirmPendingImage(
 ): Promise<boolean> {
   const pending = useUi.getState().pendingImage
   if (!pending) return false
-  if (!(await ensureCanDiscard())) return false
   const pixels = prepareImportedPixels(pending.pixels, pending.width, pending.height, size, mode)
-  useWorkbench.getState().loadDocument({
+  useWorkbench.getState().loadDocumentTab({
     pixels,
     width: size,
     height: size,
@@ -210,6 +224,8 @@ export async function saveProjectCommand(saveAs = false): Promise<boolean> {
       height: state.doc.height,
       name: state.doc.name,
       pixels,
+      layers: state.doc.layers,
+      activeLayer: state.doc.activeLayer,
       palette: state.activePalette
     })
     const filePath = await withBusy('正在保存工程…', () =>
@@ -507,12 +523,21 @@ export async function requestWindowCloseCommand(): Promise<void> {
   closeRequestPending = true
   try {
     const state = useWorkbench.getState()
-    if (state.doc.dirty) {
+    const inactiveDirty = state.tabs.filter(
+      (tab) => tab.id !== state.activeTabId && tab.doc.dirty
+    ).length
+    const dirtyCount = (state.doc.dirty ? 1 : 0) + inactiveDirty
+    if (dirtyCount > 0) {
       const confirmed = await useUi.getState().askConfirm({
-        title: '退出 PixelRamp？',
-        description: '当前画布有尚未保存的像素修改。退出会丢失这些修改。',
-        confirmLabel: '放弃并退出',
-        cancelLabel: '继续编辑',
+        title: tr('退出 PixelRamp？'),
+        description:
+          dirtyCount === 1
+            ? tr('当前有 1 个标签页包含尚未保存的像素修改。退出会丢失这些修改。')
+            : tr('当前有 {count} 个标签页包含尚未保存的像素修改。退出会丢失这些修改。', {
+                count: dirtyCount
+              }),
+        confirmLabel: tr('放弃并退出'),
+        cancelLabel: tr('继续编辑'),
         tone: 'danger'
       })
       if (!confirmed) return

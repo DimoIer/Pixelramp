@@ -1,0 +1,121 @@
+.doc-tabs {
+  display: flex;
+  align-items: stretch;
+  height: 31px;
+  flex: none;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.doc-tabs__strip {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.doc-tabs__strip::-webkit-scrollbar {
+  display: none;
+}
+
+.doc-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: none;
+  max-width: 210px;
+  min-width: 114px;
+  border-right: 1px solid var(--line);
+  color: var(--text-3);
+}
+
+.doc-tab:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.doc-tab.is-active {
+  color: var(--text);
+  background: var(--canvas-bg);
+}
+
+.doc-tab.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.doc-tab__main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 5px 0 9px;
+  text-align: left;
+}
+
+.doc-tab__dirty {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--warm);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--warm) 44%, transparent);
+}
+
+.doc-tab__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  font-weight: 500;
+}
+
+.doc-tab__size {
+  flex: none;
+  font-size: 8px;
+  color: var(--text-4);
+}
+
+.doc-tab__close {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  margin-right: 4px;
+  flex: none;
+  border-radius: 3px;
+  color: var(--text-4);
+  opacity: 0;
+}
+
+.doc-tab:hover .doc-tab__close,
+.doc-tab.is-active .doc-tab__close {
+  opacity: 1;
+}
+
+.doc-tab__close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.doc-tabs__new {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  flex: none;
+  color: var(--text-3);
+  border-left: 1px solid var(--line);
+}
+
+.doc-tabs__new:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}

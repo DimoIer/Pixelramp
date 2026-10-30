@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useWorkbench } from '../store/workbench'
 import { useUi } from '../store/ui'
 import {
+  closeDocumentTabCommand,
   copySelectionCommand,
   cutSelectionCommand,
   deleteSelectionCommand,
@@ -41,6 +42,19 @@ export function useGlobalShortcuts(): void {
       }
 
       if (command) {
+        if (key === 'w') {
+          event.preventDefault()
+          void closeDocumentTabCommand(state.activeTabId)
+          return
+        }
+        if (event.key === 'Tab') {
+          event.preventDefault()
+          const index = state.tabs.findIndex((tab) => tab.id === state.activeTabId)
+          const direction = event.shiftKey ? -1 : 1
+          const next = state.tabs[(index + direction + state.tabs.length) % state.tabs.length]
+          if (next) state.switchTab(next.id)
+          return
+        }
         if (key === 'z') {
           event.preventDefault()
           if (event.shiftKey) state.redo()
@@ -172,6 +186,14 @@ export function useGlobalShortcuts(): void {
         case '_':
           event.preventDefault()
           state.zoomStep(-1)
+          break
+        case '[':
+          event.preventDefault()
+          state.setBrushSize(state.brushSize - 1)
+          break
+        case ']':
+          event.preventDefault()
+          state.setBrushSize(state.brushSize + 1)
           break
         case '?':
           event.preventDefault()

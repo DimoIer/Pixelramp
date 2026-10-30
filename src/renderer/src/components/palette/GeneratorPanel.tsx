@@ -24,6 +24,7 @@ import { DualRangeSlider, RangeSlider, SliderRow } from '../ui/Slider'
 import { Switch } from '../ui/Switch'
 import { Tooltip } from '../ui/Tooltip'
 import { SectionHead } from './SectionHead'
+import { useT } from '../../i18n'
 
 const ROLE_LABEL: Record<ColorRole, string> = {
   shadow: '阴影',
@@ -40,6 +41,7 @@ const ROLE_DOT: Record<ColorRole, string> = {
 }
 
 export function GeneratorPanel() {
+  const t = useT()
   const {
     rampParams,
     updateRampParams,
@@ -101,7 +103,7 @@ export function GeneratorPanel() {
       <SectionHead
         index="01"
         eyebrow="GENERATOR"
-        title="色阶生成器"
+        title={t('色阶生成器')}
         aside={<span className="mode-pill mono">{rampParams.colorSpace}</span>}
       />
 
@@ -122,7 +124,7 @@ export function GeneratorPanel() {
             </button>
           </ColorPickerPopover>
           <div className="base-color-field">
-            <span className="field__label">基色 / BASE</span>
+            <span className="field__label">{t('基色 / BASE')}</span>
             <label className="hex-field">
               <span className="hex-field__hash">#</span>
               <input
@@ -157,8 +159,8 @@ export function GeneratorPanel() {
         </div>
 
         <SliderRow
-          label="阶数"
-          value={<span>{String(rampParams.count).padStart(2, '0')} 阶</span>}
+          label={t('阶数')}
+          value={<span>{String(rampParams.count).padStart(2, '0')} {t('阶')}</span>}
           className="count-slider"
         >
           <div className="count-slider__row">
@@ -192,7 +194,7 @@ export function GeneratorPanel() {
         </SliderRow>
 
         <SliderRow
-          label="明度范围"
+          label={t('明度范围')}
           value={
             <span>
               {lowPercent}% <span className="slider-value-sep">—</span> {highPercent}%
@@ -219,7 +221,7 @@ export function GeneratorPanel() {
             label={
               <span className="hue-label">
                 <span className="hue-dot hue-dot--cool" />
-                阴影偏冷
+                {t('阴影偏冷')}
               </span>
             }
             value={`−${shadeValue}°`}
@@ -238,7 +240,7 @@ export function GeneratorPanel() {
             label={
               <span className="hue-label">
                 <span className="hue-dot hue-dot--warm" />
-                高光偏暖
+                {t('高光偏暖')}
               </span>
             }
             value={`+${highlightValue}°`}
@@ -260,22 +262,22 @@ export function GeneratorPanel() {
             <Switch
               checked={rampParams.chromaTaper}
               onChange={(checked) => updateRampParams({ chromaTaper: checked })}
-              label="高光降饱和"
+              label={t('高光降饱和')}
             />
-            <p className="generator__toggle-hint">色度向高光收敛，减少刺眼感</p>
+            <p className="generator__toggle-hint">{t('色度向高光收敛，减少刺眼感')}</p>
           </div>
           <div className="generator__formula mono">C ↓ · L ↑</div>
         </div>
 
         <details className="generator-advanced">
           <summary>
-            <span>色彩空间与插值</span>
+            <span>{t('色彩空间与插值')}</span>
             <ChevronDown size={13} className="generator-advanced__chevron" />
           </summary>
           <div className="generator-advanced__content">
             <div className="advanced-row">
-              <span className="advanced-row__label">色彩空间</span>
-              <div className="segmented" role="group" aria-label="色彩空间">
+              <span className="advanced-row__label">{t('色彩空间')}</span>
+              <div className="segmented" role="group" aria-label={t('色彩空间')}>
                 {(['OKLCh', 'HSL'] as const).map((space) => (
                   <button
                     key={space}
@@ -289,8 +291,8 @@ export function GeneratorPanel() {
               </div>
             </div>
             <div className="advanced-row">
-              <span className="advanced-row__label">明度曲线</span>
-              <div className="segmented" role="group" aria-label="明度曲线">
+              <span className="advanced-row__label">{t('明度曲线')}</span>
+              <div className="segmented" role="group" aria-label={t('明度曲线')}>
                 <button
                   type="button"
                   className={clsx(rampParams.interpolation === 'linear' && 'is-active')}
@@ -312,7 +314,7 @@ export function GeneratorPanel() {
 
         <div className="ramp-preview-block">
           <div className="ramp-preview__head">
-            <span className="field__label">实时色阶 / LIVE RAMP</span>
+            <span className="field__label">{t('实时色阶 / LIVE RAMP')}</span>
             <span className="ramp-preview__count mono">{rampParams.count} COLORS</span>
           </div>
           <div className="ramp-strip" role="group" aria-label="生成的色阶">
@@ -337,8 +339,8 @@ export function GeneratorPanel() {
                   useWorkbench.getState().setForeground(color.rgba)
                   setSelected(index)
                 }}
-                aria-label={`${ROLE_LABEL[color.role]} ${rgbaToHex(color.rgba)}`}
-                title={`${ROLE_LABEL[color.role]} · ${rgbaToHex(color.rgba).toUpperCase()}${color.clipped ? ' · clipped to sRGB' : ''}`}
+                aria-label={`${t(ROLE_LABEL[color.role])} ${rgbaToHex(color.rgba)}`}
+                title={`${t(ROLE_LABEL[color.role])} · ${rgbaToHex(color.rgba).toUpperCase()}${color.clipped ? ' · clipped to sRGB' : ''}`}
               >
                 {color.clipped ? <span className="ramp-swatch__clip" /> : null}
                 {selected === index ? <span className="ramp-swatch__check">✓</span> : null}
@@ -355,15 +357,15 @@ export function GeneratorPanel() {
                     className="role-dot"
                     style={{ backgroundColor: ROLE_DOT[activeColor.role] }}
                   />
-                  {ROLE_LABEL[activeColor.role]}
+                  {t(ROLE_LABEL[activeColor.role])}
                 </span>
                 <span className="ramp-inspect__l mono">L {Math.round(activeColor.oklch.L * 100)}</span>
-                <span className="ramp-inspect__hint">点击取色 →</span>
+                <span className="ramp-inspect__hint">{t('点击取色 →')}</span>
               </>
             ) : (
               <>
                 <Sparkles size={12} className="ramp-inspect__spark" />
-                <span className="ramp-inspect__placeholder">悬停查看色值，点击色块设为前景色</span>
+                <span className="ramp-inspect__placeholder">{t('悬停查看色值，点击色块设为前景色')}</span>
               </>
             )}
           </div>
@@ -374,16 +376,18 @@ export function GeneratorPanel() {
             {tooClose ? (
               <div className="ramp-warning">
                 <CircleAlert size={12} />
-                <span>相邻色阶过密，肉眼难辨。</span>
+                <span>{t('相邻色阶过密，肉眼难辨。')}</span>
                 <button type="button" onClick={expandRange}>
-                  扩展范围
+                  {t('扩展范围')}
                 </button>
               </div>
             ) : null}
             {ramp.clippedCount > 0 ? (
               <div className="ramp-note">
                 <span className="ramp-note__mark" />
-                {ramp.clippedCount} 色超出 sRGB，已裁剪；色块右上角有标记。
+                {t('{count} 色超出 sRGB，已裁剪；色块右上角有标记。', {
+                  count: ramp.clippedCount
+                })}
               </div>
             ) : null}
           </div>
@@ -397,7 +401,7 @@ export function GeneratorPanel() {
             leadingIcon={<Plus size={14} />}
             onClick={() => createPalette('new')}
           >
-            创建新调色卡
+            {t('创建新调色卡')}
           </Button>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
@@ -412,7 +416,7 @@ export function GeneratorPanel() {
                   onSelect={() => createPalette('new')}
                 >
                   <span className="menu-item__icon"><Plus size={14} /></span>
-                  <span className="menu-item__label">创建新调色卡</span>
+                  <span className="menu-item__label">{t('创建新调色卡')}</span>
                 </DropdownMenu.Item>
                 {activePalette ? (
                   <>
@@ -422,14 +426,14 @@ export function GeneratorPanel() {
                       onSelect={() => createPalette('replace')}
                     >
                       <span className="menu-item__icon"><Sparkles size={14} /></span>
-                      <span className="menu-item__label">替换「{activePalette.name}」</span>
+                      <span className="menu-item__label">{t('替换「{name}」', { name: activePalette.name })}</span>
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
                       className="menu-item"
                       onSelect={() => createPalette('append')}
                     >
                       <span className="menu-item__icon"><Plus size={14} /></span>
-                      <span className="menu-item__label">追加到当前调色卡</span>
+                      <span className="menu-item__label">{t('追加到当前调色卡')}</span>
                     </DropdownMenu.Item>
                   </>
                 ) : null}
@@ -438,7 +442,7 @@ export function GeneratorPanel() {
           </DropdownMenu.Root>
         </div>
         <div className="generator__footnote">
-          <span>生成结果可继续在下方编辑，保存后进入调色卡库。</span>
+          <span>{t('生成结果可继续在下方编辑，保存后进入调色卡库。')}</span>
           <span className="mono">{defaultRampName(rampParams.baseColor, rampParams.count)}</span>
         </div>
       </div>
