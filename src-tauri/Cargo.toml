@@ -1,6 +1,6 @@
 [package]
 name = "pixelramp"
-version = "0.2.7"
+version = "0.2.8"
 description = "A palette-first pixel texture workbench for Minecraft artists."
 authors = ["PixelRamp"]
 license = "MIT"

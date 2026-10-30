@@ -109,7 +109,7 @@ export function createTauriDesktop(): DesktopApi {
 
   return {
     platform: 'tauri',
-    version: '0.2.7',
+    version: '0.2.8',
     window: {
       minimize: () => {
         void win.minimize()

@@ -112,6 +112,8 @@ export function ColorWheelPanel({
     y: number
     color: RGBA
   } | null>(null)
+  const [preview, setPreview] = useState<{ s: number; v: number } | null>(null)
+  const ignoreLeftPointer = useRef(false)
   const wheelRef = useRef<HTMLDivElement>(null)
   const wheelDrag = useRef<'hue' | 'sv' | null>(null)
 
@@ -120,6 +122,7 @@ export function ColorWheelPanel({
   const foregroundKey = `${foreground.r},${foreground.g},${foreground.b},${foreground.a}`
   const baseKey = `${rampParams.baseColor.r},${rampParams.baseColor.g},${rampParams.baseColor.b},${rampParams.baseColor.a}`
   const hueColor = `hsl(${Math.round(hsv.h)} 100% 50%)`
+  const cursorPoint = preview ?? { s: hsv.s, v: hsv.v }
 
   useEffect(() => {
     setHexDraft(rgbaToHex(color).slice(1).toUpperCase())
@@ -151,6 +154,27 @@ export function ColorWheelPanel({
     if (linkGenerator) setRampBaseColor(rgba, false)
   }
 
+  const commitPreview = (): void => {
+    if (!preview) return
+    commit({ ...hsv, s: preview.s, v: preview.v })
+    setPreview(null)
+    setLoupe(null)
+  }
+
+  const setPreviewPoint = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const wheel = wheelRef.current?.getBoundingClientRect()
+    const s = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+    const v = 1 - Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
+    if (!wheel) return
+    setPreview({ s, v })
+    setLoupe({
+      x: event.clientX - wheel.left,
+      y: event.clientY - wheel.top,
+      color: hsvToRgba({ ...hsv, s, v })
+    })
+  }
+
   const updateHue = (event: ReactPointerEvent<HTMLDivElement>): void => {
     const rect = wheelRef.current?.getBoundingClientRect()
     if (!rect) return
@@ -171,18 +195,17 @@ export function ColorWheelPanel({
   const startSv = (event: ReactPointerEvent<HTMLDivElement>): void => {
     event.preventDefault()
     event.stopPropagation()
+    if (ignoreLeftPointer.current && event.button === 0) {
+      ignoreLeftPointer.current = false
+      return
+    }
+    if (event.button === 0 && preview) {
+      commitPreview()
+      return
+    }
     const rect = event.currentTarget.getBoundingClientRect()
     if (event.button === 2) {
-      const wheel = wheelRef.current?.getBoundingClientRect()
-      const s = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
-      const v = 1 - Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
-      if (wheel) {
-        setLoupe({
-          x: event.clientX - wheel.left,
-          y: event.clientY - wheel.top,
-          color: hsvToRgba({ ...hsv, s, v })
-        })
-      }
+      setPreviewPoint(event)
       event.currentTarget.setPointerCapture(event.pointerId)
       return
     }
@@ -197,17 +220,11 @@ export function ColorWheelPanel({
 
   const moveSv = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (loupe && (event.buttons & 2) !== 0) {
-      const rect = event.currentTarget.getBoundingClientRect()
-      const wheel = wheelRef.current?.getBoundingClientRect()
-      const s = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
-      const v = 1 - Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
-      if (wheel) {
-        setLoupe({
-          x: event.clientX - wheel.left,
-          y: event.clientY - wheel.top,
-          color: hsvToRgba({ ...hsv, s, v })
-        })
+      if ((event.buttons & 1) !== 0) {
+        commitPreview()
+        return
       }
+      setPreviewPoint(event)
       return
     }
     if (wheelDrag.current !== 'sv') return
@@ -221,6 +238,7 @@ export function ColorWheelPanel({
 
   const endWheelDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
     wheelDrag.current = null
+    setPreview(null)
     setLoupe(null)
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
@@ -278,6 +296,16 @@ export function ColorWheelPanel({
               background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${hueColor})`
             }}
             onContextMenu={(event) => event.preventDefault()}
+            onMouseDown={(event) => {
+              if (event.button !== 0 || !preview) return
+              event.preventDefault()
+              event.stopPropagation()
+              ignoreLeftPointer.current = true
+              window.setTimeout(() => {
+                ignoreLeftPointer.current = false
+              }, 0)
+              commitPreview()
+            }}
             onPointerDown={startSv}
             onPointerMove={moveSv}
             onPointerUp={endWheelDrag}
@@ -286,8 +314,8 @@ export function ColorWheelPanel({
             <span
               className="color-wheel__sv-cursor"
               style={{
-                left: `${hsv.s * 100}%`,
-                top: `${(1 - hsv.v) * 100}%`
+                left: `${cursorPoint.s * 100}%`,
+                top: `${(1 - cursorPoint.v) * 100}%`
               }}
             />
           </div>
@@ -297,14 +325,19 @@ export function ColorWheelPanel({
           />
           {loupe ? (
             <div
-              className="color-wheel__loupe"
+              className="color-wheel__loupe-stack"
               style={{
                 left: Math.max(34, Math.min(202, loupe.x)),
-                top: Math.max(34, Math.min(202, loupe.y)),
-                background: cssColor(loupe.color)
+                top: Math.max(34, Math.min(202, loupe.y))
               }}
             >
-              <span className="mono">{rgbaToHex(loupe.color).slice(1).toUpperCase()}</span>
+              <span className="color-wheel__loupe-code mono">
+                {rgbaToHex(loupe.color).slice(1).toUpperCase()}
+              </span>
+              <span
+                className="color-wheel__loupe"
+                style={{ background: cssColor(loupe.color) }}
+              />
             </div>
           ) : null}
         </div>
