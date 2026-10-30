@@ -1786,6 +1786,21 @@
   gap: 5px;
 }
 
+.color-wheel__ramp {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.color-wheel__ramp .color-wheel__swatches {
+  gap: 3px;
+}
+
+.color-wheel__swatch--ramp {
+  border-radius: 2px;
+  cursor: context-menu;
+}
+
 .color-wheel__swatches {
   display: flex;
   flex-wrap: wrap;

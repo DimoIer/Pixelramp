@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerE
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { cssColor, parseHex, rgbaToHex } from '../../core/color'
+import { generateRamp } from '../../core/ramp'
 import type { RGBA } from '@shared/types'
 import { useWorkbench } from '../../store/workbench'
 import { useUi } from '../../store/ui'
@@ -118,6 +119,7 @@ export function ColorWheelPanel({
   const wheelDrag = useRef<'hue' | 'sv' | null>(null)
 
   const color = useMemo(() => hsvToRgba(hsv), [hsv])
+  const ramp = useMemo(() => generateRamp(rampParams), [rampParams])
   const colorKey = `${color.r},${color.g},${color.b},${color.a}`
   const foregroundKey = `${foreground.r},${foreground.g},${foreground.b},${foreground.a}`
   const baseKey = `${rampParams.baseColor.r},${rampParams.baseColor.g},${rampParams.baseColor.b},${rampParams.baseColor.a}`
@@ -411,6 +413,28 @@ export function ColorWheelPanel({
             }}
             label={t('同步色阶基色')}
           />
+        </div>
+
+        <div className="color-wheel__ramp">
+          <span className="field__label">{t('当前色阶')}</span>
+          <div className="color-wheel__swatches">
+            {ramp.colors.map((entry, index) => (
+              <button
+                type="button"
+                key={`${index}-${rgbaToHex(entry.rgba)}`}
+                className="color-wheel__swatch color-wheel__swatch--ramp"
+                style={{ background: cssColor(entry.rgba) }}
+                title={`${rgbaToHex(entry.rgba).toUpperCase()} · ${t('右键加入调色卡')}`}
+                aria-label={`${rgbaToHex(entry.rgba)} ${t('右键加入调色卡')}`}
+                onContextMenu={(event) => {
+                  event.preventDefault()
+                  if (!activePalette) return
+                  addPaletteColor(entry.rgba)
+                  toast(t('已加入调色卡'), 'success', rgbaToHex(entry.rgba))
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         {activePalette ? (

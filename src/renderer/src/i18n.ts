@@ -413,6 +413,8 @@ const EN: Record<string, string> = {
   完成: 'Done',
   '正在载入本地调色卡…': 'Loading local palettes…',
   调色盘: 'Color wheel',
+  当前色阶: 'Current ramp',
+  右键加入调色卡: 'Right-click to add to palette',
   同步前景色: 'Sync foreground',
   同步色阶基色: 'Sync ramp base',
   写入选中色块: 'Write to selected swatch',

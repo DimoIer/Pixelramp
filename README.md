@@ -43,7 +43,7 @@
 - **Tabs and layers** — multiple documents open as tabs with independent history, selection, zoom and pan. Layer stack with add, duplicate, delete, reorder, merge-down, visibility, opacity and inline rename. Projects preserve the layer stack.
 - **Current build/design** — 3 UI accent themes (Moss / Cobalt / Ember) plus a light canvas toggle; Chinese/English interface switch in the appearance menu; resizable canvas with nine-point anchoring and non-scaling crop/pad.
 - **Themes** — Moss, Cobalt, Ember, and the light **Paper** theme. Paper is the default on first launch and uses a warm ivory workspace, light translucent controls, and an automatic light canvas; the light-canvas toggle remains available.
-- **Color wheel** — the workbench opens with a hue ring plus saturation/value square. H/S/V, alpha, hex and RGB values are editable; right-clicking the square shows a magnified color loupe for precise sampling. The wheel can sync the foreground and ramp base, and colors can be written to a selected swatch or added to the active palette.
+- **Color wheel** — the workbench opens with a hue ring plus saturation/value square. H/S/V, alpha, hex and RGB values are editable; right-clicking the square shows a magnified color loupe for precise sampling. The wheel can sync the foreground and ramp base, and colors can be written to a selected swatch or added to the active palette. The current ramp is shown below the wheel; right-click any ramp color to add it to the active palette.
 - **Layers** — a second layers button at the bottom of the tool rail opens a floating layer panel at the lower-left, next to the rail. It starts closed each launch and can be dragged/resized independently; its inner header is replaced by the floating bar. Panel dragging updates the compositor transform directly instead of re-rendering the layer list on every pointer move.
 - **Panel workspace** — View menu manages toolbar/palette visibility and floating. Drag the toolbar grip or a palette section header directly: a full-size ghost follows the cursor and the detached floating panel keeps exactly the same size as that preview. Entering a dock zone reserves the real layout space with a same-size dashed placeholder and accent highlight, so the canvas/other sections move aside instead of being covered. Release over the left/right edge or the palette to dock. Drag the generator and working-palette headers over each other to swap their order. Docked borders resize the tool rail and palette columns; the layers panel is draggable/resizable. Toolbar controls live in the floating bar and can switch vertical/horizontal layout.
 - **Drawing experience** — integer zoom levels, cursor-anchored wheel zoom, space / middle-button / right-button panning, X/Y mirror symmetry, toggleable pixel grid, 80-step stroke-based undo/redo, transparent checkerboard, and hard-edged nearest-neighbor rendering.
@@ -78,7 +78,7 @@ npm run package:tauri
 npm run bundle:tauri
 ```
 
-`npm run build:tauri` builds the frontend and produces an executable at `src-tauri/target/release/pixelramp.exe`. `npm run package:tauri` copies that executable into `release/PixelRamp-0.2.9/` and creates `release/PixelRamp-0.2.9-win-x64.zip`. `npm run bundle:tauri` produces the NSIS installer under `src-tauri/target/release/bundle/nsis/`. `scripts/build-web.mjs` keeps esbuild's temporary files inside the project to work around a delete lock in the Windows build environment.
+`npm run build:tauri` builds the frontend and produces an executable at `src-tauri/target/release/pixelramp.exe`. `npm run package:tauri` copies that executable into `release/PixelRamp-0.2.10/` and creates `release/PixelRamp-0.2.10-win-x64.zip`. `npm run bundle:tauri` produces the NSIS installer under `src-tauri/target/release/bundle/nsis/`. `scripts/build-web.mjs` keeps esbuild's temporary files inside the project to work around a delete lock in the Windows build environment.
 
 The Tauri project lives in `src-tauri/`.
 
@@ -86,8 +86,8 @@ The Tauri project lives in `src-tauri/`.
 
 Two Windows packages are produced:
 
-- `PixelRamp-0.2.9-win-x64.zip` — portable, self-contained data folder.
-- `PixelRamp-0.2.9-setup.exe` — standard per-user NSIS installer.
+- `PixelRamp-0.2.10-win-x64.zip` — portable, self-contained data folder.
+- `PixelRamp-0.2.10-setup.exe` — standard per-user NSIS installer.
 
 For the portable ZIP:
 
@@ -166,7 +166,7 @@ npm run dev:tauri
 - **标签页与图层** — 多个文档以标签页打开，各自保留历史、选区、缩放和平移。图层支持新建、复制、删除、排序、向下合并、可见性、不透明度和双击重命名；工程文件保留图层栈。
 - **界面与画布** — 苔绿 / 钴蓝 / 余烬三套强调色主题，可切换浅色画布；中英文界面切换；画布可按九宫格锚点裁剪或扩展，不缩放像素。
 - **主题** — 苔绿、钴蓝、余烬，以及浅色 **纸白** 主题。首次启动默认使用纸白，采用暖象牙色工作区、浅色半透明控件并自动启用浅色画布；仍可手动关闭浅色画布。
-- **调色盘** — 调色工作台顶部新增色相环与饱和度/明度方块；可编辑 H/S/V、透明度、十六进制与 RGB，右键方块会显示放大的颜色取色镜，便于精细分辨。支持同步前景色、同步色阶基色，并可将颜色写入选中色块或加入当前调色卡。
+- **调色盘** — 调色工作台顶部新增色相环与饱和度/明度方块；可编辑 H/S/V、透明度、十六进制与 RGB，右键方块会显示放大的颜色取色镜，便于精细分辨。支持同步前景色、同步色阶基色，并可将颜色写入选中色块或加入当前调色卡。色盘下方显示当前色阶，右键任意色阶颜色即可加入当前调色卡。
 - **图层** — 工具栏最底端新增第二个图层按钮，用于打开左下角紧贴工具栏的图层悬浮插件；应用启动时该插件默认关闭，可独立拖动和缩放，内层标题由悬浮栏眉取代。拖动面板时直接更新合成 transform，不再每个 pointermove 重渲染整份图层列表。
 - **面板工作区** — 视图菜单统一管理工具栏/调色工作台的显示与悬浮。直接拖动工具栏顶部手柄或调色卡区域标题，完整面板影子会跟随鼠标，落地后的悬浮面板与拖拽影子尺寸完全一致；进入停靠区时，用同尺寸虚线占位条预留真实布局空间并高亮落点，画布和其他区域会顺位移动而不是被覆盖。拖出停靠区即悬浮，拖回左侧/右侧边缘或调色工作台即停靠。拖动色阶生成器与当前调色卡的标题可以互换顺序。固定布局下可拖动边框调整栏宽；图层面板也可拖动和缩放。工具栏控制集中在浮动栏眉，可切换横向/纵向排列。
 - **绘制体验** — 整数倍缩放、以鼠标位置为锚点的滚轮缩放、空格 / 中键 / 右键平移、水平 / 垂直镜像、可开关的像素网格、80 步笔触级撤销 / 重做、透明棋盘，以及最近邻硬边渲染。
@@ -201,7 +201,7 @@ npm run package:tauri
 npm run bundle:tauri
 ```
 
-`npm run build:tauri` 会构建前端并生成 `src-tauri/target/release/pixelramp.exe`。`npm run package:tauri` 会把可执行文件复制到 `release/PixelRamp-0.2.9/`，并生成 `release/PixelRamp-0.2.9-win-x64.zip`。`npm run bundle:tauri` 会在 `src-tauri/target/release/bundle/nsis/` 下生成 NSIS 安装包。`scripts/build-web.mjs` 会把 esbuild 临时目录放进项目内，以绕开当前 Windows 环境的临时文件删除锁。
+`npm run build:tauri` 会构建前端并生成 `src-tauri/target/release/pixelramp.exe`。`npm run package:tauri` 会把可执行文件复制到 `release/PixelRamp-0.2.10/`，并生成 `release/PixelRamp-0.2.10-win-x64.zip`。`npm run bundle:tauri` 会在 `src-tauri/target/release/bundle/nsis/` 下生成 NSIS 安装包。`scripts/build-web.mjs` 会把 esbuild 临时目录放进项目内，以绕开当前 Windows 环境的临时文件删除锁。
 
 Tauri 工程位于 `src-tauri/`。
 
@@ -209,8 +209,8 @@ Tauri 工程位于 `src-tauri/`。
 
 会生成两个 Windows 包：
 
-- `PixelRamp-0.2.9-win-x64.zip` — 便携版，数据保存在程序目录。
-- `PixelRamp-0.2.9-setup.exe` — 标准当前用户 NSIS 安装包。
+- `PixelRamp-0.2.10-win-x64.zip` — 便携版，数据保存在程序目录。
+- `PixelRamp-0.2.10-setup.exe` — 标准当前用户 NSIS 安装包。
 
 便携 ZIP 的使用方式：
 
