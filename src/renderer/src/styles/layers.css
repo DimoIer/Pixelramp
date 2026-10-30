@@ -42,21 +42,6 @@
   padding-top: 10px;
 }
 
-.float-layer-trigger {
-  position: relative;
-}
-
-.float-layer-trigger__dot {
-  position: absolute;
-  right: 4px;
-  bottom: 4px;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--accent);
-  pointer-events: none;
-}
-
 .layers-panel__head {
   display: flex;
   align-items: center;

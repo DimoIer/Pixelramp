@@ -859,9 +859,8 @@
   height: var(--canvas-header-height);
   flex: none;
   padding: 0 13px;
+  background: rgba(14, 15, 11, 0.98);
   border-bottom: 1px solid var(--line);
-  background: rgba(14, 15, 11, 0.88);
-  backdrop-filter: blur(10px);
 }
 
 .canvas-header__tool {

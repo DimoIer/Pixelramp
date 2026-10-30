@@ -56,6 +56,8 @@ export function LayersPanel({ open, onClose, floating = false }: LayersPanelProp
   const [editing, setEditing] = useState<string | null>(null)
   const [draftName, setDraftName] = useState('')
   const [rect, setRect] = useState({ x: 14, y: 14, width: 252, height: 330 })
+  const panelRef = useRef<HTMLElement>(null)
+  const pendingRect = useRef<{ x: number; y: number } | null>(null)
   const drag = useRef<{ x: number; y: number; left: number; top: number; pointerId: number } | null>(null)
   const resize = useRef<{
     x: number
@@ -83,15 +85,21 @@ export function LayersPanel({ open, onClose, floating = false }: LayersPanelProp
     if (!drag.current) return
     const maxX = Math.max(0, window.innerWidth - rect.width - 8)
     const maxY = Math.max(0, window.innerHeight - rect.height - 40)
-    setRect((current) => ({
-      ...current,
-      x: Math.max(0, Math.min(maxX, drag.current!.left + event.clientX - drag.current!.x)),
-      y: Math.max(0, Math.min(maxY, drag.current!.top + event.clientY - drag.current!.y))
-    }))
+    const next = {
+      x: Math.max(0, Math.min(maxX, drag.current.left + event.clientX - drag.current.x)),
+      y: Math.max(0, Math.min(maxY, drag.current.top + event.clientY - drag.current.y))
+    }
+    pendingRect.current = next
+    if (panelRef.current) {
+      panelRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`
+    }
   }
 
   const endDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    const pending = pendingRect.current
+    pendingRect.current = null
     drag.current = null
+    if (pending) setRect((current) => ({ ...current, ...pending }))
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
@@ -155,13 +163,14 @@ export function LayersPanel({ open, onClose, floating = false }: LayersPanelProp
 
   return (
     <aside
+      ref={panelRef}
       className={clsx('layers-panel', floating && 'layers-panel--floating')}
       aria-label={t('图层面板')}
       style={
         floating
           ? undefined
           : {
-              transform: `translate(${rect.x}px, ${rect.y}px)`,
+              transform: `translate(${(drag.current && pendingRect.current ? pendingRect.current : rect).x}px, ${(drag.current && pendingRect.current ? pendingRect.current : rect).y}px)`,
               width: rect.width,
               height: rect.height
             }

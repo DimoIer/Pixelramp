@@ -42,7 +42,7 @@
 - **Texture scaling** — percentage-based nearest-neighbor scaling of all layers (10–400%, clamped to 1–256 px), preserving the layer stack and visibility.
 - **Tabs and layers** — multiple documents open as tabs with independent history, selection, zoom and pan. Layer stack with add, duplicate, delete, reorder, merge-down, visibility, opacity and inline rename. Projects preserve the layer stack.
 - **Current build/design** — 3 UI accent themes (Moss / Cobalt / Ember) plus a light canvas toggle; Chinese/English interface switch in the appearance menu; resizable canvas with nine-point anchoring and non-scaling crop/pad.
-- **Layers** — the header has a second layers button that opens a floating layer panel at the lower-left; it starts closed each launch and can be dragged/resized independently. The main layer panel drag uses transform-based movement (no backdrop blur), avoiding repeated-drag repaint failures.
+- **Layers** — a second layers button at the bottom of the tool rail opens a floating layer panel at the lower-left, next to the rail. It starts closed each launch and can be dragged/resized independently; its inner header is replaced by the floating bar. Panel dragging updates the compositor transform directly instead of re-rendering the layer list on every pointer move.
 - **Panel workspace** — View menu manages toolbar/palette visibility and floating. Drag the toolbar grip or a palette section header directly: a full-size ghost follows the cursor and the detached floating panel keeps exactly the same size as that preview. Entering a dock zone reserves the real layout space with a same-size dashed placeholder and accent highlight, so the canvas/other sections move aside instead of being covered. Release over the left/right edge or the palette to dock. Drag the generator and working-palette headers over each other to swap their order. Docked borders resize the tool rail and palette columns; the layers panel is draggable/resizable. Toolbar controls live in the floating bar and can switch vertical/horizontal layout.
 - **Drawing experience** — integer zoom levels, cursor-anchored wheel zoom, space / middle-button / right-button panning, X/Y mirror symmetry, toggleable pixel grid, 80-step stroke-based undo/redo, transparent checkerboard, and hard-edged nearest-neighbor rendering.
 - **OKLCh ramp generator** — 3–15 steps, editable base color, lightness range, cool-shadow / warm-highlight hue shifts, chroma taper, linear or eased interpolation, OKLCh/HSL modes, live preview, gamut warnings, and too-many-steps warnings.
@@ -163,7 +163,7 @@ npm run dev:tauri
 - **纹理缩放** — 按百分比以最近邻缩放所有图层（10–400%，限制 1–256 px），保留图层栈和可见性。
 - **标签页与图层** — 多个文档以标签页打开，各自保留历史、选区、缩放和平移。图层支持新建、复制、删除、排序、向下合并、可见性、不透明度和双击重命名；工程文件保留图层栈。
 - **界面与画布** — 苔绿 / 钴蓝 / 余烬三套强调色主题，可切换浅色画布；中英文界面切换；画布可按九宫格锚点裁剪或扩展，不缩放像素。
-- **图层** — 顶部工具栏增加第二个图层按钮，用于打开左下角的图层悬浮插件；应用启动时该插件默认关闭，可独立拖动和缩放。主图层面板改用 transform 位移并移除背景模糊，避免多次拖拽导致整页黑屏。
+- **图层** — 工具栏最底端新增第二个图层按钮，用于打开左下角紧贴工具栏的图层悬浮插件；应用启动时该插件默认关闭，可独立拖动和缩放，内层标题由悬浮栏眉取代。拖动面板时直接更新合成 transform，不再每个 pointermove 重渲染整份图层列表。
 - **面板工作区** — 视图菜单统一管理工具栏/调色卡工作台的显示与悬浮。直接拖动工具栏顶部手柄或调色卡区域标题，完整面板影子会跟随鼠标，落地后的悬浮面板与拖拽影子尺寸完全一致；进入停靠区时，用同尺寸虚线占位条预留真实布局空间并高亮落点，画布和其他区域会顺位移动而不是被覆盖。拖出停靠区即悬浮，拖回左侧/右侧边缘或调色卡工作台即停靠。拖动色阶生成器与当前调色卡的标题可以互换顺序。固定布局下可拖动边框调整栏宽；图层面板也可拖动和缩放。工具栏控制集中在浮动栏眉，可切换横向/纵向排列。
 - **绘制体验** — 整数倍缩放、以鼠标位置为锚点的滚轮缩放、空格 / 中键 / 右键平移、水平 / 垂直镜像、可开关的像素网格、80 步笔触级撤销 / 重做、透明棋盘，以及最近邻硬边渲染。
 - **OKLCh 色阶生成器** — 3–15 阶、可编辑基色、明度范围、阴影偏冷 / 高光偏暖、chroma 衰减、线性 / 缓动插值、OKLCh / HSL 模式、实时预览、超色域提示和色阶过密提示。

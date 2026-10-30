@@ -120,6 +120,8 @@ export default function App() {
         >
           {!floatToolbar && toolbarOpen ? (
             <ToolRail
+              floatLayersOpen={floatLayersOpen}
+              onToggleFloatLayers={() => setFloatLayersOpen((open) => !open)}
               onCollapse={() => setToolbarOpen(false)}
               onFloat={(point) => {
                 setToolbarOpen(true)
@@ -152,8 +154,6 @@ export default function App() {
               onTogglePalette={() => setPaletteOpen((open) => !open)}
               layersOpen={layersOpen}
               onToggleLayers={() => setLayersOpen((open) => !open)}
-              floatLayersOpen={floatLayersOpen}
-              onToggleFloatLayers={() => setFloatLayersOpen((open) => !open)}
             />
             <DocumentTabs />
             <div className="workspace__canvas">
@@ -192,11 +192,11 @@ export default function App() {
         </div>
         {floatLayersOpen ? (
           <FloatingPanel
-            id="layers-float"
+            id="layers-float-v2"
             title={t('图层')}
             initial={{
-              x: 14,
-              y: Math.max(120, window.innerHeight - 500),
+              x: railWidth + 8,
+              y: Math.max(120, window.innerHeight - 480),
               width: 286,
               height: 440
             }}
@@ -292,6 +292,8 @@ export default function App() {
             <ToolRail
               floating
               horizontal={toolbarOrientation === 'horizontal'}
+              floatLayersOpen={floatLayersOpen}
+              onToggleFloatLayers={() => setFloatLayersOpen((open) => !open)}
             />
           </FloatingPanel>
         ) : null}

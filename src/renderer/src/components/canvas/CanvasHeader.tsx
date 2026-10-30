@@ -24,17 +24,13 @@ interface CanvasHeaderProps {
   onTogglePalette: () => void
   layersOpen: boolean
   onToggleLayers: () => void
-  floatLayersOpen: boolean
-  onToggleFloatLayers: () => void
 }
 
 export function CanvasHeader({
   paletteOpen,
   onTogglePalette,
   layersOpen,
-  onToggleLayers,
-  floatLayersOpen,
-  onToggleFloatLayers
+  onToggleLayers
 }: CanvasHeaderProps) {
   const {
     tool,
@@ -204,16 +200,6 @@ export function CanvasHeader({
             onClick={onToggleLayers}
           >
             <Layers2 size={15} />
-          </IconButton>
-          <IconButton
-            className="float-layer-trigger"
-            label={floatLayersOpen ? t('关闭浮动图层面板') : t('浮动图层面板')}
-            active={floatLayersOpen}
-            size="sm"
-            onClick={onToggleFloatLayers}
-          >
-            <Layers2 size={15} />
-            <span className="float-layer-trigger__dot" aria-hidden />
           </IconButton>
           <IconButton
             label={t('调整画布大小')}

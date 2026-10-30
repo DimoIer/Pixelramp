@@ -93,6 +93,8 @@ export function FloatingPanel({
   const [rect, setRect] = useState<Rect>(() =>
     clampRect(initialOnly ? initial : readRect(id, initial), minWidth, minHeight)
   )
+  const panelRef = useRef<HTMLElement>(null)
+  const pendingRect = useRef<Rect | null>(null)
   const drag = useRef<{ pointerId: number; startX: number; startY: number; start: Rect } | null>(null)
   const resize = useRef<{ pointerId: number; startX: number; startY: number; start: Rect } | null>(null)
 
@@ -122,6 +124,7 @@ export function FloatingPanel({
       startY: event.clientY,
       start: rect
     }
+    pendingRect.current = rect
     event.currentTarget.setPointerCapture(event.pointerId)
     onDragStart?.()
   }
@@ -130,31 +133,36 @@ export function FloatingPanel({
     const current = drag.current
     if (!current) return
     onDragMove?.(event.clientX, event.clientY)
-    setRect(
-      clampRect(
-        {
-          ...current.start,
-          x: current.start.x + event.clientX - current.startX,
-          y: current.start.y + event.clientY - current.startY
-        },
-        minWidth,
-        minHeight
-      )
+    const next = clampRect(
+      {
+        ...current.start,
+        x: current.start.x + event.clientX - current.startX,
+        y: current.start.y + event.clientY - current.startY
+      },
+      minWidth,
+      minHeight
     )
+    pendingRect.current = next
+    if (panelRef.current) {
+      panelRef.current.style.transform = `translate(${next.x}px, ${next.y}px)`
+    }
   }
 
   const endDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (!drag.current) return
     drag.current = null
+    const finalRect = pendingRect.current ?? rect
+    pendingRect.current = null
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
     onDragEnd?.()
-    if (shouldDock?.(rect, event.clientX, event.clientY)) {
+    if (shouldDock?.(finalRect, event.clientX, event.clientY)) {
       onDock()
       return
     }
-    save(rect)
+    setRect(finalRect)
+    save(finalRect)
   }
 
   const startResize = (event: ReactPointerEvent<HTMLDivElement>): void => {
@@ -194,10 +202,19 @@ export function FloatingPanel({
     save(rect)
   }
 
+  const displayRect = drag.current && pendingRect.current ? pendingRect.current : rect
+
   return (
     <section
+      ref={panelRef}
       className={clsx('floating-panel', className)}
-      style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+      style={{
+        left: 0,
+        top: 0,
+        transform: `translate(${displayRect.x}px, ${displayRect.y}px)`,
+        width: rect.width,
+        height: rect.height
+      }}
       aria-label={title}
     >
       <div

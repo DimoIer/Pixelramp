@@ -1,4 +1,4 @@
-import { ArrowLeftRight, CircleHelp, GripHorizontal, PanelLeftClose, PictureInPicture2, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, CircleHelp, GripHorizontal, Layers2, PanelLeftClose, PictureInPicture2, Redo2, Undo2 } from 'lucide-react'
 import { useRef, type PointerEvent as ReactPointerEvent } from 'react'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
@@ -17,13 +17,17 @@ interface ToolRailProps {
   onCollapse?: () => void
   onFloat?: (point?: { x: number; y: number }) => void
   onToggleOrientation?: () => void
+  floatLayersOpen?: boolean
+  onToggleFloatLayers?: () => void
 }
 
 export function ToolRail({
   floating = false,
   horizontal = false,
   onCollapse,
-  onFloat
+  onFloat,
+  floatLayersOpen = false,
+  onToggleFloatLayers
 }: ToolRailProps) {
   const t = useT()
   const {
@@ -254,6 +258,25 @@ export function ToolRail({
             <CircleHelp size={16} strokeWidth={1.8} />
           </button>
         </Tooltip>
+        {onToggleFloatLayers ? (
+          <Tooltip
+            content={floatLayersOpen ? t('关闭浮动图层面板') : t('浮动图层面板')}
+            side="right"
+          >
+            <button
+              type="button"
+              className={clsx(
+                'rail-tool',
+                'rail-tool--small',
+                floatLayersOpen && 'is-active'
+              )}
+              aria-label={floatLayersOpen ? t('关闭浮动图层面板') : t('浮动图层面板')}
+              onClick={onToggleFloatLayers}
+            >
+              <Layers2 size={16} strokeWidth={1.8} />
+            </button>
+          </Tooltip>
+        ) : null}
       </div>
     </aside>
   )

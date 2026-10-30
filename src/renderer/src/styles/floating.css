@@ -1,5 +1,7 @@
 .floating-panel {
   position: fixed;
+  top: 0;
+  left: 0;
   z-index: 70;
   display: flex;
   flex-direction: column;
@@ -8,6 +10,7 @@
   border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: var(--shadow-high);
+  will-change: transform;
 }
 
 .floating-panel__bar {
@@ -147,7 +150,6 @@
     linear-gradient(180deg, var(--accent-soft), rgba(215, 243, 107, 0.025)),
     color-mix(in srgb, var(--surface) 72%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
-  backdrop-filter: blur(2px);
   pointer-events: none;
   animation: dock-hint-in 120ms ease both;
 }

@@ -69,6 +69,10 @@ pub fn run() {
       let data_directory = webview_data_dir(app.handle())?;
       let window = WebviewWindowBuilder::from_config(app.handle(), &window_config)?
         .data_directory(data_directory)
+        // WebView2 can black out the whole surface when a panel is repeatedly
+        // dragged over the canvas compositor. Software compositing is fast
+        // enough for this pixel editor and keeps the window stable.
+        .additional_browser_args("--disable-gpu-compositing")
         .build()?;
       let _ = window.show();
       Ok(())
