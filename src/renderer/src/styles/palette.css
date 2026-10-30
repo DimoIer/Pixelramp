@@ -210,6 +210,7 @@
   margin-left: auto;
   margin-top: 1px;
   flex: none;
+  min-width: 0;
 }
 
 .section-control {
@@ -217,6 +218,7 @@
   place-items: center;
   width: 22px;
   height: 22px;
+  flex: none;
   border: 1px solid transparent;
   border-radius: 3px;
   color: var(--text-4);
@@ -256,6 +258,32 @@
 
 .panel-section.is-collapsed .section-head {
   padding: 2px 0;
+}
+
+.palette-section {
+  position: relative;
+}
+
+.palette-section .section-head {
+  cursor: grab;
+  touch-action: none;
+}
+
+.palette-section .section-head:active {
+  cursor: grabbing;
+}
+
+.panel-drag-ghost {
+  position: fixed;
+  z-index: 900;
+  padding: 7px 11px;
+  border: 1px solid var(--accent-dim);
+  border-radius: 5px;
+  background: var(--surface-2);
+  color: var(--accent);
+  box-shadow: var(--shadow-mid);
+  font-size: 11px;
+  pointer-events: none;
 }
 
 .mode-pill {

@@ -1,4 +1,5 @@
-import { ArrowLeftRight, CircleHelp, PanelLeftClose, PictureInPicture2, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, CircleHelp, GripHorizontal, PanelLeftClose, PictureInPicture2, Redo2, Undo2 } from 'lucide-react'
+import { useRef } from 'react'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useWorkbench } from '../../store/workbench'
@@ -54,6 +55,23 @@ export function ToolRail({
     }))
   )
   const openDialog = useUi((state) => state.openDialog)
+  const longPress = useRef<number | null>(null)
+
+  const startLongPress = (): void => {
+    if (!onFloat) return
+    if (longPress.current !== null) window.clearTimeout(longPress.current)
+    longPress.current = window.setTimeout(() => {
+      longPress.current = null
+      onFloat()
+    }, 480)
+  }
+
+  const cancelLongPress = (): void => {
+    if (longPress.current !== null) {
+      window.clearTimeout(longPress.current)
+      longPress.current = null
+    }
+  }
 
   return (
     <aside
@@ -61,7 +79,18 @@ export function ToolRail({
       aria-label={t('工具与颜色')}
     >
       {!floating ? (
-        <div className="tool-rail__controls">
+        <>
+          <div
+            className="tool-rail__grip"
+            title={t('长按拖出悬浮工具栏')}
+            onPointerDown={startLongPress}
+            onPointerUp={cancelLongPress}
+            onPointerLeave={cancelLongPress}
+            onPointerCancel={cancelLongPress}
+          >
+            <GripHorizontal size={13} />
+          </div>
+          <div className="tool-rail__controls">
           {onCollapse ? (
             <Tooltip content={t('收起工具栏')} side="right">
               <button type="button" className="rail-control" aria-label={t('收起工具栏')} onClick={onCollapse}>
@@ -82,6 +111,7 @@ export function ToolRail({
             </Tooltip>
           ) : null}
         </div>
+        </>
       ) : null}
       <div className="tool-rail__group">
         <span className="tool-rail__label eyebrow">{t('工具')}</span>

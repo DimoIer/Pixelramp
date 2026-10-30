@@ -104,7 +104,7 @@ export default function App() {
 
   return (
     <TooltipProvider delayDuration={320} skipDelayDuration={180}>
-      <div className="app-shell">
+      <div className={toolbarOpen ? 'app-shell' : 'app-shell is-toolbar-collapsed'}>
         <TitleBar paletteOpen={paletteOpen} onTogglePalette={() => setPaletteOpen((open) => !open)} />
         <div
           className="app-body"
@@ -187,11 +187,12 @@ export default function App() {
             initial={
               toolbarOrientation === 'horizontal'
                 ? { x: 110, y: 88, width: 560, height: 96 }
-                : { x: 82, y: 88, width: 72, height: 660 }
+                : { x: 82, y: 88, width: 158, height: 660 }
             }
-            minWidth={toolbarOrientation === 'horizontal' ? 280 : 66}
+            minWidth={toolbarOrientation === 'horizontal' ? 280 : 148}
             minHeight={toolbarOrientation === 'horizontal' ? 68 : 320}
             onDock={() => setFloatToolbar(false)}
+            shouldDock={(_rect, clientX) => clientX < 100}
             actions={
               <>
                 <button
@@ -245,6 +246,7 @@ export default function App() {
               setFloatPalette(false)
               setPaletteOpen(true)
             }}
+            shouldDock={(_rect, clientX) => clientX > window.innerWidth - 440}
           >
             <PalettePanel
               open

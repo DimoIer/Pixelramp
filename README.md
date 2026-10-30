@@ -42,7 +42,7 @@
 - **Texture scaling** — percentage-based nearest-neighbor scaling of all layers (10–400%, clamped to 1–256 px), preserving the layer stack and visibility.
 - **Tabs and layers** — multiple documents open as tabs with independent history, selection, zoom and pan. Layer stack with add, duplicate, delete, reorder, merge-down, visibility, opacity and inline rename. Projects preserve the layer stack.
 - **Current build/design** — 3 UI accent themes (Moss / Cobalt / Ember) plus a light canvas toggle; Chinese/English interface switch in the appearance menu; resizable canvas with nine-point anchoring and non-scaling crop/pad.
-- **Panel workspace** — View menu can float the tool rail and palette workbench as draggable, resizable widgets; the layers panel is also draggable/resizable. Docked tool rail and palette borders can be dragged to change column width. The tool rail has collapse/float controls and can switch between vertical and horizontal layouts when floating. Generator and working-palette sections can be collapsed or floated independently. Locale labels show only the selected language.
+- **Panel workspace** — View menu manages toolbar/palette visibility and floating. Long-press the toolbar grip or a palette section header and drag to float it; drag a floating panel back to the left/right edge (or over the palette) to dock. Drag the generator and working-palette headers over each other to swap their order. Docked borders resize the tool rail and palette columns; the layers panel is draggable/resizable. Toolbar controls live in the floating bar and can switch vertical/horizontal layout.
 - **Drawing experience** — integer zoom levels, cursor-anchored wheel zoom, space / middle-button / right-button panning, X/Y mirror symmetry, toggleable pixel grid, 80-step stroke-based undo/redo, transparent checkerboard, and hard-edged nearest-neighbor rendering.
 - **OKLCh ramp generator** — 3–15 steps, editable base color, lightness range, cool-shadow / warm-highlight hue shifts, chroma taper, linear or eased interpolation, OKLCh/HSL modes, live preview, gamut warnings, and too-many-steps warnings.
 - **Color extraction** — exact unique-color extraction with frequency counts, alpha-0 ignored, optional semi-transparent pixels, optional OKLab ΔE merging, sorting by lightness / hue / chroma / frequency or manual drag order; works on the whole canvas or a selection. Runs in a Web Worker.
@@ -162,7 +162,7 @@ npm run dev:tauri
 - **纹理缩放** — 按百分比以最近邻缩放所有图层（10–400%，限制 1–256 px），保留图层栈和可见性。
 - **标签页与图层** — 多个文档以标签页打开，各自保留历史、选区、缩放和平移。图层支持新建、复制、删除、排序、向下合并、可见性、不透明度和双击重命名；工程文件保留图层栈。
 - **界面与画布** — 苔绿 / 钴蓝 / 余烬三套强调色主题，可切换浅色画布；中英文界面切换；画布可按九宫格锚点裁剪或扩展，不缩放像素。
-- **面板工作区** — 视图菜单可将工具栏、调色卡工作台浮动为可拖拽、可缩放的小组件；图层面板也可拖动和缩放。固定布局下可拖动工具栏/调色卡工作台边框调整栏宽。工具栏带收起/悬浮按钮，浮动时可切换横向/纵向排列。色阶生成器和当前调色卡可分别折叠或悬浮。文案只显示当前选择的语言。
+- **面板工作区** — 视图菜单统一管理工具栏/调色卡工作台的显示与悬浮。长按工具栏顶部手柄或调色卡区域标题并拖出即可悬浮；把浮动面板拖回左侧/右侧边缘或调色卡工作台即可停靠。拖动色阶生成器与当前调色卡的标题可以互换顺序。固定布局下可拖动边框调整栏宽；图层面板也可拖动和缩放。工具栏控制集中在浮动栏眉，可切换横向/纵向排列。
 - **绘制体验** — 整数倍缩放、以鼠标位置为锚点的滚轮缩放、空格 / 中键 / 右键平移、水平 / 垂直镜像、可开关的像素网格、80 步笔触级撤销 / 重做、透明棋盘，以及最近邻硬边渲染。
 - **OKLCh 色阶生成器** — 3–15 阶、可编辑基色、明度范围、阴影偏冷 / 高光偏暖、chroma 衰减、线性 / 缓动插值、OKLCh / HSL 模式、实时预览、超色域提示和色阶过密提示。
 - **颜色提取** — 精确去重并统计频次，忽略 alpha 0，可选包含半透明像素，可选 OKLab ΔE 合并；支持按明度 / 色相 / 饱和度 / 频次排序或拖拽自定义排序。可处理整张画布或选区，并通过 Web Worker 执行。

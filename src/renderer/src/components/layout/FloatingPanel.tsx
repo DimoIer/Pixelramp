@@ -25,6 +25,7 @@ interface FloatingPanelProps {
   minHeight: number
   children: ReactNode
   onDock: () => void
+  shouldDock?: (rect: Rect, clientX: number, clientY: number) => boolean
   className?: string
   actions?: ReactNode
 }
@@ -74,6 +75,7 @@ export function FloatingPanel({
   minHeight,
   children,
   onDock,
+  shouldDock,
   className,
   actions
 }: FloatingPanelProps) {
@@ -132,6 +134,10 @@ export function FloatingPanel({
     drag.current = null
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+    if (shouldDock?.(rect, event.clientX, event.clientY)) {
+      onDock()
+      return
     }
     save(rect)
   }
