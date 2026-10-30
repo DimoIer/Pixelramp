@@ -14,7 +14,6 @@ import { useShallow } from 'zustand/react/shallow'
 import type { ColorRole } from '@shared/types'
 import { parseHex, rgbaToHex } from '../../core/color'
 import { generateRamp, autoLightnessRange } from '../../core/ramp'
-import { defaultRampName } from '../../core/palette'
 import { useWorkbench } from '../../store/workbench'
 import { useUi } from '../../store/ui'
 import { Button } from '../ui/Button'
@@ -417,28 +416,21 @@ export function GeneratorPanel({
               </button>
             ))}
           </div>
-          <div className="ramp-inspect">
-            {activeColor ? (
-              <>
-                <ColorSwatch color={activeColor.rgba} size={18} />
-                <span className="ramp-inspect__hex mono">{rgbaToHex(activeColor.rgba).toUpperCase()}</span>
-                <span className="ramp-inspect__role">
-                  <span
-                    className="role-dot"
-                    style={{ backgroundColor: ROLE_DOT[activeColor.role] }}
-                  />
-                  {t(ROLE_LABEL[activeColor.role])}
-                </span>
-                <span className="ramp-inspect__l mono">L {Math.round(activeColor.oklch.L * 100)}</span>
-                <span className="ramp-inspect__hint">{t('点击取色 →')}</span>
-              </>
-            ) : (
-              <>
-                <Sparkles size={12} className="ramp-inspect__spark" />
-                <span className="ramp-inspect__placeholder">{t('悬停查看色值，点击色块设为前景色')}</span>
-              </>
-            )}
-          </div>
+          {activeColor ? (
+            <div className="ramp-inspect">
+              <ColorSwatch color={activeColor.rgba} size={18} />
+              <span className="ramp-inspect__hex mono">{rgbaToHex(activeColor.rgba).toUpperCase()}</span>
+              <span className="ramp-inspect__role">
+                <span
+                  className="role-dot"
+                  style={{ backgroundColor: ROLE_DOT[activeColor.role] }}
+                />
+                {t(ROLE_LABEL[activeColor.role])}
+              </span>
+              <span className="ramp-inspect__l mono">L {Math.round(activeColor.oklch.L * 100)}</span>
+              <span className="ramp-inspect__hint">{t('点击取色 →')}</span>
+            </div>
+          ) : null}
         </div>
 
         {tooClose || ramp.clippedCount > 0 ? (
@@ -462,11 +454,6 @@ export function GeneratorPanel({
             ) : null}
           </div>
         ) : null}
-
-        <div className="generator__footnote">
-          <span>{t('生成结果可继续在下方编辑，保存后进入调色卡库。')}</span>
-          <span className="mono">{defaultRampName(rampParams.baseColor, rampParams.count)}</span>
-        </div>
       </div>
     </section>
   )

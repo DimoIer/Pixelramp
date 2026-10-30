@@ -1,4 +1,4 @@
-import { Check, Plus, Pipette } from 'lucide-react'
+import { Check, Plus } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
@@ -107,6 +107,11 @@ export function ColorWheelPanel({
   const [linkForeground, setLinkForeground] = useState(true)
   const [linkGenerator, setLinkGenerator] = useState(true)
   const [hexDraft, setHexDraft] = useState(() => rgbaToHex(foreground).slice(1).toUpperCase())
+  const [loupe, setLoupe] = useState<{
+    x: number
+    y: number
+    color: RGBA
+  } | null>(null)
   const wheelRef = useRef<HTMLDivElement>(null)
   const wheelDrag = useRef<'hue' | 'sv' | null>(null)
 
@@ -167,6 +172,20 @@ export function ColorWheelPanel({
     event.preventDefault()
     event.stopPropagation()
     const rect = event.currentTarget.getBoundingClientRect()
+    if (event.button === 2) {
+      const wheel = wheelRef.current?.getBoundingClientRect()
+      const s = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+      const v = 1 - Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
+      if (wheel) {
+        setLoupe({
+          x: event.clientX - wheel.left,
+          y: event.clientY - wheel.top,
+          color: hsvToRgba({ ...hsv, s, v })
+        })
+      }
+      event.currentTarget.setPointerCapture(event.pointerId)
+      return
+    }
     wheelDrag.current = 'sv'
     event.currentTarget.setPointerCapture(event.pointerId)
     commit({
@@ -177,6 +196,20 @@ export function ColorWheelPanel({
   }
 
   const moveSv = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (loupe && (event.buttons & 2) !== 0) {
+      const rect = event.currentTarget.getBoundingClientRect()
+      const wheel = wheelRef.current?.getBoundingClientRect()
+      const s = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+      const v = 1 - Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
+      if (wheel) {
+        setLoupe({
+          x: event.clientX - wheel.left,
+          y: event.clientY - wheel.top,
+          color: hsvToRgba({ ...hsv, s, v })
+        })
+      }
+      return
+    }
     if (wheelDrag.current !== 'sv') return
     const rect = event.currentTarget.getBoundingClientRect()
     commit({
@@ -188,6 +221,7 @@ export function ColorWheelPanel({
 
   const endWheelDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
     wheelDrag.current = null
+    setLoupe(null)
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
@@ -243,6 +277,7 @@ export function ColorWheelPanel({
             style={{
               background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${hueColor})`
             }}
+            onContextMenu={(event) => event.preventDefault()}
             onPointerDown={startSv}
             onPointerMove={moveSv}
             onPointerUp={endWheelDrag}
@@ -258,8 +293,20 @@ export function ColorWheelPanel({
           </div>
           <span
             className="color-wheel__hue-cursor"
-            style={{ transform: `rotate(${hsv.h}deg) translateY(-86px)` }}
+            style={{ transform: `rotate(${hsv.h}deg) translateY(-104px)` }}
           />
+          {loupe ? (
+            <div
+              className="color-wheel__loupe"
+              style={{
+                left: Math.max(34, Math.min(202, loupe.x)),
+                top: Math.max(34, Math.min(202, loupe.y)),
+                background: cssColor(loupe.color)
+              }}
+            >
+              <span className="mono">{rgbaToHex(loupe.color).slice(1).toUpperCase()}</span>
+            </div>
+          ) : null}
         </div>
 
         <div className="color-wheel__params">
@@ -379,11 +426,6 @@ export function ColorWheelPanel({
         ) : (
           <p className="color-wheel__empty">{t('暂无当前调色卡，可先生成或提取一张。')}</p>
         )}
-
-        <div className="color-wheel__note">
-          <Pipette size={12} />
-          {t('拖动色环选择色相，拖动方块调整饱和度与明度。')}
-        </div>
       </div>
     </section>
   )

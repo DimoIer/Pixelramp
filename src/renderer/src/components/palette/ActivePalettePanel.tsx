@@ -9,7 +9,6 @@ import {
   Copy,
   Download,
   FolderOpen,
-  GripVertical,
   MoreHorizontal,
   Plus,
   Save,
@@ -625,9 +624,6 @@ export function ActivePalettePanel({
           <div className="swatch-block">
             <div className="swatch-block__head">
               <span className="field__label">{t('色块')}</span>
-              <span className="swatch-block__hint">
-                <GripVertical size={10} /> {t('拖拽排序或拖到画布')}
-              </span>
             </div>
             <div
               className="palette-grid"
@@ -676,12 +672,6 @@ export function ActivePalettePanel({
                     onClick={() => applyForegroundFromPalette(index)}
                   >
                     <ColorSwatch color={color.rgba} size="100%" />
-                    {color.role ? (
-                      <span
-                        className="palette-tile__role"
-                        style={{ backgroundColor: ROLE_DOT[color.role] }}
-                      />
-                    ) : null}
                   </button>
                 </Tooltip>
               ))}
@@ -697,11 +687,7 @@ export function ActivePalettePanel({
             <div ref={editorRef}>
               <SelectedColorEditor index={selectedColorIndex} />
             </div>
-          ) : (
-            <div className="palette-color-hint">
-              <span className="palette-color-hint__dot" />
-              {t('点击色块应用并编辑；拖到画布可直接落色。')}            </div>
-          )}
+          ) : null}
 
           <div className="palette-footer-actions">
             <button type="button" className="text-button" onClick={() => openDialog('library')}>
