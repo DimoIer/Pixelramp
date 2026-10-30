@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type UiTheme = 'moss' | 'cobalt' | 'ember'
+export type UiTheme = 'moss' | 'cobalt' | 'ember' | 'paper'
 export type Language = 'zh' | 'en'
 
 interface PreferencesState {
@@ -30,7 +30,10 @@ function readStored(): Partial<PreferencesState> {
     const parsed = JSON.parse(raw) as Record<string, unknown>
     return {
       theme:
-        parsed.theme === 'cobalt' || parsed.theme === 'ember' || parsed.theme === 'moss'
+        parsed.theme === 'cobalt' ||
+        parsed.theme === 'ember' ||
+        parsed.theme === 'moss' ||
+        parsed.theme === 'paper'
           ? parsed.theme
           : 'moss',
       canvasLight: parsed.canvasLight === true,
@@ -64,8 +67,9 @@ export const usePreferences = create<PreferencesState>((set) => ({
   toolbarOpen: stored.toolbarOpen ?? true,
   toolbarOrientation: stored.toolbarOrientation ?? 'vertical',
   setTheme: (theme) => {
-    set({ theme })
-    apply(theme, usePreferences.getState().canvasLight, usePreferences.getState().language)
+    const canvasLight = theme === 'paper' ? true : usePreferences.getState().canvasLight
+    set({ theme, canvasLight })
+    apply(theme, canvasLight, usePreferences.getState().language)
     persist()
   },
   setCanvasLight: (canvasLight) => {

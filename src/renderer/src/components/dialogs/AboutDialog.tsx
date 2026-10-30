@@ -58,7 +58,7 @@ export function AboutDialog() {
           </div>
           <p>{t('面向 Minecraft 材质创作的像素画与调色卡工作台。')}</p>
           <div className="about-hero__meta mono">
-            <span>VERSION {version || '0.2.0'}</span>
+            <span>VERSION {version || '0.2.1'}</span>
             <span>{isDesktop ? 'DESKTOP BUILD' : 'WEB PREVIEW'}</span>
             <span>LOCAL FIRST</span>
           </div>

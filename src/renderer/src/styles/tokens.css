@@ -125,6 +125,59 @@
   --warm-soft: rgba(255, 208, 155, 0.13);
 }
 
+:root[data-theme="paper"] {
+  color-scheme: light;
+
+  --bg: #efebe0;
+  --bg-elevated: #f7f3e9;
+  --surface: #fbf8f0;
+  --surface-2: #f3eee2;
+  --surface-3: #eae3d4;
+  --surface-4: #dfd6c4;
+  --canvas-bg: #e9e3d6;
+  --canvas-field: #e4ddcd;
+  --canvas-dot: rgba(59, 54, 41, 0.12);
+  --canvas-glow: rgba(255, 255, 255, 0.55);
+  --canvas-checker-a: #f6f1e5;
+  --canvas-checker-b: #e8e1d1;
+  --canvas-edge: rgba(57, 52, 39, 0.3);
+  --canvas-grid: rgba(57, 52, 39, 0.14);
+  --canvas-ink: rgba(45, 41, 30, 0.66);
+  --canvas-empty: rgba(45, 41, 30, 0.06);
+
+  --line: rgba(48, 43, 31, 0.12);
+  --line-strong: rgba(48, 43, 31, 0.23);
+  --line-faint: rgba(48, 43, 31, 0.06);
+
+  --text: #28251d;
+  --text-2: #565244;
+  --text-3: #706c5e;
+  --text-4: #928c7c;
+
+  --accent: #7d9d35;
+  --accent-bright: #8fae43;
+  --accent-dim: #9db455;
+  --accent-soft: rgba(125, 157, 53, 0.16);
+  --accent-ink: #fbf9f1;
+
+  --cool: #4f7e9b;
+  --cool-soft: rgba(79, 126, 155, 0.14);
+  --warm: #a56c34;
+  --warm-soft: rgba(165, 108, 52, 0.14);
+  --danger: #b34e43;
+  --danger-soft: rgba(179, 78, 67, 0.13);
+  --success: #4d7b46;
+
+  --shadow-low: 0 1px 2px rgba(63, 54, 39, 0.12);
+  --shadow-mid: 0 12px 32px rgba(63, 54, 39, 0.16);
+  --shadow-high: 0 28px 80px rgba(63, 54, 39, 0.22);
+
+  --checker: linear-gradient(45deg, #d8d0bf 25%, transparent 25%),
+    linear-gradient(-45deg, #d8d0bf 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d8d0bf 75%),
+    linear-gradient(-45deg, transparent 75%, #d8d0bf 75%);
+}
+
 :root[data-canvas="light"] {
   --canvas-field: #e9e4d8;
   --canvas-dot: rgba(45, 48, 38, 0.1);
@@ -135,4 +188,17 @@
   --canvas-grid: rgba(42, 46, 34, 0.13);
   --canvas-ink: rgba(32, 36, 25, 0.62);
   --canvas-empty: rgba(32, 36, 25, 0.055);
+}
+
+:root[data-theme="paper"][data-canvas="dark"] {
+  --canvas-bg: #181612;
+  --canvas-field: #211e18;
+  --canvas-dot: rgba(239, 233, 219, 0.055);
+  --canvas-glow: rgba(255, 244, 218, 0.03);
+  --canvas-checker-a: #29251e;
+  --canvas-checker-b: #221f19;
+  --canvas-edge: rgba(239, 233, 219, 0.18);
+  --canvas-grid: rgba(239, 233, 219, 0.06);
+  --canvas-ink: rgba(239, 233, 219, 0.62);
+  --canvas-empty: rgba(239, 233, 219, 0.06);
 }

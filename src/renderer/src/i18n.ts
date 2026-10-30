@@ -40,6 +40,7 @@ const EN: Record<string, string> = {
   苔绿: 'Moss',
   钴蓝: 'Cobalt',
   余烬: 'Ember',
+  纸白: 'Paper',
   界面语言: 'Language',
   中文: '中文',
   English: 'English',

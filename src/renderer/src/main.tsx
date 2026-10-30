@@ -14,6 +14,7 @@ import './styles/floating.css'
 import './styles/resize.css'
 import './styles/adjust.css'
 import './styles/dialogs.css'
+import './styles/paper.css'
 import App from './App'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
