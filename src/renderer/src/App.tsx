@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
-import { PanelLeftClose, PanelLeftOpen, Rows3, Columns3 } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen, Rows3, Columns3, X } from 'lucide-react'
 import { TooltipProvider } from './components/ui/Tooltip'
 import { TitleBar } from './components/titlebar/TitleBar'
 import { ToolRail } from './components/tools/ToolRail'
@@ -25,6 +25,7 @@ export default function App() {
   const t = useT()
   const [paletteOpen, setPaletteOpen] = useState(true)
   const [layersOpen, setLayersOpen] = useState(true)
+  const [floatLayersOpen, setFloatLayersOpen] = useState(false)
   const [railWidth, setRailWidth] = useState(66)
   const [paletteWidth, setPaletteWidth] = useState(374)
   const [toolbarSpawn, setToolbarSpawn] = useState<{ x: number; y: number } | null>(null)
@@ -151,6 +152,8 @@ export default function App() {
               onTogglePalette={() => setPaletteOpen((open) => !open)}
               layersOpen={layersOpen}
               onToggleLayers={() => setLayersOpen((open) => !open)}
+              floatLayersOpen={floatLayersOpen}
+              onToggleFloatLayers={() => setFloatLayersOpen((open) => !open)}
             />
             <DocumentTabs />
             <div className="workspace__canvas">
@@ -187,6 +190,35 @@ export default function App() {
             </div>
           ) : null}
         </div>
+        {floatLayersOpen ? (
+          <FloatingPanel
+            id="layers-float"
+            title={t('图层')}
+            initial={{
+              x: 14,
+              y: Math.max(120, window.innerHeight - 500),
+              width: 286,
+              height: 440
+            }}
+            minWidth={240}
+            minHeight={300}
+            hideDock
+            onDock={() => setFloatLayersOpen(false)}
+            actions={
+              <button
+                type="button"
+                className="floating-panel__action"
+                aria-label={t('关闭浮动图层面板')}
+                title={t('关闭浮动图层面板')}
+                onClick={() => setFloatLayersOpen(false)}
+              >
+                <X size={13} />
+              </button>
+            }
+          >
+            <LayersPanel floating open onClose={() => setFloatLayersOpen(false)} />
+          </FloatingPanel>
+        ) : null}
         {!toolbarOpen ? (
           <button
             type="button"

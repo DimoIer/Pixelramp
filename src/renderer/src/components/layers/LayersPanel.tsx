@@ -22,9 +22,10 @@ import { useT } from '../../i18n'
 interface LayersPanelProps {
   open: boolean
   onClose: () => void
+  floating?: boolean
 }
 
-export function LayersPanel({ open, onClose }: LayersPanelProps) {
+export function LayersPanel({ open, onClose, floating = false }: LayersPanelProps) {
   const t = useT()
   const {
     doc,
@@ -65,6 +66,7 @@ export function LayersPanel({ open, onClose }: LayersPanelProps) {
   } | null>(null)
 
   const startDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (floating) return
     if ((event.target as Element).closest('button')) return
     event.preventDefault()
     drag.current = {
@@ -79,10 +81,12 @@ export function LayersPanel({ open, onClose }: LayersPanelProps) {
 
   const moveDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
     if (!drag.current) return
+    const maxX = Math.max(0, window.innerWidth - rect.width - 8)
+    const maxY = Math.max(0, window.innerHeight - rect.height - 40)
     setRect((current) => ({
       ...current,
-      x: Math.max(0, Math.min(560, drag.current!.left + event.clientX - drag.current!.x)),
-      y: Math.max(0, Math.min(620, drag.current!.top + event.clientY - drag.current!.y))
+      x: Math.max(0, Math.min(maxX, drag.current!.left + event.clientX - drag.current!.x)),
+      y: Math.max(0, Math.min(maxY, drag.current!.top + event.clientY - drag.current!.y))
     }))
   }
 
@@ -151,16 +155,24 @@ export function LayersPanel({ open, onClose }: LayersPanelProps) {
 
   return (
     <aside
-      className="layers-panel"
+      className={clsx('layers-panel', floating && 'layers-panel--floating')}
       aria-label={t('图层面板')}
-      style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+      style={
+        floating
+          ? undefined
+          : {
+              transform: `translate(${rect.x}px, ${rect.y}px)`,
+              width: rect.width,
+              height: rect.height
+            }
+      }
     >
       <div
         className="layers-panel__head"
-        onPointerDown={startDrag}
-        onPointerMove={moveDrag}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
+        onPointerDown={floating ? undefined : startDrag}
+        onPointerMove={floating ? undefined : moveDrag}
+        onPointerUp={floating ? undefined : endDrag}
+        onPointerCancel={floating ? undefined : endDrag}
       >
 
         <span className="layers-panel__title">
@@ -284,14 +296,16 @@ export function LayersPanel({ open, onClose }: LayersPanelProps) {
         })}
       </div>
       <p className="layers-panel__hint">{t('双击图层名重命名 · 眼睛图标控制可见性')}</p>
-      <div
-        className="layers-panel__resize"
-        onPointerDown={startResize}
-        onPointerMove={moveResize}
-        onPointerUp={endResize}
-        onPointerCancel={endResize}
-        aria-hidden
-      />
+      {!floating ? (
+        <div
+          className="layers-panel__resize"
+          onPointerDown={startResize}
+          onPointerMove={moveResize}
+          onPointerUp={endResize}
+          onPointerCancel={endResize}
+          aria-hidden
+        />
+      ) : null}
     </aside>
   )
 }

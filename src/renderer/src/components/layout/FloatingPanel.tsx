@@ -24,6 +24,7 @@ interface FloatingPanelProps {
   minWidth: number
   minHeight: number
   initialOnly?: boolean
+  hideDock?: boolean
   children: ReactNode
   onDock: () => void
   shouldDock?: (rect: Rect, clientX: number, clientY: number) => boolean
@@ -78,6 +79,7 @@ export function FloatingPanel({
   minWidth,
   minHeight,
   initialOnly = false,
+  hideDock = false,
   children,
   onDock,
   shouldDock,
@@ -208,9 +210,11 @@ export function FloatingPanel({
         <GripHorizontal size={13} />
         <span>{title}</span>
         {actions ? <div className="floating-panel__actions">{actions}</div> : null}
-        <button type="button" className="floating-panel__dock" onClick={onDock} aria-label={t('停靠面板')}>
-          <PanelTopClose size={13} />
-        </button>
+        {!hideDock ? (
+          <button type="button" className="floating-panel__dock" onClick={onDock} aria-label={t('停靠面板')}>
+            <PanelTopClose size={13} />
+          </button>
+        ) : null}
       </div>
       <div className="floating-panel__body">{children}</div>
       <div
