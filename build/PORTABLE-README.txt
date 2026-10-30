@@ -9,16 +9,22 @@ Double-click "PixelRamp.cmd" to start PixelRamp.
 Why PixelRamp.cmd?
 The Chromium OS sandbox cannot start in the original build/test environment.
 The start script launches the app with "--no-sandbox", which is required in
-that environment. The renderer still uses contextIsolation, has Node
-integration disabled, is prevented from navigating, and runs with a
-local-only CSP.
+that environment. It also sets PIXELRAMP_USER_DATA to PixelRampData\ next to
+this file, so the portable build does not depend on AppData write access.
+The renderer still uses contextIsolation, has Node integration disabled, is
+prevented from navigating, and runs with a restrictive CSP.
 
-On a machine where PixelRamp.exe starts normally, you can run it directly.
+Windows SmartScreen may warn because this build is unsigned. Use
+PixelRamp.cmd for the supported launch path. If the start script also warns,
+choose "More info" -> "Run anyway".
+
+If PixelRamp.exe starts normally on your machine, you can run it directly,
+but its data path defaults to %APPDATA%\PixelRamp.
 
 Data
 ----
-Palettes and recent files are stored in:
-  %APPDATA%\PixelRamp\
+When launched with PixelRamp.cmd, palettes and recent files are stored in:
+  PixelRampData\ next to this README
 
 Project files use the .pxramp extension and can be opened from the File menu.
 

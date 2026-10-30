@@ -74,18 +74,22 @@ npm run dist
 ### Portable build
 
 1. Download the ZIP from [Releases](https://github.com/DimoIer/Pixelramp/releases) and extract it.
-2. Run **`PixelRamp.cmd`**. The script starts `PixelRamp.exe` with `--no-sandbox`.
-3. If `PixelRamp.exe` starts normally on your machine, it can be launched directly.
+2. Run **`PixelRamp.cmd`**. The script starts `PixelRamp.exe` with `--no-sandbox` and keeps data beside the app in `PixelRampData\`.
+3. If `PixelRamp.exe` starts normally on your machine, it can be launched directly, but the script is the supported path.
+
+Windows SmartScreen may warn on first launch because the portable build is unsigned. Use `PixelRamp.cmd`; the script avoids the direct executable prompt and supplies the portable data path.
 
 The `--no-sandbox` switch is required by the environment this phase-one build was produced in, where Chromium's Windows OS sandbox could not start. The renderer still runs with `contextIsolation`, Node integration disabled, navigation blocked, and a restrictive CSP. This is a deliberate, documented trade-off for the local offline app.
 
 ### Data
 
-- Palette library: `%APPDATA%\PixelRamp\palettes\` (one JSON per palette, `index.json` for the index).
-- Recent files: `%APPDATA%\PixelRamp\recent.json`.
+Portable builds launched with `PixelRamp.cmd` keep their data beside the executable:
+
+- Palette library: `PixelRampData\palettes\` (one JSON per palette, `index.json` for the index).
+- Recent files: `PixelRampData\recent.json`.
 - Projects: `.pxramp` files chosen by the user; the ZIP contains `manifest.json` and `pixels.rgba`.
 
-Set `PIXELRAMP_USER_DATA` to override the data directory during development:
+Development builds and direct `PixelRamp.exe` launches use `%APPDATA%\PixelRamp\` for the same files. Set `PIXELRAMP_USER_DATA` to override the data directory:
 
 ```powershell
 $env:PIXELRAMP_USER_DATA = "D:\PixelRampData"
@@ -174,18 +178,22 @@ npm run dist
 ### 便携版
 
 1. 从 [Releases](https://github.com/DimoIer/Pixelramp/releases) 下载 ZIP 并解压。
-2. 双击 **`PixelRamp.cmd`**；脚本会带 `--no-sandbox` 启动 `PixelRamp.exe`。
-3. 如果你的系统可以直接运行 `PixelRamp.exe`，也可以跳过启动脚本。
+2. 双击 **`PixelRamp.cmd`**；脚本会带 `--no-sandbox` 启动，并把数据保存在程序同目录的 `PixelRampData\`。
+3. 如果你的系统可以直接运行 `PixelRamp.exe`，也可以直接启动，但推荐使用启动脚本。
+
+便携包未签名，首次启动可能触发 Windows SmartScreen。请使用 `PixelRamp.cmd`；它避开直接运行 exe 的提示，并设置便携数据目录。
 
 `--no-sandbox` 是当前一期构建环境的限制：这里的 Chromium Windows OS sandbox 无法启动。渲染层仍保持 `contextIsolation`、禁用 Node、限制导航，并使用限制性 CSP。这是为本地离线应用做出的、明确记录在案的取舍。
 
 ### 数据位置
 
-- 调色卡库：`%APPDATA%\PixelRamp\palettes\`（每张调色卡一个 JSON，`index.json` 为索引）。
-- 最近文件：`%APPDATA%\PixelRamp\recent.json`。
+通过 `PixelRamp.cmd` 启动的便携版会把数据保存在程序同目录：
+
+- 调色卡库：`PixelRampData\palettes\`（每张调色卡一个 JSON，`index.json` 为索引）。
+- 最近文件：`PixelRampData\recent.json`。
 - 工程：用户选择的 `.pxramp` 文件；ZIP 内含 `manifest.json` 和 `pixels.rgba`。
 
-开发时可用环境变量覆盖数据目录：
+开发模式或直接启动 `PixelRamp.exe` 时，同样的文件位于 `%APPDATA%\PixelRamp\`。可用环境变量覆盖数据目录：
 
 ```powershell
 $env:PIXELRAMP_USER_DATA = "D:\PixelRampData"
