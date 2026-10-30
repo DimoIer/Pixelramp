@@ -326,6 +326,12 @@ const EN: Record<string, string> = {
   '纹理缩放': 'Texture scale',
   '按百分比以最近邻方式缩放所有图层。宽高取整后限制在 1–256 px；历史记录会清空。':
     'Scale all layers by percentage with nearest-neighbor sampling. Rounded to 1–256 px; history is cleared.',
+  '按百分比或直接输入目标像素，以最近邻方式缩放所有图层。宽高限制在 1–256 px；历史记录会清空。':
+    'Scale all layers by percentage or target pixels with nearest-neighbor sampling. Dimensions are limited to 1–256 px; history is cleared.',
+  '目标像素': 'Target pixels',
+  '目标宽度': 'Target width',
+  '目标高度': 'Target height',
+  '自定义': 'Custom',
   '缩放比例': 'Scale',
   '纹理已缩放': 'Texture scaled',
   '原尺寸': 'Original',

@@ -1,4 +1,4 @@
-PixelRamp Studio 0.2.1
+PixelRamp Studio 0.2.2
 =====================
 
 Start here
