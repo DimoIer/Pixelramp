@@ -17,10 +17,7 @@ const RECENT_KEY = 'pixelramp.recent.v1'
 
 const tauriRuntime =
   typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
-const desktop: DesktopApi | undefined =
-  typeof window !== 'undefined'
-    ? window.pixelramp ?? (tauriRuntime ? createTauriDesktop() : undefined)
-    : undefined
+const desktop: DesktopApi | undefined = tauriRuntime ? createTauriDesktop() : undefined
 
 export const isDesktop = !!desktop
 

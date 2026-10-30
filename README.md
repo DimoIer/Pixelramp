@@ -33,7 +33,7 @@
 
 **PixelRamp Studio** is a desktop pixel-art workstation built around palettes. Build a readable ramp first, then paint the texture: stop hunting for shadow and highlight colors one swatch at a time.
 
-> **Status:** Tauri v2 + Rust desktop build with a React/TypeScript renderer. The Windows portable package is distributed through [Releases](https://github.com/DimoIer/Pixelramp/releases); the generated ZIP is intentionally not committed to this repository.
+> **Status:** Tauri v2 + Rust desktop build with a React/TypeScript renderer. Portable ZIP and NSIS installer builds are distributed through [Releases](https://github.com/DimoIer/Pixelramp/releases); generated packages are intentionally not committed to this repository.
 
 ### Highlights
 
@@ -67,21 +67,29 @@ Test and build:
 npm test
 npm run build:tauri
 npm run package:tauri
+npm run bundle:tauri
 ```
 
-`npm run build:tauri` builds the frontend and produces an executable at `src-tauri/target/release/pixelramp.exe`. `npm run package:tauri` copies that executable into `release/PixelRamp-0.1.0-tauri/` and creates `release/PixelRamp-0.1.0-tauri-win-x64.zip`. `scripts/build-web.mjs` keeps esbuild's temporary files inside the project to work around a delete lock in the Windows build environment.
+`npm run build:tauri` builds the frontend and produces an executable at `src-tauri/target/release/pixelramp.exe`. `npm run package:tauri` copies that executable into `release/PixelRamp-0.1.0-tauri/` and creates `release/PixelRamp-0.1.0-tauri-win-x64.zip`. `npm run bundle:tauri` produces the NSIS installer under `src-tauri/target/release/bundle/nsis/`. `scripts/build-web.mjs` keeps esbuild's temporary files inside the project to work around a delete lock in the Windows build environment.
 
-The Tauri project lives in `src-tauri/`. The earlier Electron shell remains in `src/main` and `src/preload` as a legacy reference, but it is not part of the Tauri desktop build.
+The Tauri project lives in `src-tauri/`.
 
 ### Portable build
 
-1. Download the Tauri ZIP from [Releases](https://github.com/DimoIer/Pixelramp/releases) and extract it.
+Two Windows packages are produced:
+
+- `PixelRamp-0.1.0-tauri-win-x64.zip` — portable, self-contained data folder.
+- `PixelRamp-0.1.0-tauri-setup.exe` — standard per-user NSIS installer.
+
+For the portable ZIP:
+
+1. Download it from [Releases](https://github.com/DimoIer/Pixelramp/releases) and extract it.
 2. Run **`PixelRamp.cmd`**. It starts `PixelRamp.exe` and keeps data beside the app in `PixelRampData\`.
 3. `PixelRamp.exe` is the unsigned Tauri binary; the launcher is the supported entry point.
 
 Windows SmartScreen may warn on first launch because the build is unsigned. Use `PixelRamp.cmd`; it avoids the direct executable prompt and supplies the portable data folder.
 
-This build uses the Tauri/WebView2 runtime instead of Electron. The renderer runs with a restrictive CSP, no Node integration, and a narrow set of Tauri capabilities. WebView2 is included with Windows 11; Windows 10 users may need the Evergreen WebView2 Runtime.
+This build uses the Tauri/WebView2 runtime. The renderer runs with a restrictive CSP, no Node integration, and a narrow set of Tauri capabilities. WebView2 is included with Windows 11; Windows 10 users may need the Evergreen WebView2 Runtime.
 
 ### Data
 
@@ -141,7 +149,7 @@ npm run dev:tauri
 
 **PixelRamp Studio** 是一个以调色卡为核心的桌面像素艺术工作台。先建立一套可读的色阶，再开始画纹理：不用为了找阴影色和高光色一遍遍试色。
 
-> **当前状态：** 使用 Tauri v2 + Rust 桌面后端和 React/TypeScript 渲染层。Windows 便携包通过 [Releases](https://github.com/DimoIer/Pixelramp/releases) 分发；生成的 ZIP 不提交到源码仓库。
+> **当前状态：** 使用 Tauri v2 + Rust 桌面后端和 React/TypeScript 渲染层。便携 ZIP 与 NSIS 安装包通过 [Releases](https://github.com/DimoIer/Pixelramp/releases) 分发；生成物不提交到源码仓库。
 
 ### 功能
 
@@ -175,21 +183,29 @@ npm run dev:web
 npm test
 npm run build:tauri
 npm run package:tauri
+npm run bundle:tauri
 ```
 
-`npm run build:tauri` 会构建前端并生成 `src-tauri/target/release/pixelramp.exe`。`npm run package:tauri` 会把可执行文件复制到 `release/PixelRamp-0.1.0-tauri/`，并生成 `release/PixelRamp-0.1.0-tauri-win-x64.zip`。`scripts/build-web.mjs` 会把 esbuild 临时目录放进项目内，以绕开当前 Windows 环境的临时文件删除锁。
+`npm run build:tauri` 会构建前端并生成 `src-tauri/target/release/pixelramp.exe`。`npm run package:tauri` 会把可执行文件复制到 `release/PixelRamp-0.1.0-tauri/`，并生成 `release/PixelRamp-0.1.0-tauri-win-x64.zip`。`npm run bundle:tauri` 会在 `src-tauri/target/release/bundle/nsis/` 下生成 NSIS 安装包。`scripts/build-web.mjs` 会把 esbuild 临时目录放进项目内，以绕开当前 Windows 环境的临时文件删除锁。
 
-Tauri 工程位于 `src-tauri/`。之前的 Electron 主进程仍保留在 `src/main` / `src/preload` 作为历史参考，但不参与 Tauri 构建。
+Tauri 工程位于 `src-tauri/`。
 
 ### 便携版
 
-1. 从 [Releases](https://github.com/DimoIer/Pixelramp/releases) 下载 Tauri ZIP 并解压。
+会生成两个 Windows 包：
+
+- `PixelRamp-0.1.0-tauri-win-x64.zip` — 便携版，数据保存在程序目录。
+- `PixelRamp-0.1.0-tauri-setup.exe` — 标准当前用户 NSIS 安装包。
+
+便携 ZIP 的使用方式：
+
+1. 从 [Releases](https://github.com/DimoIer/Pixelramp/releases) 下载并解压。
 2. 双击 **`PixelRamp.cmd`**；它会启动 `PixelRamp.exe`，并把数据保存在程序同目录的 `PixelRampData\`。
 3. `PixelRamp.exe` 是未签名的 Tauri 程序，推荐始终通过启动脚本进入。
 
 便携包未签名，首次启动可能触发 Windows SmartScreen。请使用 `PixelRamp.cmd`；它避开直接运行 exe 的提示，并设置便携数据目录。
 
-当前桌面端使用 Tauri/WebView2，而不是 Electron。渲染层使用限制性 CSP、禁用 Node，并只开放必要的 Tauri 能力。Windows 11 自带 WebView2；Windows 10 如缺失请安装 Evergreen WebView2 Runtime。
+当前桌面端使用 Tauri/WebView2。渲染层使用限制性 CSP、禁用 Node，并只开放必要的 Tauri 能力。Windows 11 自带 WebView2；Windows 10 如缺失请安装 Evergreen WebView2 Runtime。
 
 ### 数据位置
 
@@ -256,14 +272,12 @@ src-tauri/
   src/storage.rs     data directory resolution and atomic writes
   capabilities/      Tauri window/dialog permissions
 src/
-  main/              legacy Electron main process (not in the Tauri build)
-  preload/           legacy Electron contextBridge API
   shared/            shared types / 共享类型
   renderer/src/
     core/            OKLab/OKLCh, ramps, extraction, raster ops, palettes, project files
     store/           workbench state, history, palette and UI state
     components/      canvas, tools, palette workspace, dialogs
-    platform/        Tauri / legacy Electron / browser adapters
+    platform/        Tauri / browser adapters
     workers/         color extraction worker
 docs/                 screenshots / 界面截图
 ```

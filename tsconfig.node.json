@@ -14,10 +14,8 @@
     "noEmit": true
   },
   "include": [
-    "electron.vite.config.ts",
     "vite.web.config.ts",
-    "src/main/**/*.ts",
-    "src/preload/**/*.ts",
+    "vitest.config.ts",
     "src/shared/**/*.ts"
   ]
 }
