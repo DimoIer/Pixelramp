@@ -1801,6 +1801,11 @@
   cursor: context-menu;
 }
 
+.color-wheel__swatch.is-in-palette {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .color-wheel__swatches {
   display: flex;
   flex-wrap: wrap;

@@ -170,6 +170,7 @@ export interface WorkbenchState {
   library: Palette[]
   libraryLoaded: boolean
   selectedColorIndex: number | null
+  selectedColorSource: 'panel' | 'wheel'
   sortState: SortState
   extractOptions: ExtractOptions
   extracting: boolean
@@ -267,7 +268,7 @@ export interface WorkbenchActions {
   setRampBaseColor: (color: RGBA, autoRange?: boolean) => void
   applyRampToPalette: (mode: 'replace' | 'append' | 'new') => Palette | null
 
-  setSelectedColorIndex: (index: number | null) => void
+  setSelectedColorIndex: (index: number | null, source?: 'panel' | 'wheel') => void
   openPalette: (palette: Palette) => void
   setActivePaletteFromProject: (palette: Palette | null) => void
   renameActivePalette: (name: string) => void
@@ -358,6 +359,7 @@ function makeInitialState(): WorkbenchState {
     library: [],
     libraryLoaded: false,
     selectedColorIndex: null,
+    selectedColorSource: 'panel',
     sortState: { dimension: 'lightness', direction: 'asc' },
     extractOptions: { ...DEFAULT_EXTRACT_OPTIONS },
     extracting: false
@@ -1229,7 +1231,8 @@ export const useWorkbench = create<WorkbenchStore>((set, get) => ({
     return palette
   },
 
-  setSelectedColorIndex: (index) => set({ selectedColorIndex: index }),
+  setSelectedColorIndex: (index, source = 'panel') =>
+    set({ selectedColorIndex: index, selectedColorSource: source }),
 
   openPalette: (palette) => {
     const clone: Palette = JSON.parse(JSON.stringify(palette)) as Palette
@@ -1300,6 +1303,12 @@ export const useWorkbench = create<WorkbenchStore>((set, get) => ({
         source: 'manual'
       })
     const rgba = normalizeRgba(color ?? state.foreground)
+    if (palette.colors.some((entry) =>
+      entry.rgba.r === rgba.r &&
+      entry.rgba.g === rgba.g &&
+      entry.rgba.b === rgba.b &&
+      entry.rgba.a === rgba.a
+    )) return
     const colors = [...palette.colors, { rgba }]
     set({
       activePalette: { ...palette, colors, source: palette.source, updatedAt: Date.now() },

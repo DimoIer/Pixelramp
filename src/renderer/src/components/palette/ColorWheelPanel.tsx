@@ -120,11 +120,22 @@ export function ColorWheelPanel({
 
   const color = useMemo(() => hsvToRgba(hsv), [hsv])
   const ramp = useMemo(() => generateRamp(rampParams), [rampParams])
+  const paletteKeys = useMemo(
+    () =>
+      new Set(
+        (activePalette?.colors ?? []).map(
+          (entry) =>
+            `${entry.rgba.r},${entry.rgba.g},${entry.rgba.b},${entry.rgba.a}`
+        )
+      ),
+    [activePalette]
+  )
   const colorKey = `${color.r},${color.g},${color.b},${color.a}`
   const foregroundKey = `${foreground.r},${foreground.g},${foreground.b},${foreground.a}`
   const baseKey = `${rampParams.baseColor.r},${rampParams.baseColor.g},${rampParams.baseColor.b},${rampParams.baseColor.a}`
   const hueColor = `hsl(${Math.round(hsv.h)} 100% 50%)`
   const cursorPoint = preview ?? { s: hsv.s, v: hsv.v }
+  const colorInPalette = paletteKeys.has(colorKey)
 
   useEffect(() => {
     setHexDraft(rgbaToHex(color).slice(1).toUpperCase())
@@ -418,22 +429,36 @@ export function ColorWheelPanel({
         <div className="color-wheel__ramp">
           <span className="field__label">{t('当前色阶')}</span>
           <div className="color-wheel__swatches">
-            {ramp.colors.map((entry, index) => (
-              <button
-                type="button"
-                key={`${index}-${rgbaToHex(entry.rgba)}`}
-                className="color-wheel__swatch color-wheel__swatch--ramp"
-                style={{ background: cssColor(entry.rgba) }}
-                title={`${rgbaToHex(entry.rgba).toUpperCase()} · ${t('右键加入调色卡')}`}
-                aria-label={`${rgbaToHex(entry.rgba)} ${t('右键加入调色卡')}`}
-                onContextMenu={(event) => {
-                  event.preventDefault()
-                  if (!activePalette) return
-                  addPaletteColor(entry.rgba)
-                  toast(t('已加入调色卡'), 'success', rgbaToHex(entry.rgba))
-                }}
-              />
-            ))}
+            {ramp.colors.map((entry, index) => {
+              const exists = paletteKeys.has(
+                `${entry.rgba.r},${entry.rgba.g},${entry.rgba.b},${entry.rgba.a}`
+              )
+              const hex = rgbaToHex(entry.rgba).toUpperCase()
+              return (
+                <button
+                  type="button"
+                  key={`${index}-${hex}`}
+                  className={clsx(
+                    'color-wheel__swatch',
+                    'color-wheel__swatch--ramp',
+                    exists && 'is-in-palette'
+                  )}
+                  style={{ background: cssColor(entry.rgba) }}
+                  title={`${hex} · ${t(exists ? '已在当前调色卡中' : '右键加入调色卡')}`}
+                  aria-label={`${hex} ${t(exists ? '已在当前调色卡中' : '右键加入调色卡')}`}
+                  onContextMenu={(event) => {
+                    event.preventDefault()
+                    if (!activePalette) return
+                    if (exists) {
+                      toast(t('该颜色已在当前调色卡中'), 'info', hex)
+                      return
+                    }
+                    addPaletteColor(entry.rgba)
+                    toast(t('已加入调色卡'), 'success', hex)
+                  }}
+                />
+              )
+            })}
           </div>
         </div>
 
@@ -449,7 +474,7 @@ export function ColorWheelPanel({
                   style={{ background: cssColor(entry.rgba) }}
                   aria-label={rgbaToHex(entry.rgba)}
                   onClick={() => {
-                    setSelectedColorIndex(index)
+                    setSelectedColorIndex(index, 'wheel')
                     commitColor(entry.rgba)
                   }}
                 />
@@ -469,6 +494,7 @@ export function ColorWheelPanel({
                 variant="primary"
                 size="sm"
                 leadingIcon={<Plus size={12} />}
+                disabled={colorInPalette}
                 onClick={() => {
                   addPaletteColor(color)
                   toast(t('已加入调色卡'), 'success', rgbaToHex(color))

@@ -382,6 +382,7 @@ export function ActivePalettePanel({
     paletteDirty,
     library,
     selectedColorIndex,
+    selectedColorSource,
     extractCount,
     extracting,
     renameActivePalette,
@@ -396,6 +397,7 @@ export function ActivePalettePanel({
       paletteDirty: state.paletteDirty,
       library: state.library,
       selectedColorIndex: state.selectedColorIndex,
+      selectedColorSource: state.selectedColorSource,
       extractCount: state.selection,
       extracting: state.extracting,
       renameActivePalette: state.renameActivePalette,
@@ -434,12 +436,12 @@ export function ActivePalettePanel({
   }, [palette?.id])
 
   useEffect(() => {
-    if (selectedColorIndex === null) return
+    if (selectedColorIndex === null || selectedColorSource === 'wheel') return
     const timer = window.setTimeout(() => {
       editorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     }, 90)
     return () => window.clearTimeout(timer)
-  }, [selectedColorIndex])
+  }, [selectedColorIndex, selectedColorSource])
 
   const inLibrary = palette ? library.some((entry) => entry.id === palette.id) : false
   const saved = !!palette && inLibrary && !paletteDirty

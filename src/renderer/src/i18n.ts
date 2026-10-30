@@ -415,6 +415,8 @@ const EN: Record<string, string> = {
   调色盘: 'Color wheel',
   当前色阶: 'Current ramp',
   右键加入调色卡: 'Right-click to add to palette',
+  已在当前调色卡中: 'Already in active palette',
+  该颜色已在当前调色卡中: 'Color already in active palette',
   同步前景色: 'Sync foreground',
   同步色阶基色: 'Sync ramp base',
   写入选中色块: 'Write to selected swatch',
