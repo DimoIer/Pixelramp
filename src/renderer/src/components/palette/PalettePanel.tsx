@@ -28,8 +28,18 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   const [activeFloating, setActiveFloating] = useState(false)
   const [generatorDockHeight, setGeneratorDockHeight] = useState(220)
   const [activeDockHeight, setActiveDockHeight] = useState(220)
-  const [generatorSpawn, setGeneratorSpawn] = useState<{ x: number; y: number } | null>(null)
-  const [activeSpawn, setActiveSpawn] = useState<{ x: number; y: number } | null>(null)
+  const [generatorSpawn, setGeneratorSpawn] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null>(null)
+  const [activeSpawn, setActiveSpawn] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+  } | null>(null)
   const [sectionDockHint, setSectionDockHint] = useState<'generator' | 'active' | null>(null)
   const [sectionOrder, setSectionOrder] = useState<'generator' | 'active'>('generator')
   const paletteRef = useRef<HTMLElement>(null)
@@ -50,13 +60,21 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
 
   const floatGenerator = (): void => {
     const element = paletteRef.current?.querySelector('[data-section="generator"]')
-    if (element) setGeneratorDockHeight(element.getBoundingClientRect().height)
+    if (element) {
+      const rect = element.getBoundingClientRect()
+      setGeneratorDockHeight(rect.height)
+      setGeneratorSpawn({ x: 200, y: 120, width: rect.width, height: rect.height })
+    }
     setGeneratorFloating(true)
   }
 
   const floatActive = (): void => {
     const element = paletteRef.current?.querySelector('[data-section="active"]')
-    if (element) setActiveDockHeight(element.getBoundingClientRect().height)
+    if (element) {
+      const rect = element.getBoundingClientRect()
+      setActiveDockHeight(rect.height)
+      setActiveSpawn({ x: 230, y: 150, width: rect.width, height: rect.height })
+    }
     setActiveFloating(true)
   }
 
@@ -113,12 +131,24 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
     }
     if (!overPalette(event.clientX, event.clientY)) {
       if (current.section === 'generator') {
-        setGeneratorDockHeight(current.source.getBoundingClientRect().height)
-        setGeneratorSpawn({ x: event.clientX - 40, y: event.clientY - 20 })
+        const rect = current.source.getBoundingClientRect()
+        setGeneratorDockHeight(rect.height)
+        setGeneratorSpawn({
+          x: event.clientX - 34,
+          y: event.clientY - 18,
+          width: rect.width,
+          height: rect.height
+        })
         setGeneratorFloating(true)
       } else {
-        setActiveDockHeight(current.source.getBoundingClientRect().height)
-        setActiveSpawn({ x: event.clientX - 40, y: event.clientY - 20 })
+        const rect = current.source.getBoundingClientRect()
+        setActiveDockHeight(rect.height)
+        setActiveSpawn({
+          x: event.clientX - 34,
+          y: event.clientY - 18,
+          width: rect.width,
+          height: rect.height
+        })
         setActiveFloating(true)
       }
     }
@@ -270,12 +300,17 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
         title={t('色阶生成器')}
         initial={
           generatorSpawn
-            ? { x: generatorSpawn.x, y: generatorSpawn.y, width: 420, height: 680 }
+            ? {
+                x: generatorSpawn.x,
+                y: generatorSpawn.y,
+                width: generatorSpawn.width,
+                height: generatorSpawn.height
+              }
             : { x: 200, y: 120, width: 420, height: 680 }
         }
         initialOnly={!!generatorSpawn}
-        minWidth={330}
-        minHeight={360}
+        minWidth={300}
+        minHeight={160}
         onDock={() => {
           setGeneratorFloating(false)
           setGeneratorSpawn(null)
@@ -315,12 +350,17 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
         title={t('当前调色卡')}
         initial={
           activeSpawn
-            ? { x: activeSpawn.x, y: activeSpawn.y, width: 430, height: 680 }
+            ? {
+                x: activeSpawn.x,
+                y: activeSpawn.y,
+                width: activeSpawn.width,
+                height: activeSpawn.height
+              }
             : { x: 230, y: 150, width: 430, height: 680 }
         }
         initialOnly={!!activeSpawn}
-        minWidth={340}
-        minHeight={360}
+        minWidth={300}
+        minHeight={160}
         onDock={() => {
           setActiveFloating(false)
           setActiveSpawn(null)

@@ -206,8 +206,8 @@ export default function App() {
             initial={
               toolbarSpawn
                 ? {
-                    x: toolbarSpawn.x - 30,
-                    y: toolbarSpawn.y - 20,
+                    x: toolbarSpawn.x - 34,
+                    y: toolbarSpawn.y - 18,
                     width: toolbarOrientation === 'horizontal' ? 560 : 158,
                     height: toolbarOrientation === 'horizontal' ? 96 : 660
                   }

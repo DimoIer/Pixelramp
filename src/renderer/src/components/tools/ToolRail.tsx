@@ -82,7 +82,12 @@ export function ToolRail({
     if (!current) return
     if (!current.ghost) {
       if (Math.hypot(event.clientX - current.startX, event.clientY - current.startY) < 6) return
-      current.ghost = createDragGhost(current.source, event.clientX, event.clientY)
+      current.ghost = createDragGhost(
+        current.source,
+        event.clientX,
+        event.clientY,
+        horizontal ? { width: 560, height: 96 } : { width: 158, height: 660 }
+      )
       current.source.classList.add('panel-drag-source')
     }
     current.ghost.move(event.clientX, event.clientY)
