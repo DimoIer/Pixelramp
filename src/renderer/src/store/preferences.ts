@@ -7,9 +7,13 @@ interface PreferencesState {
   theme: UiTheme
   canvasLight: boolean
   language: Language
+  floatToolbar: boolean
+  floatPalette: boolean
   setTheme: (theme: UiTheme) => void
   setCanvasLight: (value: boolean) => void
   setLanguage: (language: Language) => void
+  setFloatToolbar: (value: boolean) => void
+  setFloatPalette: (value: boolean) => void
 }
 
 const STORAGE_KEY = 'pixelramp.preferences'
@@ -26,7 +30,9 @@ function readStored(): Partial<PreferencesState> {
           ? parsed.theme
           : 'moss',
       canvasLight: parsed.canvasLight === true,
-      language: parsed.language === 'en' ? 'en' : 'zh'
+      language: parsed.language === 'en' ? 'en' : 'zh',
+      floatToolbar: parsed.floatToolbar === true,
+      floatPalette: parsed.floatPalette === true
     }
   } catch {
     return {}
@@ -47,6 +53,8 @@ export const usePreferences = create<PreferencesState>((set) => ({
   theme: stored.theme ?? 'moss',
   canvasLight: stored.canvasLight ?? false,
   language: stored.language ?? 'zh',
+  floatToolbar: stored.floatToolbar ?? false,
+  floatPalette: stored.floatPalette ?? false,
   setTheme: (theme) => {
     set({ theme })
     apply(theme, usePreferences.getState().canvasLight, usePreferences.getState().language)
@@ -61,11 +69,22 @@ export const usePreferences = create<PreferencesState>((set) => ({
     set({ language })
     apply(usePreferences.getState().theme, usePreferences.getState().canvasLight, language)
     persist()
+  },
+  setFloatToolbar: (floatToolbar) => {
+    set({ floatToolbar })
+    persist()
+  },
+  setFloatPalette: (floatPalette) => {
+    set({ floatPalette })
+    persist()
   }
 }))
 
 function persist(): void {
   if (typeof window === 'undefined') return
-  const { theme, canvasLight, language } = usePreferences.getState()
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme, canvasLight, language }))
+  const { theme, canvasLight, language, floatToolbar, floatPalette } = usePreferences.getState()
+  window.localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify({ theme, canvasLight, language, floatToolbar, floatPalette })
+  )
 }

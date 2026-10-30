@@ -13,13 +13,21 @@ import { Toasts } from './components/ui/Toasts'
 import { BusyIndicator } from './components/ui/BusyIndicator'
 import { useWorkbench } from './store/workbench'
 import { useUi } from './store/ui'
+import { usePreferences } from './store/preferences'
+import { FloatingPanel } from './components/layout/FloatingPanel'
+import { useT } from './i18n'
 import { useGlobalShortcuts } from './hooks/useGlobalShortcuts'
 import { onCloseRequested } from './platform'
 import { requestWindowCloseCommand } from './commands'
 
 export default function App() {
+  const t = useT()
   const [paletteOpen, setPaletteOpen] = useState(true)
   const [layersOpen, setLayersOpen] = useState(true)
+  const floatToolbar = usePreferences((state) => state.floatToolbar)
+  const floatPalette = usePreferences((state) => state.floatPalette)
+  const setFloatToolbar = usePreferences((state) => state.setFloatToolbar)
+  const setFloatPalette = usePreferences((state) => state.setFloatPalette)
   const loadLibrary = useWorkbench((state) => state.loadLibrary)
   const refreshRecent = useUi((state) => state.refreshRecent)
   const docName = useWorkbench((state) => state.doc.name)
@@ -57,7 +65,7 @@ export default function App() {
       <div className="app-shell">
         <TitleBar paletteOpen={paletteOpen} onTogglePalette={() => setPaletteOpen((open) => !open)} />
         <div className="app-body">
-          <ToolRail />
+          {!floatToolbar ? <ToolRail /> : null}
           <main className="workspace">
             <CanvasHeader
               paletteOpen={paletteOpen}
@@ -71,8 +79,42 @@ export default function App() {
               <LayersPanel open={layersOpen} onClose={() => setLayersOpen(false)} />
             </div>
           </main>
-          <PalettePanel open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+          {!floatPalette && paletteOpen ? (
+            <PalettePanel open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+          ) : null}
         </div>
+        {floatToolbar ? (
+          <FloatingPanel
+            id="toolbar"
+            title={t('工具栏')}
+            initial={{ x: 82, y: 88, width: 72, height: 660 }}
+            minWidth={66}
+            minHeight={320}
+            onDock={() => setFloatToolbar(false)}
+          >
+            <ToolRail />
+          </FloatingPanel>
+        ) : null}
+        {floatPalette && paletteOpen ? (
+          <FloatingPanel
+            id="palette"
+            title={t('调色卡工作台')}
+            initial={{
+              x: Math.max(24, window.innerWidth - 430),
+              y: 88,
+              width: 390,
+              height: 700
+            }}
+            minWidth={310}
+            minHeight={380}
+            onDock={() => {
+              setFloatPalette(false)
+              setPaletteOpen(true)
+            }}
+          >
+            <PalettePanel open onClose={() => setPaletteOpen(false)} />
+          </FloatingPanel>
+        ) : null}
         <StatusBar />
         <DialogMount />
         <Toasts />

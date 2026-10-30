@@ -468,7 +468,6 @@ export function ActivePalettePanel() {
     <section ref={sectionRef} className="panel-section active-palette">
       <SectionHead
         index="02"
-        eyebrow="WORKING PALETTE"
         title={t('当前调色卡')}
         aside={
           palette ? (
@@ -609,7 +608,7 @@ export function ActivePalettePanel() {
 
           <div className="swatch-block">
             <div className="swatch-block__head">
-              <span className="field__label">{t('色块 / SWATCHES')}</span>
+              <span className="field__label">{t('色块')}</span>
               <span className="swatch-block__hint">
                 <GripVertical size={10} /> {t('拖拽排序或拖到画布')}
               </span>

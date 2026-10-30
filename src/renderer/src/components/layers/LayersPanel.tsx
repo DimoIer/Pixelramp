@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import {
   ChevronDown,
   ChevronUp,
@@ -54,6 +54,74 @@ export function LayersPanel({ open, onClose }: LayersPanelProps) {
   const askConfirm = useUi((state) => state.askConfirm)
   const [editing, setEditing] = useState<string | null>(null)
   const [draftName, setDraftName] = useState('')
+  const [rect, setRect] = useState({ x: 14, y: 14, width: 252, height: 330 })
+  const drag = useRef<{ x: number; y: number; left: number; top: number; pointerId: number } | null>(null)
+  const resize = useRef<{
+    x: number
+    y: number
+    width: number
+    height: number
+    pointerId: number
+  } | null>(null)
+
+  const startDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if ((event.target as Element).closest('button')) return
+    event.preventDefault()
+    drag.current = {
+      x: event.clientX,
+      y: event.clientY,
+      left: rect.x,
+      top: rect.y,
+      pointerId: event.pointerId
+    }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  const moveDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (!drag.current) return
+    setRect((current) => ({
+      ...current,
+      x: Math.max(0, Math.min(560, drag.current!.left + event.clientX - drag.current!.x)),
+      y: Math.max(0, Math.min(620, drag.current!.top + event.clientY - drag.current!.y))
+    }))
+  }
+
+  const endDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    drag.current = null
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
+  const startResize = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    event.preventDefault()
+    event.stopPropagation()
+    resize.current = {
+      x: event.clientX,
+      y: event.clientY,
+      width: rect.width,
+      height: rect.height,
+      pointerId: event.pointerId
+    }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  const moveResize = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (!resize.current) return
+    setRect((current) => ({
+      ...current,
+      width: Math.max(220, Math.min(520, resize.current!.width + event.clientX - resize.current!.x)),
+      height: Math.max(180, Math.min(720, resize.current!.height + event.clientY - resize.current!.y))
+    }))
+  }
+
+  const endResize = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    resize.current = null
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
 
   useEffect(() => {
     setEditing(null)
@@ -82,8 +150,19 @@ export function LayersPanel({ open, onClose }: LayersPanelProps) {
   }
 
   return (
-    <aside className="layers-panel" aria-label={t('图层面板')}>
-      <div className="layers-panel__head">
+    <aside
+      className="layers-panel"
+      aria-label={t('图层面板')}
+      style={{ left: rect.x, top: rect.y, width: rect.width, height: rect.height }}
+    >
+      <div
+        className="layers-panel__head"
+        onPointerDown={startDrag}
+        onPointerMove={moveDrag}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+      >
+
         <span className="layers-panel__title">
           <Layers2 size={14} />
           {t('图层')}
@@ -205,6 +284,14 @@ export function LayersPanel({ open, onClose }: LayersPanelProps) {
         })}
       </div>
       <p className="layers-panel__hint">{t('双击图层名重命名 · 眼睛图标控制可见性')}</p>
+      <div
+        className="layers-panel__resize"
+        onPointerDown={startResize}
+        onPointerMove={moveResize}
+        onPointerUp={endResize}
+        onPointerCancel={endResize}
+        aria-hidden
+      />
     </aside>
   )
 }

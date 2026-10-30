@@ -30,6 +30,27 @@
   padding: 0 8px 0 11px;
   flex: none;
   border-bottom: 1px solid var(--line);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.layers-panel__head:active {
+  cursor: grabbing;
+}
+
+.layers-panel__resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  background:
+    linear-gradient(135deg, transparent 45%, var(--line-strong) 45%, var(--line-strong) 52%, transparent 52%),
+    linear-gradient(135deg, transparent 65%, var(--text-4) 65%, var(--text-4) 70%, transparent 70%);
+  touch-action: none;
 }
 
 .layers-panel__title {

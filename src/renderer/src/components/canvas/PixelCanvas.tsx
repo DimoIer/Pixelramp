@@ -977,7 +977,6 @@ export function PixelCanvas() {
             <span />
           </span>
           <span className="canvas-empty__copy">
-            <span className="eyebrow">EMPTY CANVAS</span>
             <span>{t('从右侧取一个颜色，落下第一笔。')}</span>
           </span>
         </div>

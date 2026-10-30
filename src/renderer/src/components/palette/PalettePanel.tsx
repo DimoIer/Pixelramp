@@ -29,7 +29,6 @@ export function PalettePanel({ open, onClose }: PalettePanelProps) {
             <span style={{ background: activePalette?.colors[activePalette.colors.length - 1] ? `rgb(${activePalette.colors[activePalette.colors.length - 1].rgba.r},${activePalette.colors[activePalette.colors.length - 1].rgba.g},${activePalette.colors[activePalette.colors.length - 1].rgba.b})` : '#d8c79b' }} />
           </span>
           <div>
-            <div className="eyebrow">COLOR WORKBENCH</div>
             <h1 className="palette-panel__title">{t('调色卡工作台')}</h1>
           </div>
         </div>

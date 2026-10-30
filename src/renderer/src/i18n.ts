@@ -328,6 +328,13 @@ const EN: Record<string, string> = {
   '缩放后会保持图层栈与可见性；像素使用最近邻采样，不产生平滑颜色。':
     'The layer stack and visibility are preserved; nearest-neighbor sampling adds no blended colors.',
   '图层颜色已反转': 'Layer colors inverted',
+  '工具栏': 'Tools',
+  '停靠面板': 'Dock panel',
+  '浮动工具栏': 'Float tools',
+  '浮动调色卡工作台': 'Float palette workbench',
+  '色彩参数': 'Color parameters',
+  '实时色阶': 'Live ramp',
+  '色块': 'Swatches',
   '正方形画布，1–256 px。': 'Square canvas, 1–256 px.',
   '关闭「{name}」？': 'Close "{name}"?',
   '这个标签页有尚未保存的像素修改。关闭会丢失这些修改。':

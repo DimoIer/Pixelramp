@@ -7,7 +7,7 @@ export function SectionHead({
   aside
 }: {
   index: string
-  eyebrow: string
+  eyebrow?: string
   title: string
   aside?: ReactNode
 }) {
@@ -16,7 +16,7 @@ export function SectionHead({
       <div className="section-head__left">
         <span className="section-index mono">{index}</span>
         <div className="section-head__copy">
-          <span className="eyebrow">{eyebrow}</span>
+          {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
           <h2 className="section-title">{title}</h2>
         </div>
       </div>

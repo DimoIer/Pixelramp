@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import type { CSSProperties, ReactNode } from 'react'
 import clsx from 'clsx'
 import { useT } from '../../i18n'
+import { usePreferences } from '../../store/preferences'
 
 interface DialogProps {
   open: boolean
@@ -32,6 +33,7 @@ export function Dialog({
   layer = 'base'
 }: DialogProps) {
   const t = useT()
+  const language = usePreferences((state) => state.language)
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
@@ -48,7 +50,7 @@ export function Dialog({
         >
           <div className="dialog-head">
             <div className="dialog-head__copy">
-              {eyebrow ? <div className="eyebrow dialog-head__eyebrow">{eyebrow}</div> : null}
+              {eyebrow && language === 'en' ? <div className="eyebrow dialog-head__eyebrow">{eyebrow}</div> : null}
               <DialogPrimitive.Title className="dialog-title">{title}</DialogPrimitive.Title>
               {description ? (
                 <DialogPrimitive.Description id="dialog-description" className="dialog-description">

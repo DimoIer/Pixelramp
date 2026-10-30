@@ -459,6 +459,40 @@
   letter-spacing: 0.03em;
 }
 
+.generator-tuning {
+  border-top: 1px solid var(--line-faint);
+}
+
+.generator-tuning summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  color: var(--text-3);
+  font-size: 10px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.generator-tuning summary::-webkit-details-marker {
+  display: none;
+}
+
+.generator-tuning summary:hover {
+  color: var(--text-2);
+}
+
+.generator-tuning[open] .generator-advanced__chevron {
+  transform: rotate(180deg);
+}
+
+.generator-tuning__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 2px 0 10px;
+}
+
 .generator-advanced {
   border-top: 1px solid var(--line-faint);
   border-bottom: 1px solid var(--line-faint);

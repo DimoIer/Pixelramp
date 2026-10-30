@@ -384,6 +384,7 @@ function AdjustMenu() {
 
 function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
   const t = useT()
+  const { floatToolbar, floatPalette, setFloatToolbar, setFloatPalette } = usePreferences()
   const {
     showGrid,
     setShowGrid,
@@ -450,6 +451,20 @@ function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
             label={paletteOpen ? t('收起调色卡面板') : t('展开调色卡面板')}
             onSelect={onTogglePalette}
           />
+          <CheckAction
+            checked={floatToolbar}
+            label={t('浮动工具栏')}
+            onSelect={() => setFloatToolbar(!floatToolbar)}
+          />
+          <CheckAction
+            checked={floatPalette}
+            label={t('浮动调色卡工作台')}
+            onSelect={() => {
+              setFloatPalette(!floatPalette)
+              if (!paletteOpen) onTogglePalette()
+            }}
+          />
+          <Divider />
           <MenuAction
             icon={<Keyboard size={14} />}
             label={t('键盘快捷键')}

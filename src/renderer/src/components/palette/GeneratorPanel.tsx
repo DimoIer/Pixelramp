@@ -102,7 +102,6 @@ export function GeneratorPanel() {
     <section className="panel-section generator">
       <SectionHead
         index="01"
-        eyebrow="GENERATOR"
         title={t('色阶生成器')}
         aside={<span className="mode-pill mono">{rampParams.colorSpace}</span>}
       />
@@ -124,7 +123,7 @@ export function GeneratorPanel() {
             </button>
           </ColorPickerPopover>
           <div className="base-color-field">
-            <span className="field__label">{t('基色 / BASE')}</span>
+            <span className="field__label">{t('基色')}</span>
             <label className="hex-field">
               <span className="hex-field__hash">#</span>
               <input
@@ -193,81 +192,89 @@ export function GeneratorPanel() {
           </div>
         </SliderRow>
 
-        <SliderRow
-          label={t('明度范围')}
-          value={
-            <span>
-              {lowPercent}% <span className="slider-value-sep">—</span> {highPercent}%
-            </span>
-          }
-        >
-          <DualRangeSlider
-            low={rampParams.lightnessRange[0]}
-            high={rampParams.lightnessRange[1]}
-            min={0.03}
-            max={0.98}
-            step={0.005}
-            ariaLabels={['暗端明度', '亮端明度']}
-            onChange={(low, high) => updateRampParams({ lightnessRange: [low, high] })}
-          />
-          <div className="range-endpoints mono">
-            <span>SHADOW</span>
-            <span>HIGHLIGHT</span>
-          </div>
-        </SliderRow>
+        <details className="generator-tuning">
+          <summary>
+            <span>{t('色彩参数')}</span>
+            <ChevronDown size={13} className="generator-advanced__chevron" />
+          </summary>
+          <div className="generator-tuning__body">
+            <SliderRow
+              label={t('明度范围')}
+              value={
+                <span>
+                  {lowPercent}% <span className="slider-value-sep">—</span> {highPercent}%
+                </span>
+              }
+            >
+              <DualRangeSlider
+                low={rampParams.lightnessRange[0]}
+                high={rampParams.lightnessRange[1]}
+                min={0.03}
+                max={0.98}
+                step={0.005}
+                ariaLabels={['暗端明度', '亮端明度']}
+                onChange={(low, high) => updateRampParams({ lightnessRange: [low, high] })}
+              />
+              <div className="range-endpoints mono">
+                <span>SHADOW</span>
+                <span>HIGHLIGHT</span>
+              </div>
+            </SliderRow>
 
-        <div className="hue-grid">
-          <SliderRow
-            label={
-              <span className="hue-label">
-                <span className="hue-dot hue-dot--cool" />
-                {t('阴影偏冷')}
-              </span>
-            }
-            value={`−${shadeValue}°`}
-          >
-            <RangeSlider
-              min={-40}
-              max={0}
-              step={1}
-              tone="cool"
-              value={rampParams.hueShift.shadows}
-              onValueChange={(value) => updateRampParams({ hueShift: { shadows: value } })}
-              aria-label="阴影偏冷量"
-            />
-          </SliderRow>
-          <SliderRow
-            label={
-              <span className="hue-label">
-                <span className="hue-dot hue-dot--warm" />
-                {t('高光偏暖')}
-              </span>
-            }
-            value={`+${highlightValue}°`}
-          >
-            <RangeSlider
-              min={0}
-              max={40}
-              step={1}
-              tone="warm"
-              value={rampParams.hueShift.highlights}
-              onValueChange={(value) => updateRampParams({ hueShift: { highlights: value } })}
-              aria-label="高光偏暖量"
-            />
-          </SliderRow>
-        </div>
+            <div className="hue-grid">
+              <SliderRow
+                label={
+                  <span className="hue-label">
+                    <span className="hue-dot hue-dot--cool" />
+                    {t('阴影偏冷')}
+                  </span>
+                }
+                value={`−${shadeValue}°`}
+              >
+                <RangeSlider
+                  min={-40}
+                  max={0}
+                  step={1}
+                  tone="cool"
+                  value={rampParams.hueShift.shadows}
+                  onValueChange={(value) => updateRampParams({ hueShift: { shadows: value } })}
+                  aria-label="阴影偏冷量"
+                />
+              </SliderRow>
+              <SliderRow
+                label={
+                  <span className="hue-label">
+                    <span className="hue-dot hue-dot--warm" />
+                    {t('高光偏暖')}
+                  </span>
+                }
+                value={`+${highlightValue}°`}
+              >
+                <RangeSlider
+                  min={0}
+                  max={40}
+                  step={1}
+                  tone="warm"
+                  value={rampParams.hueShift.highlights}
+                  onValueChange={(value) => updateRampParams({ hueShift: { highlights: value } })}
+                  aria-label="高光偏暖量"
+                />
+              </SliderRow>
+            </div>
 
-        <div className="generator__toggle-row">
-          <div>
-            <Switch
-              checked={rampParams.chromaTaper}
-              onChange={(checked) => updateRampParams({ chromaTaper: checked })}
-              label={t('高光降饱和')}
-            />
-            <p className="generator__toggle-hint">{t('色度向高光收敛，减少刺眼感')}</p>
+            <div className="generator__toggle-row">
+              <div>
+                <Switch
+                  checked={rampParams.chromaTaper}
+                  onChange={(checked) => updateRampParams({ chromaTaper: checked })}
+                  label={t('高光降饱和')}
+                />
+                <p className="generator__toggle-hint">{t('色度向高光收敛，减少刺眼感')}</p>
+              </div>
+              <div className="generator__formula mono">C ↓ · L ↑</div>
+            </div>
           </div>
-          <div className="generator__formula mono">C ↓ · L ↑</div>
-        </div>
+        </details>
 
         <details className="generator-advanced">
           <summary>
@@ -314,7 +321,7 @@ export function GeneratorPanel() {
 
         <div className="ramp-preview-block">
           <div className="ramp-preview__head">
-            <span className="field__label">{t('实时色阶 / LIVE RAMP')}</span>
+            <span className="field__label">{t('实时色阶')}</span>
             <span className="ramp-preview__count mono">{rampParams.count} COLORS</span>
           </div>
           <div className="ramp-strip" role="group" aria-label="生成的色阶">

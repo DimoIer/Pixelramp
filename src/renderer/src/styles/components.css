@@ -455,7 +455,7 @@ button.color-swatch:hover {
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.55),
     var(--shadow-high);
-  animation: pop-in 180ms var(--ease-out);
+  animation: dialog-in 160ms var(--ease-out);
 }
 .dialog-content--top {
   z-index: 701;
