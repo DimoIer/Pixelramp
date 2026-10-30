@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import { PanelLeftOpen } from 'lucide-react'
 import { TooltipProvider } from './components/ui/Tooltip'
 import { TitleBar } from './components/titlebar/TitleBar'
 import { ToolRail } from './components/tools/ToolRail'
@@ -24,10 +25,21 @@ export default function App() {
   const t = useT()
   const [paletteOpen, setPaletteOpen] = useState(true)
   const [layersOpen, setLayersOpen] = useState(true)
+  const [railWidth, setRailWidth] = useState(66)
+  const [paletteWidth, setPaletteWidth] = useState(374)
+  const [columnDrag, setColumnDrag] = useState<{
+    side: 'rail' | 'palette'
+    startX: number
+    startWidth: number
+  } | null>(null)
   const floatToolbar = usePreferences((state) => state.floatToolbar)
   const floatPalette = usePreferences((state) => state.floatPalette)
+  const toolbarOpen = usePreferences((state) => state.toolbarOpen)
+  const toolbarOrientation = usePreferences((state) => state.toolbarOrientation)
   const setFloatToolbar = usePreferences((state) => state.setFloatToolbar)
   const setFloatPalette = usePreferences((state) => state.setFloatPalette)
+  const setToolbarOpen = usePreferences((state) => state.setToolbarOpen)
+  const setToolbarOrientation = usePreferences((state) => state.setToolbarOrientation)
   const loadLibrary = useWorkbench((state) => state.loadLibrary)
   const refreshRecent = useUi((state) => state.refreshRecent)
   const docName = useWorkbench((state) => state.doc.name)
@@ -48,6 +60,36 @@ export default function App() {
     document.title = `${docName} — PixelRamp`
   }, [docName])
 
+  const beginColumnDrag = (
+    side: 'rail' | 'palette',
+    event: ReactPointerEvent<HTMLDivElement>
+  ): void => {
+    event.preventDefault()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    setColumnDrag({
+      side,
+      startX: event.clientX,
+      startWidth: side === 'rail' ? railWidth : paletteWidth
+    })
+  }
+
+  const moveColumnDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    if (!columnDrag) return
+    const delta = event.clientX - columnDrag.startX
+    if (columnDrag.side === 'rail') {
+      setRailWidth(Math.max(52, Math.min(140, columnDrag.startWidth + delta)))
+    } else {
+      setPaletteWidth(Math.max(290, Math.min(560, columnDrag.startWidth - delta)))
+    }
+  }
+
+  const endColumnDrag = (event: ReactPointerEvent<HTMLDivElement>): void => {
+    setColumnDrag(null)
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
   useEffect(() => {
     const preventWindowDrop = (event: DragEvent): void => {
       if (!(event.target as HTMLElement)?.closest('.canvas-stage')) event.preventDefault()
@@ -64,8 +106,34 @@ export default function App() {
     <TooltipProvider delayDuration={320} skipDelayDuration={180}>
       <div className="app-shell">
         <TitleBar paletteOpen={paletteOpen} onTogglePalette={() => setPaletteOpen((open) => !open)} />
-        <div className="app-body">
-          {!floatToolbar ? <ToolRail /> : null}
+        <div
+          className="app-body"
+          style={
+            {
+              '--rail-width': `${railWidth}px`,
+              '--right-panel-width': `${paletteWidth}px`
+            } as CSSProperties
+          }
+        >
+          {!floatToolbar && toolbarOpen ? (
+            <ToolRail
+              onCollapse={() => setToolbarOpen(false)}
+              onFloat={() => {
+                setToolbarOpen(true)
+                setFloatToolbar(true)
+              }}
+            />
+          ) : null}
+          {!floatToolbar && toolbarOpen ? (
+            <div
+              className="column-resizer column-resizer--rail"
+              onPointerDown={(event) => beginColumnDrag('rail', event)}
+              onPointerMove={moveColumnDrag}
+              onPointerUp={endColumnDrag}
+              onPointerCancel={endColumnDrag}
+              aria-hidden
+            />
+          ) : null}
           <main className="workspace">
             <CanvasHeader
               paletteOpen={paletteOpen}
@@ -80,19 +148,62 @@ export default function App() {
             </div>
           </main>
           {!floatPalette && paletteOpen ? (
-            <PalettePanel open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+            <div
+              className="column-resizer column-resizer--palette"
+              onPointerDown={(event) => beginColumnDrag('palette', event)}
+              onPointerMove={moveColumnDrag}
+              onPointerUp={endColumnDrag}
+              onPointerCancel={endColumnDrag}
+              aria-hidden
+            />
+          ) : null}
+          {!floatPalette && paletteOpen ? (
+            <PalettePanel
+              open={paletteOpen}
+              onClose={() => setPaletteOpen(false)}
+              onFloat={() => {
+                setPaletteOpen(true)
+                setFloatPalette(true)
+              }}
+            />
           ) : null}
         </div>
-        {floatToolbar ? (
+        {!toolbarOpen ? (
+          <button
+            type="button"
+            className="toolbar-reopen"
+            aria-label={t('显示工具栏')}
+            title={t('显示工具栏')}
+            onClick={() => setToolbarOpen(true)}
+          >
+            <PanelLeftOpen size={15} />
+          </button>
+        ) : null}
+        {floatToolbar && toolbarOpen ? (
           <FloatingPanel
-            id="toolbar"
+            key={`toolbar-${toolbarOrientation}`}
+            id={`toolbar-${toolbarOrientation}`}
             title={t('工具栏')}
-            initial={{ x: 82, y: 88, width: 72, height: 660 }}
-            minWidth={66}
-            minHeight={320}
+            initial={
+              toolbarOrientation === 'horizontal'
+                ? { x: 110, y: 88, width: 560, height: 96 }
+                : { x: 82, y: 88, width: 72, height: 660 }
+            }
+            minWidth={toolbarOrientation === 'horizontal' ? 280 : 66}
+            minHeight={toolbarOrientation === 'horizontal' ? 68 : 320}
             onDock={() => setFloatToolbar(false)}
           >
-            <ToolRail />
+            <ToolRail
+              floating
+              horizontal={toolbarOrientation === 'horizontal'}
+              onCollapse={() => setToolbarOpen(false)}
+              onFloat={() => setFloatToolbar(false)}
+              onToggleOrientation={() =>
+                setToolbarOrientation(
+                  toolbarOrientation === 'horizontal' ? 'vertical' : 'horizontal'
+                )
+              }
+            />
           </FloatingPanel>
         ) : null}
         {floatPalette && paletteOpen ? (
@@ -112,7 +223,12 @@ export default function App() {
               setPaletteOpen(true)
             }}
           >
-            <PalettePanel open onClose={() => setPaletteOpen(false)} />
+            <PalettePanel
+              open
+              floating
+              onFloat={() => setFloatPalette(false)}
+              onClose={() => setPaletteOpen(false)}
+            />
           </FloatingPanel>
         ) : null}
         <StatusBar />

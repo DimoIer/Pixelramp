@@ -366,7 +366,17 @@ function PaletteEmptyState() {
   )
 }
 
-export function ActivePalettePanel() {
+export function ActivePalettePanel({
+  collapsed = false,
+  floating = false,
+  onCollapse,
+  onFloat
+}: {
+  collapsed?: boolean
+  floating?: boolean
+  onCollapse?: () => void
+  onFloat?: () => void
+}) {
   const t = useT()
   const {
     palette,
@@ -465,10 +475,17 @@ export function ActivePalettePanel() {
     : t('从画布提取')
 
   return (
-    <section ref={sectionRef} className="panel-section active-palette">
+    <section
+      ref={sectionRef}
+      className={clsx('panel-section active-palette', collapsed && 'is-collapsed')}
+    >
       <SectionHead
         index="02"
         title={t('当前调色卡')}
+        collapsed={collapsed}
+        floating={floating}
+        onCollapse={onCollapse}
+        onFloat={onFloat}
         aside={
           palette ? (
             <span className="section-count mono">{palette.colors.length} COLORS</span>

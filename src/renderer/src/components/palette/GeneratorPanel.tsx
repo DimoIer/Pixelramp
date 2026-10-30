@@ -40,7 +40,19 @@ const ROLE_DOT: Record<ColorRole, string> = {
   neutral: '#9b9f92'
 }
 
-export function GeneratorPanel() {
+interface GeneratorPanelProps {
+  collapsed?: boolean
+  floating?: boolean
+  onCollapse?: () => void
+  onFloat?: () => void
+}
+
+export function GeneratorPanel({
+  collapsed = false,
+  floating = false,
+  onCollapse,
+  onFloat
+}: GeneratorPanelProps) {
   const t = useT()
   const {
     rampParams,
@@ -99,11 +111,61 @@ export function GeneratorPanel() {
   const highPercent = Math.round(rampParams.lightnessRange[1] * 100)
 
   return (
-    <section className="panel-section generator">
+    <section className={clsx('panel-section generator', collapsed && 'is-collapsed')}>
       <SectionHead
         index="01"
         title={t('色阶生成器')}
         aside={<span className="mode-pill mono">{rampParams.colorSpace}</span>}
+        action={
+          <div className="generator-head-actions">
+            <Button
+              variant="primary"
+              size="sm"
+              leadingIcon={<Plus size={12} />}
+              onClick={() => createPalette('new')}
+            >
+              {t('新建')}
+            </Button>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button
+                  type="button"
+                  className="btn btn--secondary btn--icon-sm"
+                  aria-label={t('更多生成器操作')}
+                >
+                  <MoreHorizontal size={14} />
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Portal>
+                <DropdownMenu.Content className="menu-content" align="end" sideOffset={5}>
+                  <DropdownMenu.Item className="menu-item" onSelect={() => createPalette('new')}>
+                    <span className="menu-item__icon"><Plus size={14} /></span>
+                    <span className="menu-item__label">{t('创建新调色卡')}</span>
+                  </DropdownMenu.Item>
+                  {activePalette ? (
+                    <>
+                      <DropdownMenu.Separator className="menu-separator" />
+                      <DropdownMenu.Item className="menu-item" onSelect={() => createPalette('replace')}>
+                        <span className="menu-item__icon"><Sparkles size={14} /></span>
+                        <span className="menu-item__label">
+                          {t('替换「{name}」', { name: activePalette.name })}
+                        </span>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Item className="menu-item" onSelect={() => createPalette('append')}>
+                        <span className="menu-item__icon"><Plus size={14} /></span>
+                        <span className="menu-item__label">{t('追加到当前调色卡')}</span>
+                      </DropdownMenu.Item>
+                    </>
+                  ) : null}
+                </DropdownMenu.Content>
+              </DropdownMenu.Portal>
+            </DropdownMenu.Root>
+          </div>
+        }
+        collapsed={collapsed}
+        floating={floating}
+        onCollapse={onCollapse}
+        onFloat={onFloat}
       />
 
       <div className="generator__body">
@@ -400,54 +462,6 @@ export function GeneratorPanel() {
           </div>
         ) : null}
 
-        <div className="generator__actions">
-          <Button
-            variant="primary"
-            size="md"
-            className="generator__create"
-            leadingIcon={<Plus size={14} />}
-            onClick={() => createPalette('new')}
-          >
-            {t('创建新调色卡')}
-          </Button>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <button type="button" className="btn btn--secondary btn--icon" aria-label="更多生成器操作">
-                <MoreHorizontal size={15} />
-              </button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content className="menu-content" align="end" sideOffset={5}>
-                <DropdownMenu.Item
-                  className="menu-item"
-                  onSelect={() => createPalette('new')}
-                >
-                  <span className="menu-item__icon"><Plus size={14} /></span>
-                  <span className="menu-item__label">{t('创建新调色卡')}</span>
-                </DropdownMenu.Item>
-                {activePalette ? (
-                  <>
-                    <DropdownMenu.Separator className="menu-separator" />
-                    <DropdownMenu.Item
-                      className="menu-item"
-                      onSelect={() => createPalette('replace')}
-                    >
-                      <span className="menu-item__icon"><Sparkles size={14} /></span>
-                      <span className="menu-item__label">{t('替换「{name}」', { name: activePalette.name })}</span>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      className="menu-item"
-                      onSelect={() => createPalette('append')}
-                    >
-                      <span className="menu-item__icon"><Plus size={14} /></span>
-                      <span className="menu-item__label">{t('追加到当前调色卡')}</span>
-                    </DropdownMenu.Item>
-                  </>
-                ) : null}
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
-        </div>
         <div className="generator__footnote">
           <span>{t('生成结果可继续在下方编辑，保存后进入调色卡库。')}</span>
           <span className="mono">{defaultRampName(rampParams.baseColor, rampParams.count)}</span>

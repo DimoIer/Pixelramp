@@ -1,8 +1,10 @@
-import { FolderOpen, PanelRightClose } from 'lucide-react'
+import { FolderOpen, PanelRightClose, PictureInPicture2 } from 'lucide-react'
+import { useState } from 'react'
 import clsx from 'clsx'
 import { useWorkbench } from '../../store/workbench'
 import { useUi } from '../../store/ui'
 import { Tooltip } from '../ui/Tooltip'
+import { FloatingPanel } from '../layout/FloatingPanel'
 import { GeneratorPanel } from './GeneratorPanel'
 import { ActivePalettePanel } from './ActivePalettePanel'
 import { useT } from '../../i18n'
@@ -10,15 +12,22 @@ import { useT } from '../../i18n'
 interface PalettePanelProps {
   open: boolean
   onClose: () => void
+  onFloat?: () => void
+  floating?: boolean
 }
 
-export function PalettePanel({ open, onClose }: PalettePanelProps) {
+export function PalettePanel({ open, onClose, onFloat, floating = false }: PalettePanelProps) {
   const t = useT()
   const library = useWorkbench((state) => state.library)
   const activePalette = useWorkbench((state) => state.activePalette)
   const openDialog = useUi((state) => state.openDialog)
+  const [generatorCollapsed, setGeneratorCollapsed] = useState(false)
+  const [activeCollapsed, setActiveCollapsed] = useState(false)
+  const [generatorFloating, setGeneratorFloating] = useState(false)
+  const [activeFloating, setActiveFloating] = useState(false)
 
   return (
+    <>
     <aside className={clsx('palette-panel', !open && 'is-collapsed')} aria-label={t('调色卡工作区')}>
       <header className="palette-panel__header">
         <div className="palette-panel__brand">
@@ -45,12 +54,78 @@ export function PalettePanel({ open, onClose }: PalettePanelProps) {
               <PanelRightClose size={15} />
             </button>
           </Tooltip>
+          {onFloat ? (
+            <Tooltip
+              content={floating ? t('停靠调色卡工作台') : t('悬浮调色卡工作台')}
+              side="bottom"
+            >
+              <button
+                type="button"
+                className="panel-collapse"
+                aria-label={floating ? t('停靠调色卡工作台') : t('悬浮调色卡工作台')}
+                onClick={onFloat}
+              >
+                <PictureInPicture2 size={15} />
+              </button>
+            </Tooltip>
+          ) : null}
         </div>
       </header>
       <div className="palette-panel__scroll">
-        <GeneratorPanel />
-        <ActivePalettePanel />
+        {!generatorFloating ? (
+          <GeneratorPanel
+            collapsed={generatorCollapsed}
+            onCollapse={() => setGeneratorCollapsed((value) => !value)}
+            onFloat={() => setGeneratorFloating(true)}
+          />
+        ) : null}
+        {!activeFloating ? (
+          <ActivePalettePanel
+            collapsed={activeCollapsed}
+            onCollapse={() => setActiveCollapsed((value) => !value)}
+            onFloat={() => setActiveFloating(true)}
+          />
+        ) : null}
       </div>
     </aside>
+    {generatorFloating ? (
+      <FloatingPanel
+        id="generator"
+        title={t('色阶生成器')}
+        initial={{ x: 200, y: 120, width: 420, height: 680 }}
+        minWidth={330}
+        minHeight={360}
+        onDock={() => setGeneratorFloating(false)}
+      >
+        <div className="floating-section">
+          <GeneratorPanel
+            floating
+            collapsed={generatorCollapsed}
+            onCollapse={() => setGeneratorCollapsed((value) => !value)}
+            onFloat={() => setGeneratorFloating(false)}
+          />
+        </div>
+      </FloatingPanel>
+    ) : null}
+    {activeFloating ? (
+      <FloatingPanel
+        id="active-palette"
+        title={t('当前调色卡')}
+        initial={{ x: 230, y: 150, width: 430, height: 680 }}
+        minWidth={340}
+        minHeight={360}
+        onDock={() => setActiveFloating(false)}
+      >
+        <div className="floating-section">
+          <ActivePalettePanel
+            floating
+            collapsed={activeCollapsed}
+            onCollapse={() => setActiveCollapsed((value) => !value)}
+            onFloat={() => setActiveFloating(false)}
+          />
+        </div>
+      </FloatingPanel>
+    ) : null}
+    </>
   )
 }

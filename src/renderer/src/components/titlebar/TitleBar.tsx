@@ -384,7 +384,14 @@ function AdjustMenu() {
 
 function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
   const t = useT()
-  const { floatToolbar, floatPalette, setFloatToolbar, setFloatPalette } = usePreferences()
+  const {
+    floatToolbar,
+    floatPalette,
+    setFloatToolbar,
+    setFloatPalette,
+    toolbarOpen,
+    setToolbarOpen
+  } = usePreferences()
   const {
     showGrid,
     setShowGrid,
@@ -455,6 +462,11 @@ function ViewMenu({ paletteOpen, onTogglePalette }: TitleBarProps) {
             checked={floatToolbar}
             label={t('浮动工具栏')}
             onSelect={() => setFloatToolbar(!floatToolbar)}
+          />
+          <CheckAction
+            checked={toolbarOpen}
+            label={t('显示工具栏')}
+            onSelect={() => setToolbarOpen(!toolbarOpen)}
           />
           <CheckAction
             checked={floatPalette}

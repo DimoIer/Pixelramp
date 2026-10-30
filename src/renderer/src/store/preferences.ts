@@ -9,11 +9,15 @@ interface PreferencesState {
   language: Language
   floatToolbar: boolean
   floatPalette: boolean
+  toolbarOpen: boolean
+  toolbarOrientation: 'vertical' | 'horizontal'
   setTheme: (theme: UiTheme) => void
   setCanvasLight: (value: boolean) => void
   setLanguage: (language: Language) => void
   setFloatToolbar: (value: boolean) => void
   setFloatPalette: (value: boolean) => void
+  setToolbarOpen: (value: boolean) => void
+  setToolbarOrientation: (value: 'vertical' | 'horizontal') => void
 }
 
 const STORAGE_KEY = 'pixelramp.preferences'
@@ -32,7 +36,9 @@ function readStored(): Partial<PreferencesState> {
       canvasLight: parsed.canvasLight === true,
       language: parsed.language === 'en' ? 'en' : 'zh',
       floatToolbar: parsed.floatToolbar === true,
-      floatPalette: parsed.floatPalette === true
+      floatPalette: parsed.floatPalette === true,
+      toolbarOpen: parsed.toolbarOpen !== false,
+      toolbarOrientation: parsed.toolbarOrientation === 'horizontal' ? 'horizontal' : 'vertical'
     }
   } catch {
     return {}
@@ -55,6 +61,8 @@ export const usePreferences = create<PreferencesState>((set) => ({
   language: stored.language ?? 'zh',
   floatToolbar: stored.floatToolbar ?? false,
   floatPalette: stored.floatPalette ?? false,
+  toolbarOpen: stored.toolbarOpen ?? true,
+  toolbarOrientation: stored.toolbarOrientation ?? 'vertical',
   setTheme: (theme) => {
     set({ theme })
     apply(theme, usePreferences.getState().canvasLight, usePreferences.getState().language)
@@ -77,14 +85,38 @@ export const usePreferences = create<PreferencesState>((set) => ({
   setFloatPalette: (floatPalette) => {
     set({ floatPalette })
     persist()
+  },
+  setToolbarOpen: (toolbarOpen) => {
+    set({ toolbarOpen })
+    persist()
+  },
+  setToolbarOrientation: (toolbarOrientation) => {
+    set({ toolbarOrientation })
+    persist()
   }
 }))
 
 function persist(): void {
   if (typeof window === 'undefined') return
-  const { theme, canvasLight, language, floatToolbar, floatPalette } = usePreferences.getState()
+  const {
+    theme,
+    canvasLight,
+    language,
+    floatToolbar,
+    floatPalette,
+    toolbarOpen,
+    toolbarOrientation
+  } = usePreferences.getState()
   window.localStorage.setItem(
     STORAGE_KEY,
-    JSON.stringify({ theme, canvasLight, language, floatToolbar, floatPalette })
+    JSON.stringify({
+      theme,
+      canvasLight,
+      language,
+      floatToolbar,
+      floatPalette,
+      toolbarOpen,
+      toolbarOrientation
+    })
   )
 }

@@ -963,24 +963,6 @@ export function PixelCanvas() {
           <span className="mono">PAINT PIXEL</span>
         </div>
       ) : null}
-      {pixelStatus.opaque === 0 ? (
-        <div className="canvas-empty" aria-hidden>
-          <span className="canvas-empty__grid">
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-          </span>
-          <span className="canvas-empty__copy">
-            <span>{t('从右侧取一个颜色，落下第一笔。')}</span>
-          </span>
-        </div>
-      ) : null}
     </div>
   )
 }

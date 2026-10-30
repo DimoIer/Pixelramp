@@ -17,6 +17,54 @@
   min-height: 0;
 }
 
+.column-resizer {
+  width: 4px;
+  flex: none;
+  margin-left: -2px;
+  margin-right: -2px;
+  position: relative;
+  z-index: 20;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.column-resizer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1px;
+  width: 2px;
+  background: transparent;
+  transition: background 120ms ease;
+}
+
+.column-resizer:hover::after,
+.column-resizer:active::after {
+  background: var(--accent-dim);
+}
+
+.toolbar-reopen {
+  position: absolute;
+  z-index: 45;
+  top: 51px;
+  left: 7px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 31px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--text-3);
+  box-shadow: var(--shadow-low);
+}
+
+.toolbar-reopen:hover {
+  color: var(--accent);
+  background: var(--surface-3);
+}
+
 .workspace {
   position: relative;
   display: flex;
@@ -495,6 +543,101 @@
   align-items: center;
   gap: 4px;
   width: 100%;
+}
+
+.tool-rail__controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  margin-bottom: 8px;
+  flex: none;
+}
+
+.rail-control {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 25px;
+  border-radius: 4px;
+  color: var(--text-4);
+}
+
+.rail-control:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.tool-rail.is-horizontal {
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  padding: 6px 8px;
+  gap: 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.tool-rail.is-horizontal .tool-rail__controls {
+  flex-direction: row;
+  width: auto;
+  margin-bottom: 0;
+  gap: 1px;
+}
+
+.tool-rail.is-horizontal .tool-rail__group {
+  flex-direction: row;
+  width: auto;
+  gap: 2px;
+}
+
+.tool-rail.is-horizontal .tool-rail__label {
+  display: none;
+}
+
+.tool-rail.is-horizontal .rail-tool {
+  width: 32px;
+  height: 32px;
+}
+
+.tool-rail.is-horizontal .rail-tool__key {
+  display: none;
+}
+
+.tool-rail.is-horizontal .tool-rail__rule {
+  width: 1px;
+  height: 24px;
+  margin: 0 3px;
+}
+
+.tool-rail.is-horizontal .tool-rail__colors {
+  flex-direction: row;
+  gap: 3px;
+}
+
+.tool-rail.is-horizontal .color-slot--foreground {
+  width: 32px;
+  height: 32px;
+}
+
+.tool-rail.is-horizontal .color-slot--background {
+  width: 27px;
+  height: 27px;
+}
+
+.tool-rail.is-horizontal .tool-rail__spacer {
+  flex: 1;
+}
+
+.tool-rail.is-horizontal .tool-rail__footer {
+  flex-direction: row;
+  margin-top: 0;
+  gap: 4px;
+}
+
+.tool-rail.is-horizontal .rail-status {
+  display: none;
 }
 
 .tool-rail__label {

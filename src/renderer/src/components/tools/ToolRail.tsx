@@ -1,4 +1,4 @@
-import { ArrowLeftRight, CircleHelp, Redo2, Undo2 } from 'lucide-react'
+import { ArrowLeftRight, CircleHelp, Columns3, PanelLeftClose, PictureInPicture2, Redo2, Rows3, Undo2 } from 'lucide-react'
 import clsx from 'clsx'
 import { useShallow } from 'zustand/react/shallow'
 import { useWorkbench } from '../../store/workbench'
@@ -9,7 +9,21 @@ import { ColorPickerPopover } from '../ui/ColorPickerPopover'
 import { TOOLS } from './tools'
 import { useT } from '../../i18n'
 
-export function ToolRail() {
+interface ToolRailProps {
+  floating?: boolean
+  horizontal?: boolean
+  onCollapse?: () => void
+  onFloat?: () => void
+  onToggleOrientation?: () => void
+}
+
+export function ToolRail({
+  floating = false,
+  horizontal = false,
+  onCollapse,
+  onFloat,
+  onToggleOrientation
+}: ToolRailProps) {
   const t = useT()
   const {
     tool,
@@ -43,7 +57,49 @@ export function ToolRail() {
   const openDialog = useUi((state) => state.openDialog)
 
   return (
-    <aside className="tool-rail" aria-label={t('工具与颜色')}>
+    <aside
+      className={clsx('tool-rail', floating && 'is-floating', horizontal && 'is-horizontal')}
+      aria-label={t('工具与颜色')}
+    >
+      <div className="tool-rail__controls">
+        {onCollapse ? (
+          <Tooltip content={t('收起工具栏')} side={horizontal ? 'bottom' : 'right'}>
+            <button type="button" className="rail-control" aria-label={t('收起工具栏')} onClick={onCollapse}>
+              <PanelLeftClose size={14} />
+            </button>
+          </Tooltip>
+        ) : null}
+        {onFloat ? (
+          <Tooltip
+            content={floating ? t('停靠工具栏') : t('悬浮工具栏')}
+            side={horizontal ? 'bottom' : 'right'}
+          >
+            <button
+              type="button"
+              className="rail-control"
+              aria-label={floating ? t('停靠工具栏') : t('悬浮工具栏')}
+              onClick={onFloat}
+            >
+              <PictureInPicture2 size={14} />
+            </button>
+          </Tooltip>
+        ) : null}
+        {floating && onToggleOrientation ? (
+          <Tooltip
+            content={horizontal ? t('纵向排列') : t('横向排列')}
+            side={horizontal ? 'bottom' : 'right'}
+          >
+            <button
+              type="button"
+              className="rail-control"
+              aria-label={horizontal ? t('纵向排列') : t('横向排列')}
+              onClick={onToggleOrientation}
+            >
+              {horizontal ? <Columns3 size={14} /> : <Rows3 size={14} />}
+            </button>
+          </Tooltip>
+        ) : null}
+      </div>
       <div className="tool-rail__group">
         <span className="tool-rail__label eyebrow">{t('工具')}</span>
         {TOOLS.map((entry) => {
