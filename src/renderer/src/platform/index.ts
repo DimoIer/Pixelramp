@@ -21,7 +21,7 @@ const desktop: DesktopApi | undefined = tauriRuntime ? createTauriDesktop() : un
 
 export const isDesktop = !!desktop
 
-export const platformVersion = (): string => desktop?.version || '0.2.12'
+export const platformVersion = (): string => desktop?.version || '0.2.13'
 
 export function onMaximizedChange(callback: (maximized: boolean) => void): () => void {
   return desktop?.window.onMaximizedChange(callback) ?? (() => undefined)

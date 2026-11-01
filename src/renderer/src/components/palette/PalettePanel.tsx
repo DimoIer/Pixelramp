@@ -53,7 +53,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   const [sectionOrder, setSectionOrder] = useState<'generator' | 'active'>('generator')
   const paletteRef = useRef<HTMLElement>(null)
   const sectionDrag = useRef<{
-    section: 'generator' | 'active'
+    section: 'wheel' | 'generator' | 'active'
     pointerId: number
     startX: number
     startY: number
@@ -97,7 +97,7 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
   }
 
   const startSectionPress = (
-    section: 'generator' | 'active',
+    section: 'wheel' | 'generator' | 'active',
     event: ReactPointerEvent<HTMLDivElement>
   ): void => {
     const target = event.target as Element
@@ -144,10 +144,22 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
       ?.closest('[data-section]')
       ?.getAttribute('data-section')
     if (droppedOn && droppedOn !== current.section) {
+      if (current.section === 'wheel') return
       setSectionOrder(current.section === 'generator' ? 'active' : 'generator')
       return
     }
     if (!overPalette(event.clientX, event.clientY)) {
+      if (current.section === 'wheel') {
+        const rect = current.source.getBoundingClientRect()
+        setWheelSpawn({
+          x: event.clientX - 34,
+          y: event.clientY - 18,
+          width: rect.width,
+          height: rect.height
+        })
+        setWheelFloating(true)
+        return
+      }
       if (current.section === 'generator') {
         const rect = current.source.getBoundingClientRect()
         setGeneratorDockHeight(rect.height)
@@ -232,7 +244,14 @@ export function PalettePanel({ open, onClose, onFloat, floating = false }: Palet
       </header>
       <div className="palette-panel__scroll">
         {!wheelFloating ? (
-          <div className="palette-section" data-section="wheel">
+          <div
+            className="palette-section"
+            data-section="wheel"
+            onPointerDown={(event) => startSectionPress('wheel', event)}
+            onPointerMove={moveSectionPress}
+            onPointerUp={endSectionPress}
+            onPointerCancel={(event) => endSectionPress(event, true)}
+          >
             <ColorWheelPanel
               collapsed={wheelCollapsed}
               onCollapse={() => setWheelCollapsed((value) => !value)}

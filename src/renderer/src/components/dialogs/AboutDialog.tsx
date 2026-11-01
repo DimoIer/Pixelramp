@@ -58,7 +58,7 @@ export function AboutDialog() {
           </div>
           <p>{t('面向 Minecraft 材质创作的像素画与调色工作台。')}</p>
           <div className="about-hero__meta mono">
-            <span>{t('版本 {version}', { version: version || '0.2.12' })}</span>
+            <span>{t('版本 {version}', { version: version || '0.2.13' })}</span>
             <span>{isDesktop ? t('桌面版') : t('网页预览')}</span>
             <span>{t('本地优先')}</span>
           </div>
