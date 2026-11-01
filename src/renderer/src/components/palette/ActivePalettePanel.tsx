@@ -377,6 +377,7 @@ export function ActivePalettePanel({
   onFloat?: () => void
 }) {
   const t = useT()
+  const isCollapsed = collapsed && !floating
   const {
     palette,
     paletteDirty,
@@ -478,11 +479,11 @@ export function ActivePalettePanel({
   return (
     <section
       ref={sectionRef}
-      className={clsx('panel-section active-palette', collapsed && 'is-collapsed')}
+      className={clsx('panel-section active-palette', isCollapsed && 'is-collapsed')}
     >
       <SectionHead
         title={t('当前调色卡')}
-        collapsed={collapsed}
+        collapsed={isCollapsed}
         floating={floating}
         onCollapse={onCollapse}
         onFloat={onFloat}

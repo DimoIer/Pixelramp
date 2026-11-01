@@ -53,6 +53,7 @@ export function GeneratorPanel({
   onFloat
 }: GeneratorPanelProps) {
   const t = useT()
+  const isCollapsed = collapsed && !floating
   const {
     rampParams,
     updateRampParams,
@@ -110,7 +111,7 @@ export function GeneratorPanel({
   const highPercent = Math.round(rampParams.lightnessRange[1] * 100)
 
   return (
-    <section className={clsx('panel-section generator', collapsed && 'is-collapsed')}>
+    <section className={clsx('panel-section generator', isCollapsed && 'is-collapsed')}>
       <SectionHead
         title={t('色阶生成器')}
         aside={<span className="mode-pill mono">{rampParams.colorSpace}</span>}
@@ -160,7 +161,7 @@ export function GeneratorPanel({
             </DropdownMenu.Root>
           </div>
         }
-        collapsed={collapsed}
+        collapsed={isCollapsed}
         floating={floating}
         onCollapse={onCollapse}
         onFloat={onFloat}

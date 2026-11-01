@@ -80,6 +80,7 @@ export function ColorWheelPanel({
   floating = false
 }: ColorWheelPanelProps) {
   const t = useT()
+  const isCollapsed = collapsed && !floating
   const toast = useUi((state) => state.toast)
   const {
     foreground,
@@ -278,10 +279,10 @@ export function ColorWheelPanel({
   }
 
   return (
-    <section className={clsx('panel-section', 'color-wheel-section', collapsed && 'is-collapsed')}>
+    <section className={clsx('panel-section', 'color-wheel-section', isCollapsed && 'is-collapsed')}>
       <SectionHead
         title={t('调色盘')}
-        collapsed={collapsed}
+        collapsed={isCollapsed}
         floating={floating}
         onCollapse={onCollapse}
         onFloat={onFloat}
